@@ -14,6 +14,8 @@ public interface VisitAcceptor {
      * to notify the visitor that it has entered this entity, and
      * to provide it with the proper callbacks for each sub-entity owned
      * by this one.
+     * 
+     * @param visitor the {@link BCVisitor} interface
      */
     public void acceptVisit(BCVisitor visitor);
 }

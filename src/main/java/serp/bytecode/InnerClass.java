@@ -25,6 +25,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Inner classes are stored in an {@link InnerClasses} attribute.
+     * 
+     * @return the attribute owner
      */
     public InnerClasses getOwner() {
         return _owner;
@@ -40,6 +42,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Return the access flags of the inner class.
+     * 
+     * @return the access flags
      */
     public int getAccessFlags() {
         return _access;
@@ -47,6 +51,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the access flags of the inner class.
+     * 
+     * @param accessFlags the access flags to set
      */
     public void setAccessFlags(int accessFlags) {
         _access = accessFlags;
@@ -54,6 +60,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if public
      */
     public boolean isPublic() {
         return (getAccessFlags() & Constants.ACCESS_PUBLIC) > 0;
@@ -70,6 +78,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if protected
      */
     public boolean isProtected() {
         return (getAccessFlags() & Constants.ACCESS_PROTECTED) > 0;
@@ -86,6 +96,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if private
      */
     public boolean isPrivate() {
         return (getAccessFlags() & Constants.ACCESS_PRIVATE) > 0;
@@ -102,6 +114,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if final
      */
     public boolean isFinal() {
         return (getAccessFlags() & Constants.ACCESS_FINAL) > 0;
@@ -109,6 +123,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @param on the boolean flag
      */
     public void setFinal(boolean on) {
         if (on)
@@ -119,6 +135,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if static
      */
     public boolean isStatic() {
         return (getAccessFlags() & Constants.ACCESS_STATIC) > 0;
@@ -126,6 +144,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @param on the boolean flag
      */
     public void setStatic(boolean on) {
         if (on)
@@ -136,6 +156,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if interface
      */
     public boolean isInterface() {
         return (getAccessFlags() & Constants.ACCESS_INTERFACE) > 0;
@@ -143,6 +165,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @param on the boolean flag
      */
     public void setInterface(boolean on) {
         if (on) {
@@ -154,6 +178,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if abstract
      */
     public boolean isAbstract() {
         return (getAccessFlags() & Constants.ACCESS_ABSTRACT) > 0;
@@ -161,6 +187,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @param on the boolean flag
      */
     public void setAbstract(boolean on) {
         if (on)
@@ -171,6 +199,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if synthetic
      */
     public boolean isSynthetic() {
         return (getAccessFlags() & Constants.ACCESS_SYNTHETIC) > 0;
@@ -178,6 +208,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @param on the boolean flag
      */
     public void setSynthetic(boolean on) {
         if (on)
@@ -188,6 +220,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if annotation
      */
     public boolean isAnnotation() {
         return (getAccessFlags() & Constants.ACCESS_ANNOTATION) > 0;
@@ -196,6 +230,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
     /**
      * Manipulate the inner class access flags.  Setting to true also makes this
      * an interface.
+     * 
+     * @param on the boolean flag
      */
     public void setAnnotation(boolean on) {
         if (on) {
@@ -207,6 +243,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @return true if enum
      */
     public boolean isEnum() {
         return (getAccessFlags() & Constants.ACCESS_ENUM) > 0;
@@ -214,6 +252,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Manipulate the inner class access flags.
+     * 
+     * @param on the boolean flag
      */
     public void setEnum(boolean on) {
         if (on)
@@ -230,6 +270,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
      * Return the {@link ConstantPool} index of the {@link UTF8Entry} that
      * describes the simple name this class is referred to in source, or
      * 0 for anonymous classes.
+     * 
+     * @return the {@link ConstantPool} index
      */
     public int getNameIndex() {
         return _nameIndex;
@@ -239,6 +281,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
      * Set the {@link ConstantPool} index of the {@link UTF8Entry} that
      * describes the simple name this class is referred to in source, or
      * 0 for anonymous classes.
+     * 
+     * @param nameIndex the {@link ConstantPool} index
      */
     public void setNameIndex(int nameIndex) {
         _nameIndex = nameIndex;
@@ -246,6 +290,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Return the simple name of this inner class, or null if anonymous.
+     * 
+     * @return the simple name of this inner class, or null if anonymous
      */
     public String getName() {
         if (getNameIndex() == 0)
@@ -255,6 +301,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the simple name of this inner class.
+     * 
+     * @param name the name to set
      */
     public void setName(String name) {
         if (name == null)
@@ -263,10 +311,13 @@ public class InnerClass implements BCEntity, VisitAcceptor {
             setNameIndex(getPool().findUTF8Entry(name, true));
     }
 
-    /**
-     * Return the {@link ConstantPool} index of the {@link ClassEntry} that
-     * describes this class, or 0 if none.
-     */
+	/**
+	 * Return the {@link ConstantPool} index of the {@link ClassEntry} that
+	 * describes this class, or 0 if none.
+	 * 
+	 * @return the {@link ConstantPool} index of the {@link ClassEntry} that
+	 *         describes this class, or 0 if none
+	 */
     public int getTypeIndex() {
         return _index;
     }
@@ -274,6 +325,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
     /**
      * Set the {@link ConstantPool} index of the {@link ClassEntry} that
      * describes this class.
+     * 
+     * @param index the {@link ConstantPool} index
      */
     public void setTypeIndex(int index) {
         _index = index;
@@ -281,6 +334,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Return the full name of the inner class, or null if unset.
+     * 
+     * @return the full name of the inner class, or null if unset
      */
     public String getTypeName() {
         if (getTypeIndex() == 0)
@@ -293,18 +348,24 @@ public class InnerClass implements BCEntity, VisitAcceptor {
     /**
      * Return the type of the inner class.
      * If the type has not been set, this method will return null.
+     * 
+	 * @return the type of the inner class. If the type has not been set, this
+	 *         method will return null
      */
-    public Class getType() {
+    public Class<?> getType() {
         String type = getTypeName();
         if (type == null)
             return null;
         return Strings.toClass(type, getClassLoader());
     }
 
-    /**
-     * Return the type for this instruction.
-     * If the type has not been set, this method will return null.
-     */
+	/**
+	 * Return the type of the inner class. If the type has not been set, this
+	 * method will return null.
+	 * 
+	 * @return the type of the inner class. If the type has not been set, this
+	 *         method will return null
+	 */
     public BCClass getTypeBC() {
         String type = getTypeName();
         if (type == null)
@@ -314,6 +375,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the type of this inner class.
+     * 
+     * @param type the type to set
      */
     public void setType(String type) {
         if (type == null)
@@ -326,8 +389,10 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the type of this inner class.
+     * 
+     * @param type the type to set
      */
-    public void setType(Class type) {
+    public void setType(Class<?> type) {
         if (type == null)
             setType((String) null);
         else
@@ -336,6 +401,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the type of this inner class.
+     * 
+     * @param type the type to set
      */
     public void setType(BCClass type) {
         if (type == null)
@@ -347,6 +414,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
     /**
      * Return the {@link ConstantPool} index of the {@link ClassEntry} that
      * describes the declaring class, or 0 if this class is not a member class.
+     * 
+     * @return the {@link ConstantPool} index
      */
     public int getDeclarerIndex() {
         return _ownerIndex;
@@ -355,15 +424,18 @@ public class InnerClass implements BCEntity, VisitAcceptor {
     /**
      * Set the {@link ConstantPool} index of the {@link ClassEntry} that
      * describes the declaring class, or 0 if this class is not a member class.
+     * 
+     * @param ownerIndex the {@link ConstantPool} index
      */
     public void setDeclarerIndex(int ownerIndex) {
         _ownerIndex = ownerIndex;
     }
 
-    /**
-     * Return the full name of the declaring class, or null if unset/not a
-     * member.
-     */
+	/**
+	 * Return the full name of the declaring class, or null if unset/not a member.
+	 * 
+	 * @return the full name of the declaring class, or null if unset/not a member
+	 */
     public String getDeclarerName() {
         if (getDeclarerIndex() == 0)
             return null;
@@ -376,8 +448,10 @@ public class InnerClass implements BCEntity, VisitAcceptor {
      * Return the type of the declaring class.
      * If the type has not been set or the class is not a member, this method
      * will return null.
+     * 
+     * @return the type of the declaring class
      */
-    public Class getDeclarerType() {
+    public Class<?> getDeclarerType() {
         String type = getDeclarerName();
         if (type == null)
             return null;
@@ -388,6 +462,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
      * Return the type for this instruction.
      * If the type has not been set or the class is not a member, this method
      * will return null.
+     * 
+     * @return the type of the declaring class
      */
     public BCClass getDeclarerBC() {
         String type = getDeclarerName();
@@ -398,6 +474,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the type of this declaring class.
+     * 
+     * @param type the type of this declaring class
      */
     public void setDeclarer(String type) {
         if (type == null)
@@ -410,8 +488,10 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the type of this declaring class.
+     * 
+     * @param type the type of this declaring class
      */
-    public void setDeclarer(Class type) {
+    public void setDeclarer(Class<?> type) {
         if (type == null)
             setDeclarer((String) null);
         else
@@ -420,6 +500,8 @@ public class InnerClass implements BCEntity, VisitAcceptor {
 
     /**
      * Set the type of this declaring class.
+     * 
+     * @param type the type of this declaring class
      */
     public void setDeclarer(BCClass type) {
         if (type == null)

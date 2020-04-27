@@ -6,13 +6,13 @@ import serp.bytecode.visitor.*;
 
 /**
  * The <code>wide</code> instruction, which is used to allow other
- * instructions to index values beyond what they can normally index baed
+ * instructions to index values beyond what they can normally index based
  * on the length of their arguments.
  *
  * @author Abe White
  */
 public class WideInstruction extends LocalVariableInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { byte.class, int.class },
         { boolean.class, int.class },
         { char.class, int.class },
@@ -147,16 +147,22 @@ public class WideInstruction extends LocalVariableInstruction {
         }
     }
 
-    /**
-     * Return the opcode of the instruction to modify; this will return one
-     * of the constants defined in {@link Constants}.
-     */
+	/**
+	 * Return the opcode of the instruction to modify; this will return one of the
+	 * constants defined in {@link Constants}.
+	 * 
+	 * @return the opcode of the instruction to modify; this will return one of the
+	 *         constants defined in {@link Constants}
+	 */
     public int getInstruction() {
         return _ins;
     }
 
     /**
      * Set the type of instruction this wide instruction modifies.
+     * 
+     * @param ins the type of instruction
+     * @return the modified instruction
      */
     public WideInstruction setInstruction(Instruction ins) {
         if (ins == null)
@@ -169,6 +175,9 @@ public class WideInstruction extends LocalVariableInstruction {
 
     /**
      * Set the type of instruction this wide instruction modifies.
+     * 
+     * @param opcode the type of instruction
+     * @return the modified instruction
      */
     public WideInstruction setInstruction(int opcode) {
         int len = getLength();
@@ -286,10 +295,13 @@ public class WideInstruction extends LocalVariableInstruction {
         return setInstruction(Constants.DSTORE);
     }
 
-    /**
-     * Return the increment for this instruction if it augments IINC, or -1
-     * if unset.
-     */
+	/**
+	 * Return the increment for this instruction if it augments IINC, or -1 if
+	 * unset.
+	 * 
+	 * @return the increment for this instruction if it augments IINC, or -1 if
+	 *         unset
+	 */
     public int getIncrement() {
         return _inc;
     }
@@ -297,6 +309,7 @@ public class WideInstruction extends LocalVariableInstruction {
     /**
      * Set the increment on this instruction if it augments IINC.
      *
+     * @param val the increment
      * @return this Instruction, for method chaining
      */
     public WideInstruction setIncrement(int val) {
@@ -307,6 +320,9 @@ public class WideInstruction extends LocalVariableInstruction {
     /**
      * WideInstructions are equal if the instruction they augment is the same
      * or unset.
+     * 
+     * @param other the instruction to compare
+     * @return true if the instruction is the same or unset
      */
     public boolean equalsInstruction(Instruction other) {
         if (other == this)

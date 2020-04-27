@@ -23,6 +23,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Return the {@link BCClass} that declares this member.
+     * 
+     * @return the class that declares this member
      */
     public BCClass getDeclarer() {
         return _owner;
@@ -37,6 +39,8 @@ public abstract class BCMember extends Annotated {
      * ACCESS_XXX constants from {@link Constants}. This can be used to
      * transfer access flags between members without getting/setting each
      * possible access flag. Defaults to {@link Constants#ACCESS_PRIVATE}
+     * 
+     * @return access flags
      */
     public int getAccessFlags() {
         return _access;
@@ -47,6 +51,8 @@ public abstract class BCMember extends Annotated {
      * ACCESS_XXX constants from {@link Constants}. This can be used to
      * transfer access flags between members without getting/setting each
      * possible access flag. Defaults to {@link Constants#ACCESS_PRIVATE}
+     * 
+     * @param access access value
      */
     public void setAccessFlags(int access) {
         _access = access;
@@ -54,6 +60,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @return true if public
      */
     public boolean isPublic() {
         return (getAccessFlags() & Constants.ACCESS_PUBLIC) > 0;
@@ -70,6 +78,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @return true if protected
      */
     public boolean isProtected() {
         return (getAccessFlags() & Constants.ACCESS_PROTECTED) > 0;
@@ -86,6 +96,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @return true if private
      */
     public boolean isPrivate() {
         return (getAccessFlags() & Constants.ACCESS_PRIVATE) > 0;
@@ -102,6 +114,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @return true if package
      */
     public boolean isPackage() {
         boolean hasAccess = false;
@@ -122,6 +136,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @return true if final
      */
     public boolean isFinal() {
         return (getAccessFlags() & Constants.ACCESS_FINAL) > 0;
@@ -129,6 +145,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @param on boolean flag
      */
     public void setFinal(boolean on) {
         if (on)
@@ -139,6 +157,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @return true if static
      */
     public boolean isStatic() {
         return (getAccessFlags() & Constants.ACCESS_STATIC) > 0;
@@ -146,6 +166,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Manipulate the member access flags.
+     * 
+     * @param on boolean flag
      */
     public void setStatic(boolean on) {
         if (on)
@@ -157,6 +179,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Manipulate the field access flags.  This method also checks the synthetic
      * member attribute.
+     * 
+     * @return true if synthetic
      */
     public boolean isSynthetic() {
         return (getAccessFlags() & Constants.ACCESS_SYNTHETIC) > 0
@@ -166,6 +190,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Manipulate the field access flags.  This method also manipulates the
      * synthetic member attribute.
+     * 
+     * @param on boolean flag
      */
     public void setSynthetic(boolean on) {
         if (on) {
@@ -184,6 +210,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Return the index in the class {@link ConstantPool} of the
      * {@link UTF8Entry} holding the name of this member.
+     * 
+     * @return the name index
      */
     public int getNameIndex() {
         return _nameIndex;
@@ -192,6 +220,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Set the index in the class {@link ConstantPool} of the
      * {@link UTF8Entry} holding the name of this member.
+     * 
+     * @param index the name index
      */
     public void setNameIndex(int index) {
         String origName = getName();
@@ -203,6 +233,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Return the index in the class {@link ConstantPool} of the
      * {@link UTF8Entry} holding the descriptor of this member.
+     * 
+     * @return the index
      */
     public int getDescriptorIndex() {
         return _descriptorIndex;
@@ -211,6 +243,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Set the index in the class {@link ConstantPool} of the
      * {@link UTF8Entry} holding the descriptor of this member.
+     * 
+     * @param index the descriptor index
      */
     public void setDescriptorIndex(int index) {
         String origDesc = getDescriptor();
@@ -221,6 +255,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Return the name of this member.
+     * 
+     * @return the name
      */
     public String getName() {
         return ((UTF8Entry) getPool().getEntry(_nameIndex)).getValue();
@@ -228,6 +264,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Set the name of this member.
+     * 
+     * @param name the name to set
      */
     public void setName(String name) {
         String origName = getName();
@@ -239,6 +277,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Return the descriptor of this member, in internal form.
+     * 
+     * @return the descriptor
      */
     public String getDescriptor() {
         return ((UTF8Entry) getPool().getEntry(_descriptorIndex)).getValue();
@@ -246,6 +286,8 @@ public abstract class BCMember extends Annotated {
 
     /**
      * Set the descriptor of this member.
+     * 
+	 * @param desc descriptor
      */
     public void setDescriptor(String desc) {
         String origDesc = getDescriptor();
@@ -256,11 +298,14 @@ public abstract class BCMember extends Annotated {
         setEntry(getName(), origDesc);
     }
 
-    /**
-     * Resets the {@link ComplexEntry} of the owning class corresponding to
-     * this member. Changes in the member will therefore propogate to all
-     * code in the class.
-     */
+	/**
+	 * Resets the {@link ComplexEntry} of the owning class corresponding to this
+	 * member. Changes in the member will therefore propagate to all code in the
+	 * class.
+	 * 
+	 * @param origName name
+	 * @param origDesc descriptor
+	 */
     private void setEntry(String origName, String origDesc) {
         // find the entry matching this member, if any
         String owner = getProject().getNameCache().getInternalForm
@@ -294,6 +339,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Convenience method to return deprecation information for the member.
      * Acts internally through the {@link Attributes} interface.
+     * 
+     * @return true if deprecated
      */
     public boolean isDeprecated() {
         return getAttribute(Constants.ATTR_DEPRECATED) != null;
@@ -302,6 +349,8 @@ public abstract class BCMember extends Annotated {
     /**
      * Convenience method to set whether this member should be considered
      * deprecated. Acts internally through the {@link Attributes} interface.
+     * 
+     * @param on boolean flag
      */
     public void setDeprecated(boolean on) {
         if (!on)

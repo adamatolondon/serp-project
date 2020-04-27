@@ -1,23 +1,22 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link LoadInstruction} type.
  *
  * @author Abe White
  */
-public class TestLoadInstruction extends TestCase {
+public class TestLoadInstruction {
     private Code _code = new Code();
-
-    public TestLoadInstruction(String test) {
-        super(test);
-    }
 
     /**
      * Test that the instruction intitializes correctly when generated.
      */
+    @Test
     public void testInitialize() {
         assertEquals(Constants.NOP, _code.xload().getOpcode());
         assertNull(_code.xload().getType());
@@ -36,6 +35,7 @@ public class TestLoadInstruction extends TestCase {
     /**
      * Test that the instruction returns its type correctly.
      */
+    @Test
     public void testGetType() {
         LoadInstruction ins = _code.xload();
         assertNull(ins.getType());
@@ -81,6 +81,7 @@ public class TestLoadInstruction extends TestCase {
      * Test that the opcode is morphed correctly when the type and local
      * of the instruction are changed.
      */
+    @Test
     public void testOpcodeMorph() {
         LoadInstruction ins = _code.xload();
 
@@ -152,11 +153,4 @@ public class TestLoadInstruction extends TestCase {
         assertEquals(4, ins.getLocal());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestLoadInstruction.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

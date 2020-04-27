@@ -53,6 +53,7 @@ public interface Constants {
     public static final String ATTR_ANNOTATIONS = "RuntimeInvisibleAnnotations";
     public static final String ATTR_RUNTIME_ANNOTATIONS = "RuntimeVisibleAnnotations";
     public static final String ATTR_BOOTSTRAP_METHODS = "BootstrapMethods";
+    public static final String ATTR_STACK_MAP_TABLE = "StackMapTable";
 
     // Method Handle Reference Kind Values
     public static final int METHODHANDLE_REF_GETFIELD         = 1;

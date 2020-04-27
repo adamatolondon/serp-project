@@ -1,26 +1,26 @@
 package serp.bytecode.lowlevel;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link ConstantPool} type.
  *
  * @author Abe White
  */
-public class TestConstantPool extends TestCase {
+public class TestConstantPool {
     private ConstantPool _pool = new ConstantPool();
     private IntEntry _intEntry = new IntEntry(1);
     private LongEntry _longEntry = new LongEntry(2L);
     private UTF8Entry _utf8Entry = new UTF8Entry("4");
 
-    public TestConstantPool(String test) {
-        super(test);
-    }
-
     /**
      * Tests adding entries.
      */
+    @Test
     public void testAdd() {
         assertEquals(0, _pool.size());
         assertEquals(1, _pool.addEntry(_intEntry));
@@ -61,6 +61,7 @@ public class TestConstantPool extends TestCase {
     /**
      * Tests removing entries.
      */
+    @Test
     public void testRemove() {
         _pool.addEntry(_intEntry);
         _pool.addEntry(_longEntry);
@@ -94,6 +95,7 @@ public class TestConstantPool extends TestCase {
     /**
      * Tests mutating entries.
      */
+    @Test
     public void testMutate() {
         _intEntry.setValue(2);
         _pool.addEntry(_intEntry);
@@ -116,6 +118,7 @@ public class TestConstantPool extends TestCase {
     /**
      * Tests finding the index of entries.
      */
+    @Test
     public void testIndexOf() {
         _pool.addEntry(_intEntry);
         _pool.addEntry(_longEntry);
@@ -134,6 +137,7 @@ public class TestConstantPool extends TestCase {
     /**
      * Tests getting all entries.
      */
+    @Test
     public void testGetEntries() {
         _pool.addEntry(_intEntry);
         _pool.addEntry(_longEntry);
@@ -152,6 +156,7 @@ public class TestConstantPool extends TestCase {
     /**
      * Tests getting entries by index.
      */
+    @Test
     public void testGetEntry() {
         _pool.addEntry(_intEntry);
         _pool.addEntry(_longEntry);
@@ -183,6 +188,7 @@ public class TestConstantPool extends TestCase {
     /**
      * Test clearing the pool.
      */
+    @Test
     public void testClear() {
         // make sure clearing empty pool OK
         _pool.clear();
@@ -201,6 +207,7 @@ public class TestConstantPool extends TestCase {
     /**
      * Test finding entry indexes.
      */
+    @Test
     public void testFind() {
         int double1 = _pool.addEntry(new DoubleEntry(1D));
         int double2 = _pool.addEntry(new DoubleEntry(2D));
@@ -327,13 +334,5 @@ public class TestConstantPool extends TestCase {
             _pool.findInterfaceMethodEntry("1", "3", "6", true));
         assertEquals(_pool.size() + 6,
             _pool.findInterfaceMethodEntry("kkk", "lll", "mmm", true));
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestConstantPool.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
     }
 }

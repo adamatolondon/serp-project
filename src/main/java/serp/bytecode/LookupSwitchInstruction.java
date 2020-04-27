@@ -13,8 +13,8 @@ import serp.util.*;
  */
 public class LookupSwitchInstruction extends JumpInstruction {
     // case info
-    private List _matches = new LinkedList();
-    private List _cases = new LinkedList();
+    private List<Number> _matches = new LinkedList<>();
+    private List<InstructionPtrStrategy> _cases = new LinkedList<>();
 
     LookupSwitchInstruction(Code owner) {
         super(owner, Constants.LOOKUPSWITCH);
@@ -44,6 +44,8 @@ public class LookupSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #getTarget}.
+     * 
+     * @return the default target
      */
     public Instruction getDefaultTarget() {
         return getTarget();
@@ -51,6 +53,9 @@ public class LookupSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #setTarget}.
+     * 
+     * @param ins the instruction to set
+     * @return the modified instruction
      */
     public LookupSwitchInstruction setDefaultTarget(Instruction ins) {
         return (LookupSwitchInstruction) setTarget(ins);
@@ -58,6 +63,8 @@ public class LookupSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #getOffset}.
+     * 
+     * @return the default offset
      */
     public int getDefaultOffset() {
         return getOffset();
@@ -65,17 +72,22 @@ public class LookupSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #setOffset}.
+     * 
+     * @param offset the default offset
+     * @return the modified instruction
      */
     public LookupSwitchInstruction setDefaultOffset(int offset) {
         setOffset(offset);
         return this;
     }
 
-    /**
-     * Set the match-jumppt pairs for this switch.
-     *
-     * @return this instruction, for method chaining
-     */
+	/**
+	 * Set the match-jumppt pairs for this switch.
+	 *
+	 * @param matches the index matches
+	 * @param targets the target instructions
+	 * @return this instruction, for method chaining
+	 */
     public LookupSwitchInstruction setCases(int[] matches, 
         Instruction[] targets) {
         _matches.clear();
@@ -102,10 +114,12 @@ public class LookupSwitchInstruction extends JumpInstruction {
 
     /**
      * Return the values of the case statements for this switch.
+     * 
+     * @return the values of the case statements for this switch
      */
     public int[] getMatches() {
         int[] matches = new int[_matches.size()];
-        Iterator itr = _matches.iterator();
+        Iterator<Number> itr = _matches.iterator();
         for (int i = 0; i < matches.length; i++)
             matches[i] = ((Integer) itr.next()).intValue();
         return matches;
@@ -113,6 +127,8 @@ public class LookupSwitchInstruction extends JumpInstruction {
 
     /**
      * Return the targets of the case statements for this switch.
+     * 
+     * @return the targets of the case statements for this switch
      */
     public Instruction[] getTargets() {
         Instruction[] result = new Instruction[_cases.size()];
@@ -122,11 +138,13 @@ public class LookupSwitchInstruction extends JumpInstruction {
         return result;
     }
 
-    /**
-     * Add a case to this switch.
-     *
-     * @return this instruction, for method chaining
-     */
+	/**
+	 * Add a case to this switch.
+	 *
+	 * @param match  the match index
+	 * @param target the target instruction
+	 * @return this instruction, for method chaining
+	 */
     public LookupSwitchInstruction addCase(int match, Instruction target) {
         _matches.add(Numbers.valueOf(match));
         _cases.add(new InstructionPtrStrategy(this, target));
@@ -134,10 +152,10 @@ public class LookupSwitchInstruction extends JumpInstruction {
         return this;
     }
 
-    private Instruction findJumpPoint(int jumpByteIndex, List inss) {
+    private Instruction findJumpPoint(int jumpByteIndex, List<Instruction> inss) {
         Instruction ins;
-        for (Iterator itr = inss.iterator(); itr.hasNext();) {
-            ins = (Instruction) itr.next();
+        for (Iterator<Instruction> itr = inss.iterator(); itr.hasNext();) {
+            ins = itr.next();
             if (ins.getByteIndex() == jumpByteIndex)
                 return ins;
         }
@@ -146,14 +164,14 @@ public class LookupSwitchInstruction extends JumpInstruction {
 
     public void updateTargets() {
         super.updateTargets();
-        for (Iterator itr = _cases.iterator(); itr.hasNext();)
-            ((InstructionPtrStrategy) itr.next()).updateTargets();
+        for (Iterator<InstructionPtrStrategy> itr = _cases.iterator(); itr.hasNext();)
+            itr.next().updateTargets();
     }
 
     public void replaceTarget(Instruction oldTarget, Instruction newTarget) {
         super.replaceTarget(oldTarget, newTarget);
-        for (Iterator itr = _cases.iterator(); itr.hasNext();)
-            ((InstructionPtrStrategy) itr.next()).replaceTarget(oldTarget,
+        for (Iterator<InstructionPtrStrategy> itr = _cases.iterator(); itr.hasNext();)
+            itr.next().replaceTarget(oldTarget,
                 newTarget);
     }
 
@@ -166,10 +184,10 @@ public class LookupSwitchInstruction extends JumpInstruction {
         super.read(orig);
 
         LookupSwitchInstruction ins = (LookupSwitchInstruction) orig;
-        _matches = new LinkedList(ins._matches);
+        _matches = new LinkedList<>(ins._matches);
         _cases.clear();
-        for (Iterator itr = ins._cases.iterator(); itr.hasNext();) {
-            InstructionPtrStrategy origPtr = (InstructionPtrStrategy)itr.next();
+        for (Iterator<InstructionPtrStrategy> itr = ins._cases.iterator(); itr.hasNext();) {
+            InstructionPtrStrategy origPtr = itr.next();
             InstructionPtrStrategy newPtr = new InstructionPtrStrategy(this);
             newPtr.setByteIndex(origPtr.getByteIndex());
             _cases.add(newPtr);

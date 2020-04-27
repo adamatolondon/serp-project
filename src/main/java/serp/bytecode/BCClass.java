@@ -42,6 +42,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Set the class state. For use by the owning project only.
+     * 
+     * @param state the state to set
      */
     void setState(State state) {
         _state = state;
@@ -62,6 +64,9 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Initialize from the class definition in the given file. For use by
      * the owning project only.
+     * 
+	 * @param classFile the file to read from
+	 * @param loader    the class loader
      */
     void read(File classFile, ClassLoader loader) throws IOException {
         InputStream in = new FileInputStream(classFile);
@@ -72,10 +77,13 @@ public class BCClass extends Annotated implements VisitAcceptor {
         }
     }
 
-    /**
-     * Initialize from the class definition in the given stream. For use by
-     * the owning project only.
-     */
+	/**
+	 * Initialize from the class definition in the given stream. For use by the
+	 * owning project only.
+	 * 
+	 * @param instream the stream to read from
+	 * @param loader   the class loader
+	 */
     void read(InputStream instream, ClassLoader loader)
         throws IOException {
         DataInput in = new DataInputStream(instream);
@@ -95,14 +103,14 @@ public class BCClass extends Annotated implements VisitAcceptor {
         _state.setIndex(in.readUnsignedShort());
         _state.setSuperclassIndex(in.readUnsignedShort());
 
-        List interfaces = _state.getInterfacesHolder();
+        List<Number> interfaces = _state.getInterfacesHolder();
         interfaces.clear();
         int interfaceCount = in.readUnsignedShort();
         for (int i = 0; i < interfaceCount; i++)
             interfaces.add(Numbers.valueOf(in.readUnsignedShort()));
 
         // fields
-        List fields = _state.getFieldsHolder();
+        List<BCField> fields = _state.getFieldsHolder();
         fields.clear();
         int fieldCount = in.readUnsignedShort();
         BCField field;
@@ -113,7 +121,7 @@ public class BCClass extends Annotated implements VisitAcceptor {
         }
 
         // methods
-        List methods = _state.getMethodsHolder();
+        List<BCMethod> methods = _state.getMethodsHolder();
         methods.clear();
         int methodCount = in.readUnsignedShort();
         BCMethod method;
@@ -130,8 +138,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Initialize from the bytecode of the definition of the given class.
      * For use by the owning project only.
+     * 
+     * @param type the input class
      */
-    void read(Class type) throws IOException {
+    void read(Class<?> type) throws IOException {
         // find out the length of the package name
         int dotIndex = type.getName().lastIndexOf('.') + 1;
 
@@ -150,6 +160,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Initialize from the given parsed bytecode.
      * For use by the owning project only.
+     * 
+     * @param orig the bytecode class
      */
     void read(BCClass orig) {
         try {
@@ -166,12 +178,14 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Write the class bytecode to the .class file in the proper directory of
      * the CLASSPATH. The file must exist already, so this method only works
      * on existing classes.
+     * 
+     * @throws IOException stream handling exception
      */
     public void write() throws IOException {
         String name = getName();
         int dotIndex = name.lastIndexOf('.') + 1;
         name = name.substring(dotIndex);
-        Class type = getType();
+        Class<?> type = getType();
 
         // attempt to get the class file for the class as a stream;
         // we need to use the url decoder in case the target directory
@@ -187,6 +201,9 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Write the class bytecode to the specified file.
+     * 
+     * @param classFile the {@link File} object
+     * @throws IOException stream exception handling
      */
     public void write(File classFile) throws IOException {
         OutputStream out = new FileOutputStream(classFile);
@@ -199,6 +216,9 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Write the class bytecode to the specified stream.
+     * 
+     * @param outstream the {@link OutputStream} object
+     * @throws IOException stream exception handling
      */
     public void write(OutputStream outstream) throws IOException {
         DataOutput out = new DataOutputStream(outstream);
@@ -219,22 +239,22 @@ public class BCClass extends Annotated implements VisitAcceptor {
         out.writeShort(_state.getSuperclassIndex());
 
         // interfaces
-        List interfaces = _state.getInterfacesHolder();
+        List<Number> interfaces = _state.getInterfacesHolder();
         out.writeShort(interfaces.size());
-        for (Iterator itr = interfaces.iterator(); itr.hasNext();)
-            out.writeShort(((Number) itr.next()).intValue());
+        for (Iterator<Number> itr = interfaces.iterator(); itr.hasNext();)
+            out.writeShort(itr.next().intValue());
 
         // fields
-        List fields = _state.getFieldsHolder();
+        List<BCField> fields = _state.getFieldsHolder();
         out.writeShort(fields.size());
-        for (Iterator itr = fields.iterator(); itr.hasNext();)
-            ((BCField) itr.next()).write(out);
+        for (Iterator<BCField> itr = fields.iterator(); itr.hasNext();)
+            itr.next().write(out);
 
         // methods
-        List methods = _state.getMethodsHolder();
+        List<BCMethod> methods = _state.getMethodsHolder();
         out.writeShort(methods.size());
-        for (Iterator itr = methods.iterator(); itr.hasNext();)
-            ((BCMethod) itr.next()).write(out);
+        for (Iterator<BCMethod> itr = methods.iterator(); itr.hasNext();)
+            itr.next().write(out);
 
         // attributes
         writeAttributes(out);
@@ -243,6 +263,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return the bytecode of this class as a byte array, possibly for use
      * in a custom {@link ClassLoader}.
+     * 
+     * @return the bytecode of this class as a byte array
      */
     public byte[] toByteArray() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -264,6 +286,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return the magic number for this class; if this is a valid type, this
      * should be equal to {@link Constants#VALID_MAGIC} (the default value).
+     * 
+     * @return the magic number
      */
     public int getMagic() {
         return _state.getMagic();
@@ -272,6 +296,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Set the magic number for this class; if this is a valid type, this
      * should be equal to {@link Constants#VALID_MAGIC} (the default value).
+     * 
+     * @param magic the magic number to set
      */
     public void setMagic(int magic) {
         _state.setMagic(magic);
@@ -281,6 +307,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return the major version of the bytecode spec used for this class.
      * JVMs are only required to operate with versions that they understand;
      * leaving the default value of {@link Constants#MAJOR_VERSION} is safe.
+     * 
+     * @return the major version
      */
     public int getMajorVersion() {
         return _state.getMajorVersion();
@@ -290,6 +318,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Set the major version of the bytecode spec used for this class.
      * JVMs are only required to operate with versions that they understand;
      * leaving the default value of {@link Constants#MAJOR_VERSION} is safe.
+     * 
+     * @param majorVersion the major version to set
      */
     public void setMajorVersion(int majorVersion) {
         _state.setMajorVersion(majorVersion);
@@ -299,6 +329,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Get the minor version of the bytecode spec used for this class.
      * JVMs are only required to operate with versions that they understand;
      * leaving the default value of {@link Constants#MINOR_VERSION} is safe.
+     * 
+     * @return the minor version
      */
     public int getMinorVersion() {
         return _state.getMinorVersion();
@@ -308,6 +340,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Set the minor version of the bytecode spec used for this class.
      * JVMs are only required to operate with versions that they understand;
      * leaving the default value of {@link Constants#MINOR_VERSION} is safe.
+     * 
+     * @param minorVersion the minor version
      */
     public void setMinorVersion(int minorVersion) {
         _state.setMinorVersion(minorVersion);
@@ -318,6 +352,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * ACCESS_XXX constants from {@link Constants}. This can be used to
      * transfer access flags between classes without getting/setting each
      * possible flag.
+     * 
+     * @return the access flags
      */
     public int getAccessFlags() {
         return _state.getAccessFlags();
@@ -328,6 +364,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * ACCESS_XXX constants from {@link Constants}. This can be used to
      * transfer access flags between classes without getting/setting each
      * possible flag.
+     * 
+     * @param access the access flags
      */
     public void setAccessFlags(int access) {
         _state.setAccessFlags(access);
@@ -335,6 +373,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if public
      */
     public boolean isPublic() {
         return (getAccessFlags() & Constants.ACCESS_PUBLIC) > 0;
@@ -349,6 +389,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if it's a package
      */
     public boolean isPackage() {
         return !isPublic();
@@ -363,6 +405,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if final
      */
     public boolean isFinal() {
         return (getAccessFlags() & Constants.ACCESS_FINAL) > 0;
@@ -370,6 +414,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @param on boolean flag
      */
     public void setFinal(boolean on) {
         if (on) 
@@ -380,6 +426,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if interface
      */
     public boolean isInterface() {
         return (getAccessFlags() & Constants.ACCESS_INTERFACE) > 0;
@@ -387,6 +435,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @param on boolean flag
      */
     public void setInterface(boolean on) {
         if (on) {
@@ -398,6 +448,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if abstract
      */
     public boolean isAbstract() {
         return (getAccessFlags() & Constants.ACCESS_ABSTRACT) > 0;
@@ -405,6 +457,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @param on boolean flag
      */
     public void setAbstract(boolean on) {
         if (on)
@@ -415,6 +469,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if synthetic
      */
     public boolean isSynthetic() {
         return (getAccessFlags() & Constants.ACCESS_SYNTHETIC) > 0;
@@ -422,6 +478,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @param on boolean flag
      */
     public void setSynthetic(boolean on) {
         if (on)
@@ -432,6 +490,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if annotation
      */
     public boolean isAnnotation() {
         return (getAccessFlags() & Constants.ACCESS_ANNOTATION) > 0;
@@ -440,6 +500,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Manipulate the class access flags.  Setting to true also makes this
      * an interface.
+     * 
+     * @param on boolean flag
      */
     public void setAnnotation(boolean on) {
         if (on) {
@@ -451,6 +513,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @return true if enum
      */
     public boolean isEnum() {
         return (getAccessFlags() & Constants.ACCESS_ENUM) > 0;
@@ -458,6 +522,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Manipulate the class access flags.
+     * 
+     * @param on boolean flag
      */
     public void setEnum(boolean on) {
         if (on)
@@ -468,6 +534,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return true if this class is a primitive type.
+     * 
+     * @return true if primitive
      */
     public boolean isPrimitive() {
         return _state.isPrimitive();
@@ -475,6 +543,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return true if this class is an array type.
+     * 
+     * @return true if array
      */
     public boolean isArray() {
         return _state.isArray();
@@ -488,6 +558,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return the {@link ConstantPool} index of the
      * {@link ClassEntry} for this class. Returns 0 if the class does not
      * have a constant pool (such as a primitive or array).
+     * 
+     * @return the index
      */
     public int getIndex() {
         return _state.getIndex();
@@ -498,6 +570,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * class. Unlike most other low-level methods, the index
      * will be checked against the pool immediately;
      * classes must have a valid name at all times.
+     * 
+     * @param index the index to set
      */
     public void setIndex(int index) {
         String oldName = getName();
@@ -510,6 +584,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return the name of this class, including package name. The name will
      * be in a form suitable for a {@link Class#forName} call.
+     * 
+     * @return the name
      */
     public String getName() {
         return _state.getName();
@@ -517,6 +593,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return the name of the class only, without package.
+     * 
+     * @return class name
      */
     public String getClassName() {
         String name = _project.getNameCache().getExternalForm(getName(), true);
@@ -525,6 +603,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return the package name only, without class, or null if none.
+     * 
+     * @return package name
      */
     public String getPackageName() {
         String name = _project.getNameCache().getExternalForm(getName(), true);
@@ -536,6 +616,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Set the name of this class, including package name.
+     * 
+     * @param name the name to set
      */
     public void setName(String name) {
         name = _project.getNameCache().getExternalForm(name, false);
@@ -561,14 +643,18 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return the {@link Class} object for this class, if it is loadable.
+     * 
+     * @return the class
      */
-    public Class getType() {
+    public Class<?> getType() {
         return Strings.toClass(getName(), getClassLoader());
     }
 
     /**
      * Return the component type name of this class, or null if not an array.
      * The name will be in a form suitable for a {@link Class#forName} call.
+     * 
+     * @return the component name
      */
     public String getComponentName() {
         return _state.getComponentName();
@@ -576,8 +662,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return the component type of this class, or null if not an array.
+     * 
+     * @return the component class
      */
-    public Class getComponentType() {
+    public Class<?> getComponentType() {
         String componentName = getComponentName();
         if (componentName == null)
             return null;
@@ -586,6 +674,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return the component type of this class, or null if not an array.
+     * 
+     * @return the {@link BCClass}
      */
     public BCClass getComponentBC() {
         String componentName = getComponentName();
@@ -602,6 +692,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return the {@link ConstantPool} index of the
      * {@link ClassEntry} for the superclass of this class. Returns -1 if
      * the class does not have a constant pool (such as a primitive or array).
+     * 
+     * @return the superclass index or -1 if missing
      */
     public int getSuperclassIndex() {
         return _state.getSuperclassIndex();
@@ -610,6 +702,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Set the {@link ConstantPool} index of the
      * {@link ClassEntry} for the superclass of this class.
+     * 
+     * @param index the index to set
      */
     public void setSuperclassIndex(int index) {
         _state.setSuperclassIndex(index);
@@ -619,6 +713,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return the name of the superclass for this class, including package
      * name. The name will be in a form suitable for a
      * {@link Class#forName} call, or null for types without superclasses.
+     * 
+     * @return the superclass name
      */
     public String getSuperclassName() {
         return _state.getSuperclassName();
@@ -627,8 +723,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return the {@link Class} object for the superclass of this class, if it
      * is loadable. Returns null for types without superclasses.
+     * 
+     * @return the {@link Class} object
      */
-    public Class getSuperclassType() {
+    public Class<?> getSuperclassType() {
         String name = getSuperclassName();
         if (name == null)
             return null;
@@ -638,6 +736,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return the bytecode of the superclass of this class, or
      * null for types without superclasses.
+     * 
+     * @return the {@link BCClass} object
      */
     public BCClass getSuperclassBC() {
         String name = getSuperclassName();
@@ -648,6 +748,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Set the superclass of this class.
+     * 
+     * @param name the superclass name
      */
     public void setSuperclass(String name) {
         if (name == null)
@@ -659,8 +761,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Set the superclass of this class.
+     * 
+     * @param type the superclass type
      */
-    public void setSuperclass(Class type) {
+    public void setSuperclass(Class<?> type) {
         if (type == null)
             setSuperclass((String) null);
         else
@@ -669,6 +773,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Set the superclass of this class.
+     * 
+     * @param type the superclass type
      */
     public void setSuperclass(BCClass type) {
         if (type == null)
@@ -686,10 +792,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * {@link ClassEntry}s describing all the interfaces this class declares
      * that it implements/extends.
      *
-     * @return the implmented interfaces, or an empty array if none
+     * @return the implemented interfaces, or an empty array if none
      */
     public int[] getDeclaredInterfaceIndexes() {
-        List interfaces = _state.getInterfacesHolder();
+        List<Number> interfaces = _state.getInterfacesHolder();
         int[] indexes = new int[interfaces.size()];
         for (int i = 0; i < interfaces.size(); i++)
             indexes[i] = ((Number) interfaces.get(i)).intValue();
@@ -700,9 +806,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Set the list of {@link ConstantPool} indexes of the
      * {@link ClassEntry}s describing all the interfaces this class declares
      * it implements/extends; set to null or an empty array if none.
+     * 
+     * @param interfaceIndexes the index array
      */
     public void setDeclaredInterfaceIndexes(int[] interfaceIndexes) {
-        List stateIndexes = _state.getInterfacesHolder();
+        List<Number> stateIndexes = _state.getInterfacesHolder();
         stateIndexes.clear();
         Integer idx;
         for (int i = 0; i < interfaceIndexes.length; i++) {
@@ -716,6 +824,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return the names of the interfaces declared for this class, including
      * package names, or an empty array if none. The names will be in a form
      * suitable for a {@link Class#forName} call.
+     * 
+     * @return the interface name array
      */
     public String[] getDeclaredInterfaceNames() {
         int[] indexes = getDeclaredInterfaceIndexes();
@@ -732,10 +842,12 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return the {@link Class} objects for the declared interfaces of this
      * class, or an empty array if none.
+     * 
+     * @return the {@link Class} array
      */
-    public Class[] getDeclaredInterfaceTypes() {
+    public Class<?>[] getDeclaredInterfaceTypes() {
         String[] names = getDeclaredInterfaceNames();
-        Class[] types = new Class[names.length];
+        Class<?>[] types = new Class[names.length];
         for (int i = 0; i < names.length; i++)
             types[i] = Strings.toClass(names[i], getClassLoader());
         return types;
@@ -744,6 +856,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return the bytecode for the declared interfaces of this class, or an
      * empty array if none.
+     * 
+     * @return the {@link BCClass} array
      */
     public BCClass[] getDeclaredInterfaceBCs() {
         String[] names = getDeclaredInterfaceNames();
@@ -756,6 +870,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Set the interfaces declared implemented/extended by this class; set to
      * null or an empty array if none.
+     * 
+     * @param interfaces the interface name array
      */
     public void setDeclaredInterfaces(String[] interfaces) {
         clearDeclaredInterfaces();
@@ -767,8 +883,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Set the interfaces declared implemented/extended by this class; set to
      * null or an empty array if none.
+     * 
+     * @param interfaces the interface array
      */
-    public void setDeclaredInterfaces(Class[] interfaces) {
+    public void setDeclaredInterfaces(Class<?>[] interfaces) {
         String[] names = null;
         if (interfaces != null) {
             names = new String[interfaces.length];
@@ -781,6 +899,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Set the interfaces declared implemented/extended by this class; set to
      * null or an empty array if none.
+     * 
+     * @param interfaces the interface array
      */
     public void setDeclaredInterfaces(BCClass[] interfaces) {
         String[] names = null;
@@ -797,9 +917,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * including those of all superclasses. The names will be returned in a
      * form suitable for a {@link Class#forName} call.
      * This method does not recurse into interfaces-of-interfaces.
+     * 
+     * @return the name array
      */
     public String[] getInterfaceNames() {
-        Collection allNames = new LinkedList();
+        Collection<String> allNames = new LinkedList<>();
         String[] names;
         for (BCClass type = this; type != null; type = type.getSuperclassBC()) {
             names = type.getDeclaredInterfaceNames();
@@ -813,10 +935,12 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return the {@link Class} objects of all unique interfaces implemented
      * by this class, including those of all superclasses.
      * This method does not recurse into interfaces-of-interfaces.
+     * 
+     * @return the {@link Class} array
      */
-    public Class[] getInterfaceTypes() {
-        Collection allTypes = new LinkedList();
-        Class[] types;
+    public Class<?>[] getInterfaceTypes() {
+        Collection<Class<?>> allTypes = new LinkedList<>();
+        Class<?>[] types;
         for (BCClass type = this; type != null; type = type.getSuperclassBC()) {
             types = type.getDeclaredInterfaceTypes();
             for (int i = 0; i < types.length; i++)
@@ -829,9 +953,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return the bytecode of all unique interfaces implemented by this class,
      * including those of all superclasses.
      * This method does not recurse into interfaces-of-interfaces.
+     * 
+     * @return the interface array
      */
     public BCClass[] getInterfaceBCs() {
-        Collection allTypes = new LinkedList();
+        Collection<BCClass> allTypes = new LinkedList<>();
         BCClass[] types;
         for (BCClass type = this; type != null; type = type.getSuperclassBC()) {
             types = type.getDeclaredInterfaceBCs();
@@ -848,14 +974,15 @@ public class BCClass extends Annotated implements VisitAcceptor {
         _state.getInterfacesHolder().clear();
     }
 
-    /**
-     * Remove an interface declared by this class.
-     *
-     * @return true if the class had the interface, false otherwise
-     */
+	/**
+	 * Remove an interface declared by this class.
+	 * 
+	 * @param name the interface name
+	 * @return true if the class had the interface, false otherwise
+	 */
     public boolean removeDeclaredInterface(String name) {
         String[] names = getDeclaredInterfaceNames();
-        Iterator itr = _state.getInterfacesHolder().iterator();
+        Iterator<Number> itr = _state.getInterfacesHolder().iterator();
         for (int i = 0; i < names.length; i++) {
             itr.next();
             if (names[i].equals(name)) {
@@ -866,69 +993,85 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return false;
     }
 
-    /**
-     * Remove an interface declared by this class.
-     *
-     * @return true if the class had the interface, false otherwise
-     */
-    public boolean removeDeclaredInterface(Class type) {
+	/**
+	 * Remove an interface declared by this class.
+	 * 
+	 * @param type the {@link Class} object
+	 * @return true if the class had the interface, false otherwise
+	 */
+    public boolean removeDeclaredInterface(Class<?> type) {
         if (type == null)
             return false;
         return removeDeclaredInterface(type.getName());
     }
 
-    /**
-     * Remove an interface declared by this class.
-     *
-     * @return true if the class had the interface, false otherwise
-     */
+	/**
+	 * Remove an interface declared by this class.
+	 * 
+	 * @param type the interface to remove
+	 * @return true if the class had the interface, false otherwise
+	 */
     public boolean removeDeclaredInterface(BCClass type) {
         if (type == null)
             return false;
         return removeDeclaredInterface(type.getName());
     }
 
-    /**
-     * Rearrange declared interface order.  
-     */
+	/**
+	 * Rearrange declared interface order.
+	 * 
+	 * @param fromIdx from index
+	 * @param toIdx   to index
+	 */
     public void moveDeclaredInterface(int fromIdx, int toIdx) {
         if (fromIdx == toIdx)
             return;
-        List interfaces = _state.getInterfacesHolder();
-        Object o = interfaces.remove(fromIdx);
+        
+        List<Number> interfaces = _state.getInterfacesHolder();
+        Number o = interfaces.remove(fromIdx);
         interfaces.add(toIdx, o);
     }
 
     /**
      * Add an interface to those declared by this class.
+     * 
+     * @param name the interface name
      */
     public void declareInterface(String name) {
         Integer index = Numbers.valueOf(getPool().findClassEntry(_project.
             getNameCache().getInternalForm(name, false), true));
-        List interfaces = _state.getInterfacesHolder();
+        List<Number> interfaces = _state.getInterfacesHolder();
         if (!interfaces.contains(index))
             interfaces.add(index);
     }
 
     /**
      * Add an interface to those declared by this class.
+     * 
+     * @param type the interface object
      */
-    public void declareInterface(Class type) {
+    public void declareInterface(Class<?> type) {
         declareInterface(type.getName());
     }
 
     /**
      * Add an interface to those declared by this class.
+     * 
+     * @param type the interface object
      */
     public void declareInterface(BCClass type) {
         declareInterface(type.getName());
     }
 
-    /**
-     * Return true if this class or any of its superclasses implement/extend
-     * the given interface/class.
-     * This method does not recurse into interfaces-of-interfaces.
-     */
+	/**
+	 * Return true if this class or any of its superclasses implement/extend the
+	 * given interface/class. This method does not recurse into
+	 * interfaces-of-interfaces.
+	 * 
+	 * @param name the entity name
+	 * @return true if this class or any of its superclasses implement/extend the
+	 *         given interface/class.
+	 */
     public boolean isInstanceOf(String name) {
         name = _project.getNameCache().getExternalForm(name, false);
         String[] interfaces = getInterfaceNames();
@@ -941,22 +1084,30 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return false;
     }
 
-    /**
-     * Return true if this class or any of its superclasses implement/extend
-     * the given interface/class.
-     * This method does not recurse into interfaces-of-interfaces.
-     */
-    public boolean isInstanceOf(Class type) {
+	/**
+	 * Return true if this class or any of its superclasses implement/extend the
+	 * given interface/class. This method does not recurse into
+	 * interfaces-of-interfaces.
+	 * 
+	 * @param type the entity type
+	 * @return true if this class or any of its superclasses implement/extend the
+	 *         given interface/class.
+	 */
+    public boolean isInstanceOf(Class<?> type) {
         if (type == null)
             return false;
         return isInstanceOf(type.getName());
     }
 
-    /**
-     * Return true if this class or any of its superclasses implement/extend
-     * the given interface/class.
-     * This method does not recurse into interfaces-of-interfaces.
-     */
+	/**
+	 * Return true if this class or any of its superclasses implement/extend the
+	 * given interface/class. This method does not recurse into
+	 * interfaces-of-interfaces.
+	 * 
+	 * @param type the class
+	 * @return true if this class or any of its superclasses implement/extend the
+	 *         given interface/class
+	 */
     public boolean isInstanceOf(BCClass type) {
         if (type == null)
             return false;
@@ -969,14 +1120,19 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
     /**
      * Return all the declared fields of this class, or an empty array if none.
+     * 
+     * @return the {@link BCField} array
      */
     public BCField[] getDeclaredFields() {
-        List fields = _state.getFieldsHolder();
+        List<BCField> fields = _state.getFieldsHolder();
         return (BCField[]) fields.toArray(new BCField[fields.size()]);
     }
 
     /**
      * Return the declared field with the given name, or null if none.
+     * 
+     * @param name the field name
+     * @return the {@link BCField} object
      */
     public BCField getDeclaredField(String name) {
         BCField[] fields = getDeclaredFields();
@@ -989,9 +1145,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return all the fields of this class, including those of all
      * superclasses, or an empty array if none.
+     * 
+     * @return the {@link BCField} array
      */
     public BCField[] getFields() {
-        Collection allFields = new LinkedList();
+        Collection<BCField> allFields = new LinkedList<>();
         BCField[] fields;
         for (BCClass type = this; type != null; type = type.getSuperclassBC()) {
             fields = type.getDeclaredFields();
@@ -1004,9 +1162,12 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return all fields with the given name, including those of all
      * superclasses, or an empty array if none.
+     * 
+     * @param name the field name
+     * @return the field array
      */
     public BCField[] getFields(String name) {
-        List matches = new LinkedList();
+        List<BCField> matches = new LinkedList<>();
         BCField[] fields = getFields();
         for (int i = 0; i < fields.length; i++)
             if (fields[i].getName().equals(name))
@@ -1017,6 +1178,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Set the fields for this class; this method is useful for importing all
      * fields from another class. Set to null or empty array if none.
+     * 
+     * @param fields the fields to add 
      */
     public void setDeclaredFields(BCField[] fields) {
         clearDeclaredFields();
@@ -1028,6 +1191,7 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Import the information from given field as a new field in this class.
      *
+     * @param field the field to add
      * @return the added field
      */
     public BCField declareField(BCField field) {
@@ -1040,6 +1204,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Add a field to this class.
      *
+	 * @param name the field name
+	 * @param type the field type
      * @return the added field
      */
     public BCField declareField(String name, String type) {
@@ -1050,21 +1216,25 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return field;
     }
 
-    /**
-     * Add a field to this class.
-     *
-     * @return the added field
-     */
-    public BCField declareField(String name, Class type) {
+	/**
+	 * Add a field to this class.
+	 *
+	 * @param name the field name
+	 * @param type the field type
+	 * @return the added field
+	 */
+    public BCField declareField(String name, Class<?> type) {
         String typeName = (type == null) ? null : type.getName();
         return declareField(name, typeName);
     }
 
-    /**
-     * Add a field to this class.
-     *
-     * @return the added field
-     */
+	/**
+	 * Add a field to this class.
+	 *
+	 * @param name the field name
+	 * @param type the entity type
+	 * @return the added field
+	 */
     public BCField declareField(String name, BCClass type) {
         String typeName = (type == null) ? null : type.getName();
         return declareField(name, typeName);
@@ -1074,10 +1244,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Clear all fields from this class.
      */
     public void clearDeclaredFields() {
-        List fields = _state.getFieldsHolder();
+        List<BCField> fields = _state.getFieldsHolder();
         BCField field;
-        for (Iterator itr = fields.iterator(); itr.hasNext();) {
-            field = (BCField) itr.next();
+        for (Iterator<BCField> itr = fields.iterator(); itr.hasNext();) {
+            field = itr.next();
             itr.remove();
             field.invalidate();
         }
@@ -1087,13 +1257,14 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Remove a field from this class. After this method, the removed field
      * will be invalid, and the result of any operations on it is undefined.
      *
+     * @param name the field name
      * @return true if this class contained the field, false otherwise
      */
     public boolean removeDeclaredField(String name) {
-        List fields = _state.getFieldsHolder();
+        List<BCField> fields = _state.getFieldsHolder();
         BCField field;
-        for (Iterator itr = fields.iterator(); itr.hasNext();) {
-            field = (BCField) itr.next();
+        for (Iterator<BCField> itr = fields.iterator(); itr.hasNext();) {
+            field = itr.next();
             if (field.getName().equals(name)) {
                 itr.remove();
                 field.invalidate();
@@ -1103,26 +1274,30 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return false;
     }
 
-    /**
-     * Remove a field from this class. After this method, the removed field
-     * will be invalid, and the result of any operations on it is undefined.
-     *
-     * @return true if this class contained the field, false otherwise
-     */
+	/**
+	 * Remove a field from this class. After this method, the removed field will be
+	 * invalid, and the result of any operations on it is undefined.
+	 *
+	 * @param field the field to remove
+	 * @return true if this class contained the field, false otherwise
+	 */
     public boolean removeDeclaredField(BCField field) {
         if (field == null)
             return false;
         return removeDeclaredField(field.getName());
     }
 
-    /**
-     * Rearrange declared field order.  
-     */
+	/**
+	 * Rearrange declared field order.
+	 * 
+	 * @param fromIdx from index
+	 * @param toIdx   to index
+	 */
     public void moveDeclaredField(int fromIdx, int toIdx) {
         if (fromIdx == toIdx)
             return;
-        List fields = _state.getFieldsHolder();
-        Object o = fields.remove(fromIdx);
+        List<BCField> fields = _state.getFieldsHolder();
+        BCField o = fields.remove(fromIdx);
         fields.add(toIdx, o);
     }
 
@@ -1133,9 +1308,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Return all methods declared by this class. Constructors and static
      * initializers are included.
+     * 
+     * @return the {@link BCMethod} array
      */
     public BCMethod[] getDeclaredMethods() {
-        List methods = _state.getMethodsHolder();
+        List<BCMethod> methods = _state.getMethodsHolder();
         return (BCMethod[]) methods.toArray(new BCMethod[methods.size()]);
     }
 
@@ -1145,6 +1322,9 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * is undefined.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+     * @param name the method name
+     * @return the method
      */
     public BCMethod getDeclaredMethod(String name) {
         BCMethod[] methods = getDeclaredMethods();
@@ -1159,9 +1339,12 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * if none.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+     * @param name the method name
+     * @return the method array
      */
     public BCMethod[] getDeclaredMethods(String name) {
-        Collection matches = new LinkedList();
+        Collection<BCMethod> matches = new LinkedList<>();
         BCMethod[] methods = getDeclaredMethods();
         for (int i = 0; i < methods.length; i++)
             if (methods[i].getName().equals(name))
@@ -1169,13 +1352,18 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return (BCMethod[]) matches.toArray(new BCMethod[matches.size()]);
     }
 
-    /**
-     * Return the declared method with the given name and parameter types,
-     * or null if none. If multiple methods are declared with the given name
-     * and parameters, which is returned is undefined.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     */
+	/**
+	 * Return the declared method with the given name and parameter types, or null
+	 * if none. If multiple methods are declared with the given name and parameters,
+	 * which is returned is undefined. Note that in bytecode, constructors are named
+	 * <code>&lt;init&gt;</code> and static initializers are named
+	 * <code>&lt;clinit&gt;</code>.
+	 * 
+	 * @param name       the method name
+	 * @param paramTypes the parameter types
+	 * @return the declared method with the given name and parameter types, or null
+	 *         if none
+	 */
     public BCMethod getDeclaredMethod(String name, String[] paramTypes) {
         if (paramTypes == null)
             paramTypes = new String[0];
@@ -1190,7 +1378,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
     }
 
     /**
-     * Return true iff the given method's parameters match <code>params</code>.
+     * Return true if the given method's parameters match <code>params</code>.
+     * 
+     * @param meth the method
+     * @param params the params array
+     * @return true if the given method's parameters match <code>params</code>
      */
     private boolean paramsMatch(BCMethod meth, String[] params) {
         String[] mparams = meth.getParamNames();
@@ -1206,13 +1398,17 @@ public class BCClass extends Annotated implements VisitAcceptor {
     }
 
     /**
-     * Return the declared method with the given name and parameter types,
-     * or null if none. If multiple methods are declared with the given name
-     * and parameters, which is returned is undefined.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     */
-    public BCMethod getDeclaredMethod(String name, Class[] paramTypes) {
+	 * Return the declared method with the given name and parameter types, or null
+	 * if none. If multiple methods are declared with the given name and parameters,
+	 * which is returned is undefined. Note that in bytecode, constructors are named
+	 * <code>&lt;init&gt;</code> and static initializers are named
+	 * <code>&lt;clinit&gt;</code>.
+	 * 
+	 * @param name       the method name
+	 * @param paramTypes the param types
+	 * @return the method
+	 */
+    public BCMethod getDeclaredMethod(String name, Class<?>[] paramTypes) {
         if (paramTypes == null)
             return getDeclaredMethod(name, (String[]) null);
 
@@ -1223,12 +1419,16 @@ public class BCClass extends Annotated implements VisitAcceptor {
     }
 
     /**
-     * Return the declared method with the given name and parameter types,
-     * or null if none. If multiple methods are declared with the given name
-     * and parameters, which is returned is undefined.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     */
+	 * Return the declared method with the given name and parameter types, or null
+	 * if none. If multiple methods are declared with the given name and parameters,
+	 * which is returned is undefined. Note that in bytecode, constructors are named
+	 * <code>&lt;init&gt;</code> and static initializers are named
+	 * <code>&lt;clinit&gt;</code>.
+	 * 
+	 * @param name       the method name
+	 * @param paramTypes the param types
+	 * @return the method
+	 */
     public BCMethod getDeclaredMethod(String name, BCClass[] paramTypes) {
         if (paramTypes == null)
             return getDeclaredMethod(name, (String[]) null);
@@ -1243,18 +1443,23 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return all declared methods with the given name and parameter types.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param paramTypes the method parameter types
+	 * @return the method array
      */
     public BCMethod[] getDeclaredMethods(String name, String[] paramTypes) {
         if (paramTypes == null)
             paramTypes = new String[0];
 
         BCMethod[] methods = getDeclaredMethods();
-        List matches = null;
+        List<BCMethod> matches = null;
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].getName().equals(name) 
                 && paramsMatch(methods[i], paramTypes)) {
                 if (matches == null)
-                    matches = new ArrayList(3);
+                    matches = new ArrayList<>(3);
+                
                 matches.add(methods[i]);
             }
         }
@@ -1267,8 +1472,12 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return all declared methods with the given name and parameter types.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param paramTypes the method parameter types
+	 * @return the method array
      */
-    public BCMethod[] getDeclaredMethods(String name, Class[] paramTypes) {
+    public BCMethod[] getDeclaredMethods(String name, Class<?>[] paramTypes) {
         if (paramTypes == null)
             return getDeclaredMethods(name, (String[]) null);
 
@@ -1282,6 +1491,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Return all declared methods with the given name and parameter types.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param paramTypes method parameter types
+	 * @return the method array
      */
     public BCMethod[] getDeclaredMethods(String name, BCClass[] paramTypes) {
         if (paramTypes == null)
@@ -1293,12 +1506,16 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return getDeclaredMethods(name, paramNames);
     }
 
-    /**
-     * Return the declared method with the given name and signature,
-     * or null if none.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     */
+	/**
+	 * Return the declared method with the given name and signature, or null if
+	 * none. Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
+	 * and static initializers are named <code>&lt;clinit&gt;</code>.
+	 * 
+	 * @param name       the method name
+	 * @param returnType the method return type
+	 * @param paramTypes the method parameter types
+	 * @return the method
+	 */
     public BCMethod getDeclaredMethod(String name, String returnType, 
         String[] paramTypes) {
         if (paramTypes == null)
@@ -1320,9 +1537,14 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * or null if none.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param returnType the method return type
+	 * @param paramTypes the method parameter types
+	 * @return the method
      */
-    public BCMethod getDeclaredMethod(String name, Class returnType, 
-        Class[] paramTypes) {
+    public BCMethod getDeclaredMethod(String name, Class<?> returnType, 
+        Class<?>[] paramTypes) {
         if (paramTypes == null)
             return getDeclaredMethod(name, returnType.getName(), 
                 (String[]) null);
@@ -1338,6 +1560,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * or null if none.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param returnType the method return type
+	 * @param paramTypes the method parameter types
+	 * @return the method
      */
     public BCMethod getDeclaredMethod(String name, BCClass returnType, 
         BCClass[] paramTypes) {
@@ -1358,9 +1585,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * will all constructors and static initializers.
      * The methods will be ordered from those in the most-specific type up to
      * those in {@link Object}.
+     * 
+	 * @return the method array
      */
     public BCMethod[] getMethods() {
-        Collection allMethods = new LinkedList();
+        Collection<BCMethod> allMethods = new LinkedList<>();
         BCMethod[] methods;
         for (BCClass type = this; type != null; type = type.getSuperclassBC()) {
             methods = type.getDeclaredMethods();
@@ -1370,14 +1599,17 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return (BCMethod[]) allMethods.toArray(new BCMethod[allMethods.size()]);
     }
 
-    /**
-     * Return the methods with the given name, including those of all
-     * superclasses, or an empty array if none.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     */
+	/**
+	 * Return the methods with the given name, including those of all superclasses,
+	 * or an empty array if none. Note that in bytecode, constructors are named
+	 * <code>&lt;init&gt;</code> and static initializers are named
+	 * <code>&lt;clinit&gt;</code>.
+	 * 
+	 * @param name the method name
+	 * @return the method array
+	 */
     public BCMethod[] getMethods(String name) {
-        Collection matches = new LinkedList();
+        Collection<BCMethod> matches = new LinkedList<>();
         BCMethod[] methods = getMethods();
         for (int i = 0; i < methods.length; i++)
             if (methods[i].getName().equals(name))
@@ -1390,6 +1622,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * those of all superclasses, or an empty array if none.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param paramTypes the method parameter types
+	 * @return the method array
      */
     public BCMethod[] getMethods(String name, String[] paramTypes) {
         if (paramTypes == null)
@@ -1398,7 +1634,7 @@ public class BCClass extends Annotated implements VisitAcceptor {
         String[] curParams;
         boolean match;
         BCMethod[] methods = getMethods();
-        Collection matches = new LinkedList();
+        Collection<BCMethod> matches = new LinkedList<>();
         for (int i = 0; i < methods.length; i++) {
             if (!methods[i].getName().equals(name))
                 continue;
@@ -1425,8 +1661,12 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * those of all superclasses, or an empty array if none.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param paramTypes the method parameter types
+     * @return the method array
      */
-    public BCMethod[] getMethods(String name, Class[] paramTypes) {
+    public BCMethod[] getMethods(String name, Class<?>[] paramTypes) {
         if (paramTypes == null)
             return getMethods(name, (String[]) null);
 
@@ -1441,6 +1681,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * those of all superclasses, or an empty array if none.
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
+     * 
+	 * @param name       the method name
+	 * @param paramTypes the method parameter types
+     * @return the method array
      */
     public BCMethod[] getMethods(String name, BCClass[] paramTypes) {
         if (paramTypes == null)
@@ -1455,6 +1699,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Set the methods for this class; this method is useful for importing all
      * methods from another class. Set to null or empty array if none.
+     * 
+     * @param methods the methods to set
      */
     public void setDeclaredMethods(BCMethod[] methods) {
         clearDeclaredMethods();
@@ -1463,11 +1709,12 @@ public class BCClass extends Annotated implements VisitAcceptor {
                 declareMethod(methods[i]);
     }
 
-    /**
-     * Import the information in the given method as a new method of this class.
-     *
-     * @return the added method
-     */
+	/**
+	 * Import the information in the given method as a new method of this class.
+	 *
+	 * @param method the method to get data from
+	 * @return the added method
+	 */
     public BCMethod declareMethod(BCMethod method) {
         BCMethod newMethod = declareMethod(method.getName(), 
             method.getReturnName(), method.getParamNames());
@@ -1481,6 +1728,9 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
      *
+	 * @param name       the method name
+	 * @param returnType the method return type
+	 * @param paramTypes the method parameter types
      * @return the added method
      */
     public BCMethod declareMethod(String name, String returnType,
@@ -1492,15 +1742,18 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return method;
     }
 
-    /**
-     * Add a method to this class.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     *
-     * @return the added method
-     */
-    public BCMethod declareMethod(String name, Class returnType,
-        Class[] paramTypes) {
+	/**
+	 * Add a method to this class. Note that in bytecode, constructors are named
+	 * <code>&lt;init&gt;</code> and static initializers are named
+	 * <code>&lt;clinit&gt;</code>.
+	 *
+	 * @param name       the method name
+	 * @param returnType the method return type
+	 * @param paramTypes the method parameter types
+	 * @return the added method
+	 */
+    public BCMethod declareMethod(String name, Class<?> returnType,
+        Class<?>[] paramTypes) {
         String[] paramNames = null;
         if (paramTypes != null) {
             paramNames = new String[paramTypes.length];
@@ -1516,6 +1769,9 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
      *
+	 * @param name       the method's name
+	 * @param returnType the method return type
+	 * @param paramTypes the method parameter types
      * @return the added method
      */
     public BCMethod declareMethod(String name, BCClass returnType,
@@ -1534,29 +1790,30 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Clear all declared methods from this class.
      */
     public void clearDeclaredMethods() {
-        List methods = _state.getMethodsHolder();
+        List<BCMethod> methods = _state.getMethodsHolder();
         BCMethod method;
-        for (Iterator itr = methods.iterator(); itr.hasNext();) {
-            method = (BCMethod) itr.next();
+        for (Iterator<BCMethod> itr = methods.iterator(); itr.hasNext();) {
+            method = itr.next();
             itr.remove();
             method.invalidate();
         }
     }
 
-    /**
-     * Remove a method from this class. After this method, the removed method
-     * will be invalid, and the result of any operations on it is undefined.
-     * If multiple methods match the given name, which is removed is undefined.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     *
-     * @return true if this class contained the method, false otherwise
-     */
+	/**
+	 * Remove a method from this class. After this method, the removed method will
+	 * be invalid, and the result of any operations on it is undefined. If multiple
+	 * methods match the given name, which is removed is undefined. Note that in
+	 * bytecode, constructors are named <code>&lt;init&gt;</code> and static
+	 * initializers are named <code>&lt;clinit&gt;</code>.
+	 *
+	 * @param name the method's name to remove
+	 * @return true if this class contained the method, false otherwise
+	 */
     public boolean removeDeclaredMethod(String name) {
-        List methods = _state.getMethodsHolder();
+        List<BCMethod> methods = _state.getMethodsHolder();
         BCMethod method;
-        for (Iterator itr = methods.iterator(); itr.hasNext();) {
-            method = (BCMethod) itr.next();
+        for (Iterator<BCMethod> itr = methods.iterator(); itr.hasNext();) {
+            method = itr.next();
             if (method.getName().equals(name)) {
                 itr.remove();
                 method.invalidate();
@@ -1566,12 +1823,13 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return false;
     }
 
-    /**
-     * Removes a method from this class. After this method, the removed method
-     * will be invalid, and the result of any operations on it is undefined.
-     *
-     * @return true if this class contained the method, false otherwise
-     */
+	/**
+	 * Removes a method from this class. After this method, the removed method will
+	 * be invalid, and the result of any operations on it is undefined.
+	 *
+	 * @param method the method to remove
+	 * @return true if this class contained the method, false otherwise
+	 */
     public boolean removeDeclaredMethod(BCMethod method) {
         if (method == null)
             return false;
@@ -1584,6 +1842,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
      *
+	 * @param name       the method's name to remove
+	 * @param paramTypes the method parameter types
      * @return true if this class contained the method, false otherwise
      */
     public boolean removeDeclaredMethod(String name, String[] paramTypes) {
@@ -1592,10 +1852,10 @@ public class BCClass extends Annotated implements VisitAcceptor {
 
         String[] curParams;
         boolean match;
-        List methods = _state.getMethodsHolder();
+        List<BCMethod> methods = _state.getMethodsHolder();
         BCMethod method;
-        for (Iterator itr = methods.iterator(); itr.hasNext();) {
-            method = (BCMethod) itr.next();
+        for (Iterator<BCMethod> itr = methods.iterator(); itr.hasNext();) {
+            method = itr.next();
             if (!method.getName().equals(name))
                 continue;
             curParams = method.getParamNames();
@@ -1625,9 +1885,11 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
      * and static initializers are named <code>&lt;clinit&gt;</code>.
      *
+	 * @param name       the method's name to remove
+	 * @param paramTypes the method parameter types
      * @return true if this class contained the method, false otherwise
      */
-    public boolean removeDeclaredMethod(String name, Class[] paramTypes) {
+    public boolean removeDeclaredMethod(String name, Class<?>[] paramTypes) {
         if (paramTypes == null)
             return removeDeclaredMethod(name, (String[]) null);
 
@@ -1637,14 +1899,16 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return removeDeclaredMethod(name, paramNames);
     }
 
-    /**
-     * Removes a method from this class. After this method, the removed method
-     * will be invalid, and the result of any operations on it is undefined.
-     * Note that in bytecode, constructors are named <code>&lt;init&gt;</code>
-     * and static initializers are named <code>&lt;clinit&gt;</code>.
-     *
-     * @return true if this class contained the method, false otherwise
-     */
+	/**
+	 * Removes a method from this class. After this method, the removed method will
+	 * be invalid, and the result of any operations on it is undefined. Note that in
+	 * bytecode, constructors are named <code>&lt;init&gt;</code> and static
+	 * initializers are named <code>&lt;clinit&gt;</code>.
+	 *
+	 * @param name       the method's name to remove
+	 * @param paramTypes the method parameter types
+	 * @return true if this class contained the method, false otherwise
+	 */
     public boolean removeDeclaredMethod(String name, BCClass[] paramTypes) {
         if (paramTypes == null)
             return removeDeclaredMethod(name, (String[]) null);
@@ -1656,13 +1920,16 @@ public class BCClass extends Annotated implements VisitAcceptor {
     }
 
     /**
-     * Rearrange method order.  
+     * Rearrange method order.
+     * 
+     * @param fromIdx from index
+     * @param toIdx to index
      */
     public void moveDeclaredMethod(int fromIdx, int toIdx) {
         if (fromIdx == toIdx)
             return;
-        List methods = _state.getMethodsHolder();
-        Object o = methods.remove(fromIdx);
+        List<BCMethod> methods = _state.getMethodsHolder();
+        BCMethod o = methods.remove(fromIdx);
         methods.add(toIdx, o);
     }
 
@@ -1695,15 +1962,15 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return method;
     }
 
-    /**
-     * Return source file information for the class.
-     * Acts internally through the {@link Attributes} interface.
-     *
-     * @param add if true, a new source file attribute will be added
-     * if not already present
-     * @return the source file information, or null if none and the
-     * <code>add</code> param is set to false
-     */
+	/**
+	 * Return source file information for the class. Acts internally through the
+	 * {@link Attributes} interface.
+	 *
+	 * @param add if true, a new source file attribute will be added if not already
+	 *            present
+	 * @return the source file information, or null if none and the <code>add</code>
+	 *         param is set to false
+	 */
     public SourceFile getSourceFile(boolean add) {
         SourceFile source = (SourceFile) getAttribute(Constants.ATTR_SOURCE);
         if (!add || (source != null))
@@ -1721,15 +1988,15 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return removeAttribute(Constants.ATTR_SOURCE);
     }
 
-    /**
-     * Return inner classes information for the class.
-     * Acts internally through the {@link Attributes} interface.
-     *
-     * @param add if true, a new inner classes attribute will be added
-     * if not already present
-     * @return the inner classes information, or null if none and the
-     * <code>add</code> param is set to false
-     */
+	/**
+	 * Return inner classes information for the class. Acts internally through the
+	 * {@link Attributes} interface.
+	 *
+	 * @param add if true, a new inner classes attribute will be added if not
+	 *            already present
+	 * @return the inner classes information, or null if none and the
+	 *         <code>add</code> param is set to false
+	 */
     public InnerClasses getInnerClasses(boolean add) {
         InnerClasses inner = (InnerClasses) getAttribute
             (Constants.ATTR_INNERCLASS);
@@ -1751,6 +2018,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Convenience method to return deprecation information for the class.
      * Acts internally through the {@link Attributes} interface.
+     * 
+     * @return true if deprecated
      */
     public boolean isDeprecated() {
         return getAttribute(Constants.ATTR_DEPRECATED) != null;
@@ -1759,6 +2028,8 @@ public class BCClass extends Annotated implements VisitAcceptor {
     /**
      * Convenience method to set whether this class should be considered
      * deprecated. Acts internally through the {@link Attributes} interface.
+     * 
+     * @param on boolean flag
      */
     public void setDeprecated(boolean on) {
         if (!on)
@@ -1822,7 +2093,7 @@ public class BCClass extends Annotated implements VisitAcceptor {
         return _project != null;
     }
 
-    Collection getAttributesHolder() {
+    Collection<Attribute> getAttributesHolder() {
         return _state.getAttributesHolder();
     }
 
@@ -1839,6 +2110,9 @@ public class BCClass extends Annotated implements VisitAcceptor {
      * can reject the change if a class with the given new name already
      * exists; therefore this method should be called before the change is
      * recorded in the class.
+     * 
+     * @param oldName the name to change
+     * @param newName the new name
      */
     private void beforeRename(String oldName, String newName) {
         if ((_project != null) && (oldName != null))

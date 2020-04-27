@@ -1,7 +1,12 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Base class for testing the handling of the {@link PrimitiveState} and
@@ -10,13 +15,10 @@ import junit.textui.*;
  *
  * @author Abe White
  */
-public abstract class AbstractStateTest extends TestCase {
+public abstract class AbstractStateTest {
     protected Project _project = new Project();
     protected BCClass _bc = null;
 
-    public AbstractStateTest(String test) {
-        super(test);
-    }
 
     /**
      * Test the name and type operations.
@@ -36,6 +38,7 @@ public abstract class AbstractStateTest extends TestCase {
     /**
      * Test the basics -- magic number, etc.
      */
+    @Test
     public void testBasics() {
         assertEquals(Constants.VALID_MAGIC, _bc.getMagic());
         try {
@@ -76,6 +79,7 @@ public abstract class AbstractStateTest extends TestCase {
     /**
      * Test operations on interfaces.
      */
+    @Test
     public void testInterfaces() {
         assertEquals(0, _bc.getDeclaredInterfaceNames().length);
         assertEquals(0, _bc.getInterfaceNames().length);
@@ -95,6 +99,7 @@ public abstract class AbstractStateTest extends TestCase {
     /**
      * Test operations on fields.
      */
+    @Test
     public void testFields() {
         assertEquals(0, _bc.getDeclaredFields().length);
         assertEquals(0, _bc.getFields().length);
@@ -112,6 +117,7 @@ public abstract class AbstractStateTest extends TestCase {
     /**
      * Test operations on methods.
      */
+    @Test
     public void testMethods() {
         assertEquals(0, _bc.getDeclaredMethods().length);
         try {
@@ -133,6 +139,7 @@ public abstract class AbstractStateTest extends TestCase {
     /**
      * Test operations on attributes.
      */
+    @Test
     public void testAttributes() {
         assertNull(_bc.getSourceFile(false));
         try {
@@ -168,6 +175,7 @@ public abstract class AbstractStateTest extends TestCase {
     /**
      * Tests that these types cannot be written.
      */
+    @Test
     public void testWrite() {
         try {
             _bc.toByteArray();

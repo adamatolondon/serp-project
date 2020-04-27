@@ -35,11 +35,16 @@ public class Strings {
         return join(split, to);
     }
 
-    /**
-     * Splits the given string on the given token. Follows the semantics
-     * of the Java 1.4 {@link String#split(String,int)} method, but does
-     * not treat the given token as a regular expression.
-     */
+	/**
+	 * Splits the given string on the given token. Follows the semantics of the Java
+	 * 1.4 {@link String#split(String,int)} method, but does not treat the given
+	 * token as a regular expression.
+	 * 
+	 * @param str   the string to split
+	 * @param token the token
+	 * @param max   max length
+	 * @return the splitted strings
+	 */
     public static String[] split(String str, String token, int max) {
         if (str == null || str.length() == 0)
             return new String[0];
@@ -47,7 +52,7 @@ public class Strings {
             throw new IllegalArgumentException("token: [" + token + "]");
 
         // split on token 
-        LinkedList ret = new LinkedList();
+        LinkedList<String> ret = new LinkedList<>();
         int start = 0;
         for (int split = 0; split != -1;) {
             split = str.indexOf(token, start);
@@ -80,9 +85,13 @@ public class Strings {
         return (String[]) ret.toArray(new String[ret.size()]);
     }
 
-    /**
-     * Joins the given strings, placing the given token between them.
-     */
+	/**
+	 * Joins the given strings, placing the given token between them.
+	 * 
+	 * @param strings the strings to join
+	 * @param token   the token
+	 * @return the joined strings
+	 */
     public static String join(Object[] strings, String token) {
         if (strings == null)
             return null;
@@ -97,25 +106,32 @@ public class Strings {
         return buf.toString();
     }
 
-    /**
-     * Return the class for the given string, correctly handling
-     * primitive types. If the given class loader is null, the context
-     * loader of the current thread will be used.
-     *
-     * @throws RuntimeException on load error
-     */
-    public static Class toClass(String str, ClassLoader loader) {
+	/**
+	 * Return the class for the given string, correctly handling primitive types. If
+	 * the given class loader is null, the context loader of the current thread will
+	 * be used.
+	 *
+	 * @param str    the class name
+	 * @param loader class loader
+	 * @return the class for the given string, correctly handling primitive types
+	 * @throws RuntimeException on load error
+	 */
+    public static Class<?> toClass(String str, ClassLoader loader) {
         return toClass(str, false, loader);
     }
 
-    /**
-     * Return the class for the given string, correctly handling
-     * primitive types. If the given class loader is null, the context
-     * loader of the current thread will be used.
-     *
-     * @throws RuntimeException on load error
-     */
-    public static Class toClass(String str, boolean resolve, 
+	/**
+	 * Return the class for the given string, correctly handling primitive types. If
+	 * the given class loader is null, the context loader of the current thread will
+	 * be used.
+	 *
+	 * @param str     the class name
+	 * @param resolve if initialise an array class
+	 * @param loader  class loader
+	 * @return the class for the given string, correctly handling primitive types
+	 * @throws RuntimeException on load error
+	 */
+    public static Class<?> toClass(String str, boolean resolve, 
         ClassLoader loader) {
         if (str == null)
             throw new NullPointerException("str == null");
@@ -133,7 +149,7 @@ public class Strings {
             for (int i = 0; !primitive && (i < _codes.length); i++) {
                 if (_codes[i][1].equals(str)) {
                     if (dims == 0)
-                        return (Class) _codes[i][0];
+                        return (Class<?>) _codes[i][0];
                     str = (String) _codes[i][2];
                     primitive = true;
                 }
@@ -167,13 +183,19 @@ public class Strings {
 
     /**
      * Return only the class name, without package.
+     * 
+     * @param cls the class
+     * @return the class name
      */
-    public static String getClassName(Class cls) {
+    public static String getClassName(Class<?> cls) {
         return (cls == null) ? null : getClassName(cls.getName());
     }
 
     /**
      * Return only the class name.
+     * 
+     * @param fullName the full class name
+     * @return the class name
      */
     public static String getClassName(String fullName) {
         if (fullName == null)
@@ -206,13 +228,19 @@ public class Strings {
 
     /**
      * Return only the package, or empty string if none.
+     * 
+     * @param cls a package class
+     * @return the package name, or empty string if none
      */
-    public static String getPackageName(Class cls) {
+    public static String getPackageName(Class<?> cls) {
         return (cls == null) ? null : getPackageName(cls.getName());
     }
 
     /**
      * Return only the package, or empty string if none.
+     * 
+     * @param fullName the package name
+     * @return the package name, or empty string if none
      */
     public static String getPackageName(String fullName) {
         if (fullName == null)
@@ -221,22 +249,26 @@ public class Strings {
         return (dotIdx == -1) ? "" : fullName.substring(0, dotIdx);
     }
 
-    /**
-     * Return <code>val</code> as the type specified by
-     * <code>type</code>. If <code>type</code> is a primitive, the
-     * primitive wrapper type is created and returned, and
-     * <code>null</code>s are converted to the Java default for the
-     * primitive type.
-     *
-     * @param val The string value to parse
-     * @param type The type to parse. This must be a primitive or a
-     * primitive wrapper, or one of {@link BigDecimal},
-     * {@link BigInteger}, {@link String}, {@link Date}.
-     * @throws IllegalArgumentException if <code>type</code> is not a
-     * supported type, or if <code>val</code> cannot be
-     * converted into an instance of type <code>type</code>.
-     */
-    public static Object parse(String val, Class type) {
+	/**
+	 * Return <code>val</code> as the type specified by <code>type</code>. If
+	 * <code>type</code> is a primitive, the primitive wrapper type is created and
+	 * returned, and <code>null</code>s are converted to the Java default for the
+	 * primitive type.
+	 *
+	 * @param val  The string value to parse
+	 * @param type The type to parse. This must be a primitive or a primitive
+	 *             wrapper, or one of {@link BigDecimal}, {@link BigInteger},
+	 *             {@link String}, {@link Date}.
+	 * @return the object as the type specified by <code>type</code>. If
+	 *         <code>type</code> is a primitive, the primitive wrapper type is
+	 *         created and returned, and <code>null</code>s are converted to the
+	 *         Java default for the primitive type
+	 * @throws IllegalArgumentException if <code>type</code> is not a supported
+	 *                                  type, or if <code>val</code> cannot be
+	 *                                  converted into an instance of type
+	 *                                  <code>type</code>.
+	 */
+    public static Object parse(String val, Class<?> type) {
         if (!canParse(type))
             throw new IllegalArgumentException("invalid type: " +
                 type.getName());
@@ -300,8 +332,11 @@ public class Strings {
 
     /**
      * Whether the given type is parsable via {@link #parse}.
+     * 
+     * @param type the input type
+     * @return true if the given type is parsable via {@link #parse}
      */
-    public static boolean canParse(Class type) {
+    public static boolean canParse(Class<?> type) {
         return type.isPrimitive() || type == Boolean.class 
             || type == Byte.class || type == Character.class 
             || type == Short.class || type == Integer.class 

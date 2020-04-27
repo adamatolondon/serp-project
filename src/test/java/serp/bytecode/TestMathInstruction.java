@@ -1,23 +1,22 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link MathInstruction} type.
  *
  * @author Abe White
  */
-public class TestMathInstruction extends TestCase {
+public class TestMathInstruction {
     private Code _code = new Code();
-
-    public TestMathInstruction(String test) {
-        super(test);
-    }
 
     /**
      * Test that the instruction intitializes correctly when generated.
      */
+    @Test
     public void testInitialize() {
         assertEquals(Constants.NOP, _code.math().getOpcode());
         assertEquals(Constants.NOP, _code.xadd().getOpcode());
@@ -73,6 +72,7 @@ public class TestMathInstruction extends TestCase {
     /**
      * Test that the instruction returns its type correctly.
      */
+    @Test
     public void testGetType() {
         MathInstruction ins = _code.math();
         assertNull(ins.getType());
@@ -239,6 +239,7 @@ public class TestMathInstruction extends TestCase {
      * Test that the opcode is morphed correctly when the type and operation
      * of the instruction are changed.
      */
+    @Test
     public void testOpcodeMorph() {
         MathInstruction math = _code.math();
 
@@ -320,11 +321,4 @@ public class TestMathInstruction extends TestCase {
         assertEquals(Constants.LXOR, math.setType(long.class).getOpcode());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestMathInstruction.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

@@ -16,6 +16,8 @@ public class LocalVariable extends Local {
 
     /**
      * The owning table.
+     * 
+     * @return the owning table
      */
     public LocalVariableTable getLocalVariableTable() {
         return (LocalVariableTable) getTable();
@@ -24,18 +26,24 @@ public class LocalVariable extends Local {
     /**
      * Return the type of this local.
      * If the type has not been set, this method will return null.
+     * 
+	 * @return the type of this local. If the type has not been set, this method
+	 *         will return null
      */
-    public Class getType() {
+    public Class<?> getType() {
         String type = getTypeName();
         if (type == null)
             return null;
         return Strings.toClass(type, getClassLoader());
     }
 
-    /**
-     * Return the type of this local.
-     * If the type has not been set, this method will return null.
-     */
+	/**
+	 * Return the type of this local. If the type has not been set, this method will
+	 * return null.
+	 * 
+	 * @return the type of this local. If the type has not been set, this method
+	 *         will return null
+	 */
     public BCClass getTypeBC() {
         String type = getTypeName();
         if (type == null)
@@ -45,8 +53,10 @@ public class LocalVariable extends Local {
 
     /**
      * Set the type of this local.
+     * 
+     * @param type the type to set
      */
-    public void setType(Class type) {
+    public void setType(Class<?> type) {
         if (type == null)
             setType((String) null);
         else
@@ -55,6 +65,8 @@ public class LocalVariable extends Local {
 
     /**
      * Set the type of this local.
+     * 
+     * @param type the type to set
      */
     public void setType(BCClass type) {
         if (type == null)

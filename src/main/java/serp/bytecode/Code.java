@@ -1,10 +1,20 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
-import serp.bytecode.lowlevel.*;
-import serp.bytecode.visitor.*;
+import serp.bytecode.visitor.BCVisitor;
 
 /**
  * Representation of a code block of a class.
@@ -36,8 +46,8 @@ public class Code extends Attribute {
     private int _maxStack = 0;
     private int _maxLocals = 0;
     private int _size = 0;
-    private Collection _handlers = new LinkedList();
-    private Collection _attrs = new LinkedList();
+    private Collection<ExceptionHandler> _handlers = new LinkedList<>();
+    private Collection<Attribute> _attrs = new LinkedList<>();
     private boolean _byteIndexesValid;
 
     Code(int nameIndex, Attributes owner) {
@@ -61,12 +71,14 @@ public class Code extends Attribute {
 
     /**
      * The owning method.
+     * 
+     * @return the owning method
      */
     public BCMethod getMethod() {
         return (BCMethod) getOwner();
     }
 
-    Collection getAttributesHolder() {
+    Collection<Attribute> getAttributesHolder() {
         return _attrs;
     }
 
@@ -76,6 +88,8 @@ public class Code extends Attribute {
 
     /**
      * Return the maximum stack depth set for this code block.
+     * 
+     * @return the maximum stack depth set for this code block
      */
     public int getMaxStack() {
         return _maxStack;
@@ -83,6 +97,8 @@ public class Code extends Attribute {
 
     /**
      * Set the maximum stack depth for this code block.
+     * 
+     * @param max the maximum stack depth
      */
     public void setMaxStack(int max) {
         _maxStack = max;
@@ -91,26 +107,32 @@ public class Code extends Attribute {
     /**
      * Return the maximum number of local variables (including params)
      * set for this method.
+     * 
+     * @return the maximum number of local variables
      */
     public int getMaxLocals() {
         return _maxLocals;
     }
 
-    /**
-     * Set the maximum number of local variables (including params) in
-     * this method.
-     */
+	/**
+	 * Set the maximum number of local variables (including params) in this method.
+	 * 
+	 * @param max the maximum number of local variables
+	 */
     public void setMaxLocals(int max) {
         _maxLocals = max;
     }
 
-    /**
-     * Return the local variable index for the paramIndex'th parameter to
-     * the method. Local variable indexes differ from parameter indexes because:
-     * a) non-static methods use the 0th local variable for the 'this' ptr, and
-     * b) double and long values occupy two spots in the local variable array.
-     * Returns -1 if the given index is not valid.
-     */
+	/**
+	 * Return the local variable index for the paramIndex'th parameter to the
+	 * method. Local variable indexes differ from parameter indexes because: a)
+	 * non-static methods use the 0th local variable for the 'this' ptr, and b)
+	 * double and long values occupy two spots in the local variable array. Returns
+	 * -1 if the given index is not valid.
+	 * 
+	 * @param paramIndex the paramIndex'th parameter
+	 * @return the local variable index or -1 if the given index is not valid
+	 */
     public int getLocalsIndex(int paramIndex) {
         if (paramIndex < 0)
             return -1;
@@ -134,6 +156,9 @@ public class Code extends Attribute {
      * the given local does not reference a param.
      *
      * @see #getLocalsIndex
+     * 
+     * @param localIndex the local index
+     * @return the parameter index
      */
     public int getParamsIndex(int localIndex) {
         int pos = 0;
@@ -152,6 +177,8 @@ public class Code extends Attribute {
 
     /**
      * Return the next available local variable index.
+     * 
+     * @return the next available local variable index
      */
     public int getNextLocalsIndex() {
         calculateMaxLocals();
@@ -231,6 +258,8 @@ public class Code extends Attribute {
     /**
      * Return the exception handlers active in this code block, or an
      * empty array if none.
+     * 
+     * @return the exception handler array
      */
     public ExceptionHandler[] getExceptionHandlers() {
         return (ExceptionHandler[]) _handlers.toArray
@@ -241,6 +270,9 @@ public class Code extends Attribute {
      * Return the exception handler that catches the given exception type;
      * if multiple handlers catch the given type, which is returned is
      * undefined.
+     * 
+     * @param catchType the exception type
+     * @return the exception handler
      */
     public ExceptionHandler getExceptionHandler(String catchType) {
         catchType = getProject().getNameCache().getExternalForm(catchType, 
@@ -260,8 +292,11 @@ public class Code extends Attribute {
      * Return the exception handler that catches the given exception type;
      * if multiple handlers catch the given type, which is returned is
      * undefined.
+     * 
+     * @param catchType the exception type
+     * @return the exception handler
      */
-    public ExceptionHandler getExceptionHandler(Class catchType) {
+    public ExceptionHandler getExceptionHandler(Class<?> catchType) {
         if (catchType == null)
             return getExceptionHandler((String) null);
         return getExceptionHandler(catchType.getName());
@@ -271,6 +306,9 @@ public class Code extends Attribute {
      * Return the exception handler that catches the given exception type;
      * if multiple handlers catch the given type, which is returned is
      * undefined.
+     * 
+     * @param catchType the exception type
+     * @return the exception handler
      */
     public ExceptionHandler getExceptionHandler(BCClass catchType) {
         if (catchType == null)
@@ -281,11 +319,14 @@ public class Code extends Attribute {
     /**
      * Return all exception handlers that catch the given exception type,
      * or an empty array if none.
+     * 
+     * @param catchType the exception type
+     * @return the exception handler array
      */
     public ExceptionHandler[] getExceptionHandlers(String catchType) {
         catchType = getProject().getNameCache().getExternalForm(catchType, 
             false);
-        List matches = new LinkedList();
+        List<ExceptionHandler> matches = new LinkedList<>();
         String type;
         ExceptionHandler[] handlers = getExceptionHandlers();
         for (int i = 0; i < handlers.length; i++) {
@@ -301,8 +342,11 @@ public class Code extends Attribute {
     /**
      * Return all exception handlers that catch the given exception type,
      * or an empty array if none.
+     * 
+     * @param catchType the exception type
+     * @return the exception handler array
      */
-    public ExceptionHandler[] getExceptionHandlers(Class catchType) {
+    public ExceptionHandler[] getExceptionHandlers(Class<?> catchType) {
         if (catchType == null)
             return getExceptionHandlers((String) null);
         return getExceptionHandlers(catchType.getName());
@@ -311,6 +355,9 @@ public class Code extends Attribute {
     /**
      * Return all exception handlers that catch the given exception type,
      * or an empty array if none.
+     * 
+     * @param catchType the exception type
+     * @return the exception handler array
      */
     public ExceptionHandler[] getExceptionHandlers(BCClass catchType) {
         if (catchType == null)
@@ -322,6 +369,8 @@ public class Code extends Attribute {
      * Set the exception handlers for this code block. This method is useful
      * for importing all handlers from another code block. Set to null or
      * empty array if none.
+     * 
+     * @param handlers the handlers to set
      */
     public void setExceptionHandlers(ExceptionHandler[] handlers) {
         clearExceptionHandlers();
@@ -332,6 +381,9 @@ public class Code extends Attribute {
 
     /**
      * Import the given exception handler from another code block.
+     * 
+     * @param handler the {@link ExceptionHandler} to add
+     * @return the handler added
      */
     public ExceptionHandler addExceptionHandler(ExceptionHandler handler) {
         ExceptionHandler newHandler = addExceptionHandler();
@@ -341,6 +393,8 @@ public class Code extends Attribute {
 
     /**
      * Add an exception handler to this code block.
+     * 
+	 * @return the exception handler added
      */
     public ExceptionHandler addExceptionHandler() {
         ExceptionHandler handler = new ExceptionHandler(this);
@@ -348,14 +402,15 @@ public class Code extends Attribute {
         return handler;
     }
 
-    /**
-     * Add an exception handler to this code block.
-     *
-     * @param tryStart the first instruction of the try {} block
-     * @param tryEnd the last instruction of the try {} block
-     * @param handlerStart the first instruction of the catch {} block
-     * @param catchType the type of exception being caught
-     */
+	/**
+	 * Add an exception handler to this code block.
+	 *
+	 * @param tryStart     the first instruction of the try {} block
+	 * @param tryEnd       the last instruction of the try {} block
+	 * @param handlerStart the first instruction of the catch {} block
+	 * @param catchType    the type of exception being caught
+	 * @return the exception handler added
+	 */
     public ExceptionHandler addExceptionHandler(Instruction tryStart,
         Instruction tryEnd, Instruction handlerStart, String catchType) {
         ExceptionHandler handler = addExceptionHandler();
@@ -366,30 +421,32 @@ public class Code extends Attribute {
         return handler;
     }
 
-    /**
-     * Add an exception handler to this code block.
-     *
-     * @param tryStart the first instruction of the try {} block
-     * @param tryEnd the last instruction of the try {} block
-     * @param handlerStart the first instruction of the catch {} block
-     * @param catchType the type of exception being caught
-     */
+	/**
+	 * Add an exception handler to this code block.
+	 *
+	 * @param tryStart     the first instruction of the try {} block
+	 * @param tryEnd       the last instruction of the try {} block
+	 * @param handlerStart the first instruction of the catch {} block
+	 * @param catchType    the type of exception being caught
+	 * @return the exception handler added
+	 */
     public ExceptionHandler addExceptionHandler(Instruction tryStart,
-        Instruction tryEnd, Instruction handlerStart, Class catchType) {
+        Instruction tryEnd, Instruction handlerStart, Class<?> catchType) {
         String catchName = null;
         if (catchType != null)
             catchName = catchType.getName();
         return addExceptionHandler(tryStart, tryEnd, handlerStart, catchName);
     }
 
-    /**
-     * Add an exception handler to this code block.
-     *
-     * @param tryStart the first instruction of the try {} block
-     * @param tryEnd the last instruction of the try {} block
-     * @param handlerStart the first instruction of the catch {} block
-     * @param catchType the type of exception being caught
-     */
+	/**
+	 * Add an exception handler to this code block.
+	 *
+	 * @param tryStart     the first instruction of the try {} block
+	 * @param tryEnd       the last instruction of the try {} block
+	 * @param handlerStart the first instruction of the catch {} block
+	 * @param catchType    the type of exception being caught
+	 * @return the exception handler
+	 */
     public ExceptionHandler addExceptionHandler(Instruction tryStart,
         Instruction tryEnd, Instruction handlerStart, BCClass catchType) {
         String catchName = null;
@@ -403,7 +460,7 @@ public class Code extends Attribute {
      */
     public void clearExceptionHandlers() {
         ExceptionHandler handler;
-        for (Iterator itr = _handlers.iterator(); itr.hasNext();) {
+        for (Iterator<ExceptionHandler> itr = _handlers.iterator(); itr.hasNext();) {
             handler = (ExceptionHandler) itr.next();
             itr.remove();
             handler.invalidate();
@@ -412,27 +469,32 @@ public class Code extends Attribute {
 
     /**
      * Remove the exception handler that catches the given type.
+     * 
+     * @param catchType the exception handloer name
+     * @return true if removed
      */
     public boolean removeExceptionHandler(String catchType) {
         return removeExceptionHandler(getExceptionHandler(catchType));
     }
 
-    /**
-     * Remove the exception handler that catches the given type.
-     *
-     * @return true if the handler was removed, false otherwise
-     */
-    public boolean removeExceptionHandler(Class catchType) {
+	/**
+	 * Remove the exception handler that catches the given type.
+	 *
+	 * @param catchType the exception handler type
+	 * @return true if the handler was removed, false otherwise
+	 */
+    public boolean removeExceptionHandler(Class<?> catchType) {
         if (catchType == null)
             return removeExceptionHandler((String) null);
         return removeExceptionHandler(catchType.getName());
     }
 
-    /**
-     * Remove the exception handler that catches the given type.
-     *
-     * @return true if the handler was removed, false otherwise
-     */
+	/**
+	 * Remove the exception handler that catches the given type.
+	 *
+	 * @param catchType the handler to remove
+	 * @return true if the handler was removed, false otherwise
+	 */
     public boolean removeExceptionHandler(BCClass catchType) {
         if (catchType == null)
             return removeExceptionHandler((String) null);
@@ -442,6 +504,9 @@ public class Code extends Attribute {
     /**
      * Remove an exception handler from this code block. The given handler
      * must belong to this code block.
+     * 
+     * @param handler the handler to remove
+     * @return true if removed
      */
     public boolean removeExceptionHandler(ExceptionHandler handler) {
         if ((handler == null) || !_handlers.remove(handler))
@@ -456,6 +521,8 @@ public class Code extends Attribute {
 
     /**
      * Return the number of instructions in the method.
+     * 
+     * @return the number of instructions in the method
      */
     public int size() {
         return _size;
@@ -481,6 +548,8 @@ public class Code extends Attribute {
     /**
      * Position the iterator just before the given instruction. The
      * instruction must belong to this method.
+     * 
+     * @param ins the instruction
      */
     public void before(Instruction ins) {
         if (ins.getCode() != this)
@@ -491,30 +560,38 @@ public class Code extends Attribute {
     /**
      * Position the iterator just after the given instruction. The
      * instruction must belong to this method.
+     * 
+     * @param ins the instruction
      */
     public void after(Instruction ins) {
         before(ins);
         next();
     }
 
-    /**
-     * Return true if a subsequent call to {@link #next} will return an
-     * instruction.
-     */
+	/**
+	 * Return true if a subsequent call to {@link #next} will return an instruction.
+	 * 
+	 * @return true if a subsequent call to {@link #next} will return an instruction
+	 */
     public boolean hasNext() {
         return _ci.hasNext();
     }
 
-    /**
-     * Return true if a subsequent call to {@link #previous} will return an
-     * instruction.
-     */
+	/**
+	 * Return true if a subsequent call to {@link #previous} will return an
+	 * instruction.
+	 * 
+	 * @return true if a subsequent call to {@link #previous} will return an
+	 *         instruction
+	 */
     public boolean hasPrevious() {
         return _ci.hasPrevious();
     }
 
     /**
      * Return the next instruction.
+     * 
+     * @return the next instruction
      */
     public Instruction next() {
         return (Instruction) _ci.next();
@@ -522,6 +599,8 @@ public class Code extends Attribute {
 
     /**
      * Return the index of the next instruction, or {@link #size} if at end.
+     * 
+     * @return the index of the next instruction, or {@link #size} if at end
      */
     public int nextIndex() {
         return _ci.nextIndex();
@@ -529,6 +608,8 @@ public class Code extends Attribute {
 
     /**
      * Return the previous instruction.
+     * 
+     * @return the previous instruction
      */
     public Instruction previous() {
         return (Instruction) _ci.previous();
@@ -536,6 +617,8 @@ public class Code extends Attribute {
 
     /**
      * Return the index of the previous instruction, or -1 if at beginning.
+     * 
+     * @return the index of the previous instruction, or -1 if at beginning
      */
     public int previousIndex() {
         return _ci.previousIndex();
@@ -543,6 +626,8 @@ public class Code extends Attribute {
 
     /**
      * Place the iterator before the given list index.
+     * 
+     * @param index the index
      */
     public void before(int index) {
         if (index < 0 || index >= _size)
@@ -555,6 +640,8 @@ public class Code extends Attribute {
 
     /**
      * Place the iterator after the given list index.
+     * 
+     * @param index the index
      */
     public void after(int index) {
         before(index);
@@ -571,6 +658,7 @@ public class Code extends Attribute {
      * Instruction. If no match is found, moves the iterator to
      * {@link #afterLast}.
      *
+     * @param template the instruction to search
      * @return true if match found
      */
     public boolean searchForward(Instruction template) {
@@ -593,6 +681,7 @@ public class Code extends Attribute {
      * is placed before the matching Instruction. If no match is found,
      * moves the iterator to {@link #beforeFirst}.
      *
+     * @param template the instruction to search
      * @return true if match found
      */
     public boolean searchBackward(Instruction template) {
@@ -605,11 +694,12 @@ public class Code extends Attribute {
         return false;
     }
 
-    /**
-     * Adds a copy of the given instruction.
-     *
-     * @return the newly added instruction
-     */
+	/**
+	 * Adds a copy of the given instruction.
+	 *
+	 * @param ins the instruction to add
+	 * @return the newly added instruction
+	 */
     public Instruction add(Instruction ins) {
         Instruction newIns = createInstruction(ins.getOpcode());
         newIns.read(ins);
@@ -617,14 +707,15 @@ public class Code extends Attribute {
         return newIns;
     }
 
-    /**
-     * Replaces the last iterated instruction with a copy of the given one.
-     * This method will also make sure that all jump points
-     * that referenced the old opcode are updated correctly.
-     *
-     * @return the newly added instruction
-     * @see ListIterator#set
-     */
+	/**
+	 * Replaces the last iterated instruction with a copy of the given one. This
+	 * method will also make sure that all jump points that referenced the old
+	 * opcode are updated correctly.
+	 *
+	 * @param ins the instruction to set
+	 * @return the newly added instruction
+	 * @see ListIterator#set
+	 */
     public Instruction set(Instruction ins) {
         Instruction newIns = createInstruction(ins.getOpcode());
         newIns.read(ins);
@@ -632,13 +723,15 @@ public class Code extends Attribute {
         return newIns;
     }
 
-    /**
-     * Replaces all the instructions in this code block that match the
-     * given template with the given instruction. After this method,
-     * the iterator will be {@link #afterLast}.
-     *
-     * @return the number of substitutions made
-     */
+	/**
+	 * Replaces all the instructions in this code block that match the given
+	 * template with the given instruction. After this method, the iterator will be
+	 * {@link #afterLast}.
+	 *
+	 * @param template the instruction template
+	 * @param with     the instruction to replace with
+	 * @return the number of substitutions made
+	 */
     public int replace(Instruction template, Instruction with) {
         beforeFirst();
         int count;
@@ -647,10 +740,14 @@ public class Code extends Attribute {
         return count;
     }
 
-    /**
-     * Equivalent to looping over each given template/replacement
-     * pair and calling {@link #replace(Instruction,Instruction)} for each.
-     */
+	/**
+	 * Equivalent to looping over each given template/replacement pair and calling
+	 * {@link #replace(Instruction,Instruction)} for each.
+	 * 
+	 * @param templates the instruction templates
+	 * @param with      the instructions to replace with
+	 * @return the number of substitutions made
+	 */
     public int replace(Instruction[] templates, Instruction[] with) {
         if (templates == null || with == null)
             return 0;
@@ -686,6 +783,8 @@ public class Code extends Attribute {
      * say that the operation involves adding synthetic static fields
      * and even methods to the class. Note that this instruction requires
      * up to 3 stack positions to execute.
+     * 
+     * @return the loaded class constant
      */
     public ClassConstantInstruction classconstant() {
         return new ClassConstantInstruction(getMethod().getDeclarer(), this,
@@ -694,6 +793,8 @@ public class Code extends Attribute {
 
     /**
      * Add the <code>nop</code> opcode.
+     * 
+     * @return the instruction added
      */
     public Instruction nop() {
         return addInstruction(Constants.NOP);
@@ -705,6 +806,8 @@ public class Code extends Attribute {
      * opcode, depending on the constant type and value. For example,
      * if the constant value is set to 0L, the opcode will be set to
      * <code>lconst0</code>.
+     * 
+     * @return the instruction added
      */
     public ConstantInstruction constant() {
         return (ConstantInstruction) addInstruction(new ConstantInstruction
@@ -714,6 +817,8 @@ public class Code extends Attribute {
     /**
      * Load a local variable onto the stack. This instruction will result
      * in a <code>nop</code> until its type and local index are set.
+     * 
+     * @return the instruction added
      */
     public LoadInstruction xload() {
         return (LoadInstruction) addInstruction(new LoadInstruction(this));
@@ -722,6 +827,8 @@ public class Code extends Attribute {
     /**
      * Load an int local variable onto the stack. This instruction will
      * result in a <code>nop</code> until its local index is set.
+     * 
+     * @return the instruction added
      */
     public LoadInstruction iload() {
         return (LoadInstruction) addInstruction(new LoadInstruction(this).
@@ -731,6 +838,8 @@ public class Code extends Attribute {
     /**
      * Load a long local variable onto the stack. This instruction will
      * result in a <code>nop</code> until its local index is set.
+     * 
+     * @return the instruction added
      */
     public LoadInstruction lload() {
         return (LoadInstruction) addInstruction(new LoadInstruction(this).
@@ -740,6 +849,8 @@ public class Code extends Attribute {
     /**
      * Load a float local variable onto the stack. This instruction will
      * result in a <code>nop</code> until its local index is set.
+     * 
+     * @return the instruction added
      */
     public LoadInstruction fload() {
         return (LoadInstruction) addInstruction(new LoadInstruction(this).
@@ -749,6 +860,8 @@ public class Code extends Attribute {
     /**
      * Load a double local variable onto the stack. This instruction will
      * result in a <code>nop</code> until its local index is set.
+     * 
+     * @return the instruction added
      */
     public LoadInstruction dload() {
         return (LoadInstruction) addInstruction(new LoadInstruction(this).
@@ -758,6 +871,8 @@ public class Code extends Attribute {
     /**
      * Load an object local variable onto the stack. This instruction will
      * result in a <code>nop</code> until its local index is set.
+     * 
+     * @return the instruction added
      */
     public LoadInstruction aload() {
         return (LoadInstruction) addInstruction(new LoadInstruction(this).
@@ -767,6 +882,8 @@ public class Code extends Attribute {
     /**
      * Store a value from the stack into a local variable. This instruction
      * will result in a <code>nop</code> until its type and local index are set.
+     * 
+     * @return the instruction added
      */
     public StoreInstruction xstore() {
         return (StoreInstruction) addInstruction(new StoreInstruction(this));
@@ -776,6 +893,8 @@ public class Code extends Attribute {
      * Store an int value from the stack into a local variable. This
      * instruction will result in a <code>nop</code> until its local index is
      * set.
+     * 
+     * @return the instruction added
      */
     public StoreInstruction istore() {
         return (StoreInstruction) addInstruction(new StoreInstruction(this).
@@ -786,6 +905,8 @@ public class Code extends Attribute {
      * Store a long value from the stack into a local variable. This
      * instruction will resultin a <code>nop</code> until its local index is
      * set.
+     * 
+     * @return the instruction added
      */
     public StoreInstruction lstore() {
         return (StoreInstruction) addInstruction(new StoreInstruction(this).
@@ -796,6 +917,8 @@ public class Code extends Attribute {
      * Store a float value from the stack into a local variable. This
      * instruction will result in a <code>nop</code> until its local index is
      * set.
+     * 
+     * @return the instruction added
      */
     public StoreInstruction fstore() {
         return (StoreInstruction) addInstruction(new StoreInstruction(this).
@@ -806,6 +929,8 @@ public class Code extends Attribute {
      * Store a double value from the stack into a local variable. This
      * instruction will result in a <code>nop</code> until its local index is
      * set.
+     * 
+     * @return the instruction added
      */
     public StoreInstruction dstore() {
         return (StoreInstruction) addInstruction(new StoreInstruction(this).
@@ -816,6 +941,8 @@ public class Code extends Attribute {
      * Store an object value from the stack into a local variable. This
      * instruction will result in a <code>nop</code> until its local index is
      * set.
+     * 
+     * @return the instruction added
      */
     public StoreInstruction astore() {
         return (StoreInstruction) addInstruction(new StoreInstruction(this).
@@ -825,6 +952,8 @@ public class Code extends Attribute {
     /**
      * Add the <code>ret</code> opcode, used in implementing
      * <code>finally</code> clauses.
+     * 
+     * @return the instruction added
      */
     public RetInstruction ret() {
         return (RetInstruction) addInstruction(Constants.RET);
@@ -832,6 +961,8 @@ public class Code extends Attribute {
 
     /**
      * Add the <code>iinc</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IIncInstruction iinc() {
         return (IIncInstruction) addInstruction(Constants.IINC);
@@ -839,6 +970,8 @@ public class Code extends Attribute {
 
     /**
      * Add the <code>wide</code> opcode.
+     * 
+     * @return the instruction added
      */
     public WideInstruction wide() {
         return (WideInstruction) addInstruction(Constants.WIDE);
@@ -847,6 +980,8 @@ public class Code extends Attribute {
     /**
      * Load an array value onto the stack. This instruction will result
      * in a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction xaload() {
         return (ArrayLoadInstruction) addInstruction(new ArrayLoadInstruction(
@@ -855,6 +990,8 @@ public class Code extends Attribute {
 
     /**
      * Load an int array value onto the stack; the <code>iaload</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction iaload() {
         return (ArrayLoadInstruction) addInstruction(Constants.IALOAD);
@@ -862,6 +999,8 @@ public class Code extends Attribute {
 
     /**
      * Load a long array value onto the stack; the <code>laload</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction laload() {
         return (ArrayLoadInstruction) addInstruction(Constants.LALOAD);
@@ -869,6 +1008,8 @@ public class Code extends Attribute {
 
     /**
      * Load a float array value onto the stack; the <code>faload</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction faload() {
         return (ArrayLoadInstruction) addInstruction(Constants.FALOAD);
@@ -876,6 +1017,8 @@ public class Code extends Attribute {
 
     /**
      * Load a double array value onto the stack; the <code>daload</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction daload() {
         return (ArrayLoadInstruction) addInstruction(Constants.DALOAD);
@@ -884,6 +1027,8 @@ public class Code extends Attribute {
     /**
      * Load an object array value onto the stack; the <code>aaload</code>
      * opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction aaload() {
         return (ArrayLoadInstruction) addInstruction(Constants.AALOAD);
@@ -891,6 +1036,8 @@ public class Code extends Attribute {
 
     /**
      * Load a byte array value onto the stack; the <code>baload</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction baload() {
         return (ArrayLoadInstruction) addInstruction(Constants.BALOAD);
@@ -898,6 +1045,8 @@ public class Code extends Attribute {
 
     /**
      * Load a char array value onto the stack; the <code>caload</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction caload() {
         return (ArrayLoadInstruction) addInstruction(Constants.CALOAD);
@@ -905,6 +1054,8 @@ public class Code extends Attribute {
 
     /**
      * Load a short array value onto the stack; the <code>saload</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayLoadInstruction saload() {
         return (ArrayLoadInstruction) addInstruction(Constants.SALOAD);
@@ -913,6 +1064,8 @@ public class Code extends Attribute {
     /**
      * Store a value from the stack into an array. This instruction
      * will result in a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction xastore() {
         return (ArrayStoreInstruction) addInstruction(new ArrayStoreInstruction(
@@ -922,6 +1075,8 @@ public class Code extends Attribute {
     /**
      * Store an int value from the stack into an array; the
      * <code>iastore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction iastore() {
         return (ArrayStoreInstruction) addInstruction(Constants.IASTORE);
@@ -930,6 +1085,8 @@ public class Code extends Attribute {
     /**
      * Store a long value from the stack into an array; the
      * <code>lastore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction lastore() {
         return (ArrayStoreInstruction) addInstruction(Constants.LASTORE);
@@ -938,6 +1095,8 @@ public class Code extends Attribute {
     /**
      * Store a float value from the stack into an array; the
      * <code>fastore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction fastore() {
         return (ArrayStoreInstruction) addInstruction(Constants.FASTORE);
@@ -946,6 +1105,8 @@ public class Code extends Attribute {
     /**
      * Store a double value from the stack into an array; the
      * <code>dastore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction dastore() {
         return (ArrayStoreInstruction) addInstruction(Constants.DASTORE);
@@ -954,6 +1115,8 @@ public class Code extends Attribute {
     /**
      * Store an object value from the stack into an array; the
      * <code>aastore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction aastore() {
         return (ArrayStoreInstruction) addInstruction(Constants.AASTORE);
@@ -962,6 +1125,8 @@ public class Code extends Attribute {
     /**
      * Store a byte value from the stack into an array; the
      * <code>bastore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction bastore() {
         return (ArrayStoreInstruction) addInstruction(Constants.BASTORE);
@@ -970,6 +1135,8 @@ public class Code extends Attribute {
     /**
      * Store a char value from the stack into an array; the
      * <code>castore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction castore() {
         return (ArrayStoreInstruction) addInstruction(Constants.CASTORE);
@@ -978,6 +1145,8 @@ public class Code extends Attribute {
     /**
      * Store a short value from the stack into an array; the
      * <code>sastore</code> opcode.
+     * 
+     * @return the instruction added
      */
     public ArrayStoreInstruction sastore() {
         return (ArrayStoreInstruction) addInstruction(Constants.SASTORE);
@@ -985,6 +1154,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>pop</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction pop() {
         return (StackInstruction) addInstruction(Constants.POP);
@@ -992,6 +1163,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>pop2</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction pop2() {
         return (StackInstruction) addInstruction(Constants.POP2);
@@ -999,6 +1172,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>dup</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction dup() {
         return (StackInstruction) addInstruction(Constants.DUP);
@@ -1006,6 +1181,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>dupx1</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction dupx1() {
         return (StackInstruction) addInstruction(Constants.DUPX1);
@@ -1013,6 +1190,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>dupx2</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction dupx2() {
         return (StackInstruction) addInstruction(Constants.DUPX2);
@@ -1020,6 +1199,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>dup2</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction dup2() {
         return (StackInstruction) addInstruction(Constants.DUP2);
@@ -1027,6 +1208,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>dup2x1</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction dup2x1() {
         return (StackInstruction) addInstruction(Constants.DUP2X1);
@@ -1034,6 +1217,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>dup2x2</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction dup2x2() {
         return (StackInstruction) addInstruction(Constants.DUP2X2);
@@ -1041,6 +1226,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>swap</code> opcode.
+     * 
+     * @return the instruction added
      */
     public StackInstruction swap() {
         return (StackInstruction) addInstruction(Constants.SWAP);
@@ -1049,6 +1236,8 @@ public class Code extends Attribute {
     /**
      * Perform some math operation on the stack items. This instruction will
      * result in a <code>nop</code> until its operation and type are set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction math() {
         return (MathInstruction) addInstruction(new MathInstruction(this));
@@ -1057,15 +1246,18 @@ public class Code extends Attribute {
     /**
      * Add the top two stack values. This instruction will result in
      * a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xadd() {
         MathInstruction mi = math();
-
         return mi.setOperation(Constants.MATH_ADD);
     }
 
     /**
      * Add the top two stack int values; the <code>iadd</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction iadd() {
         return (MathInstruction) addInstruction(Constants.IADD);
@@ -1073,6 +1265,8 @@ public class Code extends Attribute {
 
     /**
      * Add the top two stack long values; the <code>ladd</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ladd() {
         return (MathInstruction) addInstruction(Constants.LADD);
@@ -1080,6 +1274,8 @@ public class Code extends Attribute {
 
     /**
      * Add the top two stack float values; the <code>fadd</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction fadd() {
         return (MathInstruction) addInstruction(Constants.FADD);
@@ -1087,6 +1283,8 @@ public class Code extends Attribute {
 
     /**
      * Add the top two stack double values; the <code>dadd</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction dadd() {
         return (MathInstruction) addInstruction(Constants.DADD);
@@ -1095,6 +1293,8 @@ public class Code extends Attribute {
     /**
      * Subtract the top two stack values. This instruction will result in
      * a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xsub() {
         MathInstruction mi = math();
@@ -1103,6 +1303,8 @@ public class Code extends Attribute {
 
     /**
      * Subtract the top two stack int values; the <code>isub</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction isub() {
         return (MathInstruction) addInstruction(Constants.ISUB);
@@ -1110,6 +1312,8 @@ public class Code extends Attribute {
 
     /**
      * Subtract the top two stack long values; the <code>lsub</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lsub() {
         return (MathInstruction) addInstruction(Constants.LSUB);
@@ -1117,6 +1321,8 @@ public class Code extends Attribute {
 
     /**
      * Subtract the top two stack float values; the <code>fsub</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction fsub() {
         return (MathInstruction) addInstruction(Constants.FSUB);
@@ -1124,6 +1330,8 @@ public class Code extends Attribute {
 
     /**
      * Subtract the top two stack double values; the <code>dsub</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction dsub() {
         return (MathInstruction) addInstruction(Constants.DSUB);
@@ -1132,6 +1340,8 @@ public class Code extends Attribute {
     /**
      * Multiply the top two stack values. This instruction will result in
      * a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xmul() {
         MathInstruction mi = math();
@@ -1140,6 +1350,8 @@ public class Code extends Attribute {
 
     /**
      * Multiply the top two stack int values; the <code>imul</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction imul() {
         return (MathInstruction) addInstruction(Constants.IMUL);
@@ -1147,6 +1359,8 @@ public class Code extends Attribute {
 
     /**
      * Multiply the top two stack long values; the <code>lmul</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lmul() {
         return (MathInstruction) addInstruction(Constants.LMUL);
@@ -1154,6 +1368,8 @@ public class Code extends Attribute {
 
     /**
      * Multiply the top two stack float values; the <code>fmul</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction fmul() {
         return (MathInstruction) addInstruction(Constants.FMUL);
@@ -1161,6 +1377,8 @@ public class Code extends Attribute {
 
     /**
      * Multiply the top two stack double values; the <code>dmul</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction dmul() {
         return (MathInstruction) addInstruction(Constants.DMUL);
@@ -1169,6 +1387,8 @@ public class Code extends Attribute {
     /**
      * Divide the top two stack values. This instruction will result in
      * a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xdiv() {
         MathInstruction mi = math();
@@ -1177,6 +1397,8 @@ public class Code extends Attribute {
 
     /**
      * Divide the top two stack int values; the <code>idiv</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction idiv() {
         return (MathInstruction) addInstruction(Constants.IDIV);
@@ -1184,6 +1406,8 @@ public class Code extends Attribute {
 
     /**
      * Divide the top two stack long values; the <code>ldiv</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ldiv() {
         return (MathInstruction) addInstruction(Constants.LDIV);
@@ -1191,6 +1415,8 @@ public class Code extends Attribute {
 
     /**
      * Divide the top two stack float values; the <code>fdiv</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction fdiv() {
         return (MathInstruction) addInstruction(Constants.FDIV);
@@ -1198,6 +1424,8 @@ public class Code extends Attribute {
 
     /**
      * Divide the top two stack double values; the <code>ddiv</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ddiv() {
         return (MathInstruction) addInstruction(Constants.DDIV);
@@ -1206,6 +1434,8 @@ public class Code extends Attribute {
     /**
      * Take the remainder of the top two stack values. This instruction will
      * result in a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xrem() {
         MathInstruction mi = math();
@@ -1215,6 +1445,8 @@ public class Code extends Attribute {
     /**
      * Take the remainder of the top two int stack values; the
      * <code>irem</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction irem() {
         return (MathInstruction) addInstruction(Constants.IREM);
@@ -1223,6 +1455,8 @@ public class Code extends Attribute {
     /**
      * Take the remainder of the top two long stack values; the
      * <code>lrem</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lrem() {
         return (MathInstruction) addInstruction(Constants.LREM);
@@ -1231,6 +1465,8 @@ public class Code extends Attribute {
     /**
      * Take the remainder of the top two float stack values; the
      * <code>frem</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction frem() {
         return (MathInstruction) addInstruction(Constants.FREM);
@@ -1239,6 +1475,8 @@ public class Code extends Attribute {
     /**
      * Take the remainder of the top two double stack values; the
      * <code>drem</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction drem() {
         return (MathInstruction) addInstruction(Constants.DREM);
@@ -1247,6 +1485,8 @@ public class Code extends Attribute {
     /**
      * Negate the top stack value. This instruction will result in a
      * <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xneg() {
         MathInstruction mi = math();
@@ -1255,6 +1495,8 @@ public class Code extends Attribute {
 
     /**
      * Negate the top stack int value; the <code>ineg</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ineg() {
         return (MathInstruction) addInstruction(Constants.INEG);
@@ -1262,6 +1504,8 @@ public class Code extends Attribute {
 
     /**
      * Negate the top stack long value; the <code>lneg</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lneg() {
         return (MathInstruction) addInstruction(Constants.LNEG);
@@ -1269,6 +1513,8 @@ public class Code extends Attribute {
 
     /**
      * Negate the top stack float value; the <code>fneg</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction fneg() {
         return (MathInstruction) addInstruction(Constants.FNEG);
@@ -1276,6 +1522,8 @@ public class Code extends Attribute {
 
     /**
      * Negate the top stack double value; the <code>dneg</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction dneg() {
         return (MathInstruction) addInstruction(Constants.DNEG);
@@ -1284,6 +1532,8 @@ public class Code extends Attribute {
     /**
      * Shift the top stack values. This instruction will result in a
      * <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xshl() {
         MathInstruction mi = math();
@@ -1292,6 +1542,8 @@ public class Code extends Attribute {
 
     /**
      * Shift the top stack int values; the <code>ishl</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ishl() {
         return (MathInstruction) addInstruction(Constants.ISHL);
@@ -1299,6 +1551,8 @@ public class Code extends Attribute {
 
     /**
      * Shift the top stack long values; the <code>lshl</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lshl() {
         return (MathInstruction) addInstruction(Constants.LSHL);
@@ -1307,6 +1561,8 @@ public class Code extends Attribute {
     /**
      * Shift the top stack values. This instruction will result in a
      * <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xshr() {
         MathInstruction mi = math();
@@ -1315,6 +1571,8 @@ public class Code extends Attribute {
 
     /**
      * Shift the top stack int values; the <code>ishr</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ishr() {
         return (MathInstruction) addInstruction(Constants.ISHR);
@@ -1322,6 +1580,8 @@ public class Code extends Attribute {
 
     /**
      * Shift the top stack long values; the <code>lshr</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lshr() {
         return (MathInstruction) addInstruction(Constants.LSHR);
@@ -1330,6 +1590,8 @@ public class Code extends Attribute {
     /**
      * Shift the top stack values. This instruction will result in a
      * <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xushr() {
         MathInstruction mi = math();
@@ -1338,6 +1600,8 @@ public class Code extends Attribute {
 
     /**
      * Shift the top stack int values; the <code>iushr</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction iushr() {
         return (MathInstruction) addInstruction(Constants.IUSHR);
@@ -1345,6 +1609,8 @@ public class Code extends Attribute {
 
     /**
      * Shift the top stack long values; the <code>lushr</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lushr() {
         return (MathInstruction) addInstruction(Constants.LUSHR);
@@ -1353,6 +1619,8 @@ public class Code extends Attribute {
     /**
      * Take the mathematical and of the top two stack values. This instruction
      * results in a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xand() {
         MathInstruction mi = math();
@@ -1362,6 +1630,8 @@ public class Code extends Attribute {
     /**
      * Take the mathematical and of the top two stack int values; the
      * <code>iand</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction iand() {
         return (MathInstruction) addInstruction(Constants.IAND);
@@ -1370,15 +1640,19 @@ public class Code extends Attribute {
     /**
      * Take the mathematical and of the top two stack long values; the
      * <code>land</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction land() {
         return (MathInstruction) addInstruction(Constants.LAND);
     }
 
-    /**
-     * Take the mathematical or of the top two stack values. This instruction
-     * results in a <code>nop</code> until its type is set.
-     */
+	/**
+	 * Take the mathematical or of the top two stack values. This instruction
+	 * results in a <code>nop</code> until its type is set.
+	 * 
+	 * @return the instruction added
+	 */
     public MathInstruction xor() {
         MathInstruction mi = math();
         return mi.setOperation(Constants.MATH_OR);
@@ -1387,6 +1661,8 @@ public class Code extends Attribute {
     /**
      * Take the mathematical or of the top two stack int values; the
      * <code>ior</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ior() {
         return (MathInstruction) addInstruction(Constants.IOR);
@@ -1395,6 +1671,8 @@ public class Code extends Attribute {
     /**
      * Take the mathematical or of the top two stack long values; the
      * <code>lor</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lor() {
         return (MathInstruction) addInstruction(Constants.LOR);
@@ -1403,6 +1681,8 @@ public class Code extends Attribute {
     /**
      * Take the mathematical xor of the top two stack values. This instruction
      * results in a <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public MathInstruction xxor() {
         MathInstruction mi = math();
@@ -1412,6 +1692,8 @@ public class Code extends Attribute {
     /**
      * Take the mathematical xor of the top two stack int values; the
      * <code>ixor</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction ixor() {
         return (MathInstruction) addInstruction(Constants.IXOR);
@@ -1420,6 +1702,8 @@ public class Code extends Attribute {
     /**
      * Take the mathematical xor of the top two stack long values; the
      * <code>lxor</code> opcode.
+     * 
+     * @return the instruction added
      */
     public MathInstruction lxor() {
         return (MathInstruction) addInstruction(Constants.LXOR);
@@ -1429,6 +1713,8 @@ public class Code extends Attribute {
      * Convert the top stack value to another type. This instruction
      * will result in a <code>nop</code> until the types to convert
      * between are set.
+     * 
+     * @return the instruction added
      */
     public ConvertInstruction convert() {
         return (ConvertInstruction)addInstruction(new ConvertInstruction(this));
@@ -1437,6 +1723,8 @@ public class Code extends Attribute {
     /**
      * Compare the top two stack values. This instruction will result in a
      * <code>nop</code> until its type is set.
+     * 
+     * @return the instruction added
      */
     public CmpInstruction xcmp() {
         return (CmpInstruction) addInstruction(new CmpInstruction(this));
@@ -1444,6 +1732,8 @@ public class Code extends Attribute {
 
     /**
      * Compare the top two stack values; the <code>lcmp</code> opcode.
+     * 
+     * @return the instruction added
      */
     public CmpInstruction lcmp() {
         return (CmpInstruction) addInstruction(Constants.LCMP);
@@ -1451,6 +1741,8 @@ public class Code extends Attribute {
 
     /**
      * Compare the top two stack values; the <code>fcmpl</code> opcode.
+     * 
+     * @return the instruction added
      */
     public CmpInstruction fcmpl() {
         return (CmpInstruction) addInstruction(Constants.FCMPL);
@@ -1458,6 +1750,8 @@ public class Code extends Attribute {
 
     /**
      * Compare the top two stack values; the <code>fcmpg</code> opcode.
+     * 
+     * @return the instruction added
      */
     public CmpInstruction fcmpg() {
         return (CmpInstruction) addInstruction(Constants.FCMPG);
@@ -1465,6 +1759,8 @@ public class Code extends Attribute {
 
     /**
      * Compare the top two stack values; the <code>dcmpl</code> opcode.
+     * 
+     * @return the instruction added
      */
     public CmpInstruction dcmpl() {
         return (CmpInstruction) addInstruction(Constants.DCMPL);
@@ -1472,6 +1768,8 @@ public class Code extends Attribute {
 
     /**
      * Compare the top two stack values; the <code>dcmpg</code> opcode.
+     * 
+     * @return the instruction added
      */
     public CmpInstruction dcmpg() {
         return (CmpInstruction) addInstruction(Constants.DCMPG);
@@ -1479,6 +1777,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifeq</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifeq() {
         return (IfInstruction) addInstruction(Constants.IFEQ);
@@ -1486,6 +1786,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifne</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifne() {
         return (IfInstruction) addInstruction(Constants.IFNE);
@@ -1493,6 +1795,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>iflt</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction iflt() {
         return (IfInstruction) addInstruction(Constants.IFLT);
@@ -1500,6 +1804,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifge</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifge() {
         return (IfInstruction) addInstruction(Constants.IFGE);
@@ -1507,6 +1813,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifgt</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifgt() {
         return (IfInstruction) addInstruction(Constants.IFGT);
@@ -1514,6 +1822,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifle</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifle() {
         return (IfInstruction) addInstruction(Constants.IFLE);
@@ -1521,6 +1831,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ificmpeq</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ificmpeq() {
         return (IfInstruction) addInstruction(Constants.IFICMPEQ);
@@ -1528,6 +1840,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ificmpne</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ificmpne() {
         return (IfInstruction) addInstruction(Constants.IFICMPNE);
@@ -1535,6 +1849,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ificmplt</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ificmplt() {
         return (IfInstruction) addInstruction(Constants.IFICMPLT);
@@ -1542,6 +1858,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ificmpge</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ificmpge() {
         return (IfInstruction) addInstruction(Constants.IFICMPGE);
@@ -1549,6 +1867,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ificmpgt</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ificmpgt() {
         return (IfInstruction) addInstruction(Constants.IFICMPGT);
@@ -1556,6 +1876,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ificmple</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ificmple() {
         return (IfInstruction) addInstruction(Constants.IFICMPLE);
@@ -1563,6 +1885,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifacmpeq</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifacmpeq() {
         return (IfInstruction) addInstruction(Constants.IFACMPEQ);
@@ -1570,6 +1894,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifacmpne</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifacmpne() {
         return (IfInstruction) addInstruction(Constants.IFACMPNE);
@@ -1577,6 +1903,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifnull</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifnull() {
         return (IfInstruction) addInstruction(Constants.IFNULL);
@@ -1584,6 +1912,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>ifnonnull</code> opcode.
+     * 
+     * @return the instruction added
      */
     public IfInstruction ifnonnull() {
         return (IfInstruction) addInstruction(Constants.IFNONNULL);
@@ -1591,6 +1921,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>go2</code> opcode.
+     * 
+     * @return the instruction added
      */
     public JumpInstruction go2() {
         return (JumpInstruction) addInstruction(Constants.GOTO);
@@ -1599,6 +1931,8 @@ public class Code extends Attribute {
     /**
      * The <code>jsr</code> opcode used in implementing <code>finally</code>
      * clauses.
+     * 
+     * @return the instruction added
      */
     public JumpInstruction jsr() {
         return (JumpInstruction) addInstruction(Constants.JSR);
@@ -1606,6 +1940,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>tableswitch</code> opcode.
+     * 
+     * @return the <code>tableswitch</code> opcode
      */
     public TableSwitchInstruction tableswitch() {
         return (TableSwitchInstruction) addInstruction(Constants.TABLESWITCH);
@@ -1613,21 +1949,27 @@ public class Code extends Attribute {
 
     /**
      * The <code>lookupswitch</code> opcode.
+     * 
+     * @return the <code>lookupswitch</code> opcode
      */
     public LookupSwitchInstruction lookupswitch() {
         return (LookupSwitchInstruction) addInstruction(Constants.LOOKUPSWITCH);
     }
 
-    /**
-     * Return from a method. This method will result in a
-     * <code>nop</code> until its type is set.
-     */
-    public ReturnInstruction xreturn() {
-        return (ReturnInstruction) addInstruction(new ReturnInstruction(this));
-    }
+	/**
+	 * Return from a method. This method will result in a <code>nop</code> until its
+	 * type is set.
+	 * 
+     * @return the <code>nop</code> opcode
+	 */
+	public ReturnInstruction xreturn() {
+		return (ReturnInstruction) addInstruction(new ReturnInstruction(this));
+	}
 
     /**
      * Return void from a method; the <code>return</code> opcode.
+     * 
+     * @return the <code>return</code> opcode
      */
     public ReturnInstruction vreturn() {
         return (ReturnInstruction) addInstruction(Constants.RETURN);
@@ -1635,6 +1977,8 @@ public class Code extends Attribute {
 
     /**
      * Return an int from a method; the <code>ireturn</code> opcode.
+     * 
+     * @return the <code>ireturn</code> opcode
      */
     public ReturnInstruction ireturn() {
         return (ReturnInstruction) addInstruction(Constants.IRETURN);
@@ -1642,6 +1986,8 @@ public class Code extends Attribute {
 
     /**
      * Return a long from a method; the <code>lreturn</code> opcode.
+     * 
+     * @return the <code>lreturn</code> opcode
      */
     public ReturnInstruction lreturn() {
         return (ReturnInstruction) addInstruction(Constants.LRETURN);
@@ -1649,6 +1995,8 @@ public class Code extends Attribute {
 
     /**
      * Return a float from a method; the <code>freturn</code> opcode.
+     * 
+     * @return the <code>freturn</code> opcode
      */
     public ReturnInstruction freturn() {
         return (ReturnInstruction) addInstruction(Constants.FRETURN);
@@ -1656,6 +2004,8 @@ public class Code extends Attribute {
 
     /**
      * Return a double from a method; the <code>dreturn</code> opcode.
+     * 
+     * @return the <code>dreturn</code> opcode
      */
     public ReturnInstruction dreturn() {
         return (ReturnInstruction) addInstruction(Constants.DRETURN);
@@ -1663,23 +2013,28 @@ public class Code extends Attribute {
 
     /**
      * Return an object from a method; the <code>areturn</code> opcode.
+     * 
+     * @return the <code>areturn</code> opcode
      */
     public ReturnInstruction areturn() {
         return (ReturnInstruction) addInstruction(Constants.ARETURN);
     }
 
-    /**
-     * Load the value from a field onto the stack; the <code>getfield</code>
-     * opcode.
-     */
+	/**
+	 * Load the value from a field onto the stack; the <code>getfield</code> opcode.
+	 * 
+	 * @return the <code>getfield</code> opcode
+	 */
     public GetFieldInstruction getfield() {
         return (GetFieldInstruction) addInstruction(Constants.GETFIELD);
     }
 
-    /**
-     * Load the value from a static field onto the stack; the
-     * <code>getstatic</code> opcode.
-     */
+	/**
+	 * Load the value from a static field onto the stack; the <code>getstatic</code>
+	 * opcode.
+	 * 
+	 * @return the <code>getstatic</code> opcode
+	 */
     public GetFieldInstruction getstatic() {
         return (GetFieldInstruction) addInstruction(Constants.GETSTATIC);
     }
@@ -1687,21 +2042,27 @@ public class Code extends Attribute {
     /**
      * Place the value of a field onto the stack; the <code>putfield</code>
      * opcode.
+     * 
+     * @return the <code>putfield</code> opcode
      */
     public PutFieldInstruction putfield() {
         return (PutFieldInstruction) addInstruction(Constants.PUTFIELD);
     }
 
-    /**
-     * Place the value of a static field onto the stack; the
-     * <code>putstatic</code> opcode.
-     */
+	/**
+	 * Place the value of a static field onto the stack; the <code>putstatic</code>
+	 * opcode.
+	 * 
+	 * @return the <code>putstatic</code> opcode
+	 */
     public PutFieldInstruction putstatic() {
         return (PutFieldInstruction) addInstruction(Constants.PUTSTATIC);
     }
 
     /**
      * Invoke a virtual method; the <code>invokevirtual</code> opcode.
+     * 
+     * @return the <code>invokevirtual</code> opcode
      */
     public MethodInstruction invokevirtual() {
         return (MethodInstruction) addInstruction(Constants.INVOKEVIRTUAL);
@@ -1710,6 +2071,8 @@ public class Code extends Attribute {
     /**
      * Invoke a method non-virtually, as for constructors and superclass
      * methods; the <code>invokespecial</code> opcode.
+     * 
+     * @return the <code>invokespecial</code> opcode
      */
     public MethodInstruction invokespecial() {
         return (MethodInstruction) addInstruction(Constants.INVOKESPECIAL);
@@ -1717,6 +2080,8 @@ public class Code extends Attribute {
 
     /**
      * Invoke a method on an interface; the <code>invokeinterface</code> opcode.
+     * 
+     * @return the <code>invokeinterface</code> opcode
      */
     public MethodInstruction invokeinterface() {
         return (MethodInstruction) addInstruction(Constants.INVOKEINTERFACE);
@@ -1724,6 +2089,8 @@ public class Code extends Attribute {
 
     /**
      * Invoke a static method; the <code>invokestatic</code> opcode.
+     * 
+     * @return the <code>invokestatic</code> opcode
      */
     public MethodInstruction invokestatic() {
         return (MethodInstruction) addInstruction(Constants.INVOKESTATIC);
@@ -1731,6 +2098,8 @@ public class Code extends Attribute {
     
     /**
      * Invoke a dynamic method; the <code>invokedynamic</code> opcode.
+     * 
+     * @return the <code>invokedynamic</code> opcode
      */
     public MethodInstruction invokedynamic() {
         return (MethodInstruction) addInstruction(Constants.INVOKEDYNAMIC);
@@ -1738,6 +2107,8 @@ public class Code extends Attribute {
 
     /**
      * Create a new instance of an object; the <code>new</code> opcode.
+     * 
+     * @return the <code>new</code> opcode
      */
     public ClassInstruction anew() {
         return (ClassInstruction) addInstruction(Constants.NEW);
@@ -1745,31 +2116,38 @@ public class Code extends Attribute {
 
     /**
      * Create a new instance of an object array; the <code>anew</code> opcode.
+     * 
+     * @return the <code>anew</code> opcode
      */
     public ClassInstruction anewarray() {
         return (ClassInstruction) addInstruction(Constants.ANEWARRAY);
     }
 
-    /**
-     * Cast an object on the stack to another type; the <code>checkcast</code>
-     * opcode.
-     */
+	/**
+	 * Cast an object on the stack to another type; the <code>checkcast</code>
+	 * opcode.
+	 * 
+	 * @return the <code>checkcast</code> opcode
+	 */
     public ClassInstruction checkcast() {
         return (ClassInstruction) addInstruction(Constants.CHECKCAST);
     }
 
-    /**
-     * Test if a stack object is an instance of a class; the
-     * <code>instanceof</code> opcode.
-     */
+	/**
+	 * Test if a stack object is an instance of a class; the <code>instanceof</code>
+	 * opcode.
+	 * 
+	 * @return the <code>instanceof</code> opcode
+	 */
     public ClassInstruction isinstance() {
         return (ClassInstruction) addInstruction(Constants.INSTANCEOF);
     }
 
-    /**
-     * Create a new multidimensional array; the <code>multianewarray</code>
-     * opcode.
-     */
+	/**
+	 * Create a new multidimensional array; the <code>multianewarray</code> opcode.
+	 * 
+	 * @return the <code>multianewarray</code> opcode
+	 */
     public MultiANewArrayInstruction multianewarray() {
         return (MultiANewArrayInstruction) addInstruction
             (Constants.MULTIANEWARRAY);
@@ -1777,21 +2155,26 @@ public class Code extends Attribute {
 
     /**
      * Create a new array of a primitive type; the <code>newarray</code> opcode.
+     * 
+     * @return the <code>newarray</code> opcode
      */
     public NewArrayInstruction newarray() {
         return (NewArrayInstruction) addInstruction(Constants.NEWARRAY);
     }
 
-    /**
-     * Get the length of an array on the stack; the <code>arraylength</code>
-     * opcode.
-     */
+	/**
+	 * Get the length of an array on the stack; the <code>arraylength</code> opcode.
+	 * 
+	 * @return the <code>arraylength</code> opcode
+	 */
     public Instruction arraylength() {
         return addInstruction(Constants.ARRAYLENGTH);
     }
 
     /**
      * Throw an exception; the <code>athrow</code> opcode.
+     * 
+     * @return the <code>athrow</code> opcode
      */
     public Instruction athrow() {
         return addInstruction(Constants.ATHROW);
@@ -1799,6 +2182,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>monitorenter</code> opcode.
+     * 
+     * @return the <code>monitorenter</code> opcode
      */
     public MonitorEnterInstruction monitorenter() {
         return (MonitorEnterInstruction) addInstruction(Constants.MONITORENTER);
@@ -1806,6 +2191,8 @@ public class Code extends Attribute {
 
     /**
      * The <code>monitorexit</code> opcode.
+     * 
+     * @return the <code>monitorexit</code> opcode
      */
     public MonitorExitInstruction monitorexit() {
         return (MonitorExitInstruction) addInstruction(Constants.MONITOREXIT);
@@ -1817,6 +2204,8 @@ public class Code extends Attribute {
 
     /**
      * Return all the Instructions of this method.
+     * 
+     * @return all the Instructions of this method
      */
     public Instruction[] getInstructions() {
         Instruction[] arr = new Instruction[_size];
@@ -1846,6 +2235,7 @@ public class Code extends Attribute {
         return length;
     }
 
+    @Override
     public void acceptVisit(BCVisitor visit) {
         visit.enterCode(this);
         Instruction ins;
@@ -1855,8 +2245,9 @@ public class Code extends Attribute {
             ins.acceptVisit(visit);
             visit.exitInstruction(ins);
         }
-        for (Iterator i = _handlers.iterator(); i.hasNext();)
-            ((ExceptionHandler) i.next()).acceptVisit(visit);
+        for (Iterator<ExceptionHandler> i = _handlers.iterator(); i.hasNext();)
+            i.next().acceptVisit(visit);
+
         visitAttributes(visit);
         visit.exitCode(this);
     }
@@ -1865,15 +2256,15 @@ public class Code extends Attribute {
     // Convenience operations
     //////////////////////////
 
-    /**
-     * Return line number information for the code.
-     * Acts internally through the {@link Attributes} interface.
-     *
-     * @param add if true, a new line number table will be added
-     * if not already present
-     * @return the line number information, or null if none
-     * and the <code>add</code> param is set to false
-     */
+	/**
+	 * Return line number information for the code. Acts internally through the
+	 * {@link Attributes} interface.
+	 *
+	 * @param add if true, a new line number table will be added if not already
+	 *            present
+	 * @return the line number information, or null if none and the <code>add</code>
+	 *         param is set to false
+	 */
     public LineNumberTable getLineNumberTable(boolean add) {
         LineNumberTable attr = (LineNumberTable) getAttribute
             (Constants.ATTR_LINENUMBERS);
@@ -1893,15 +2284,15 @@ public class Code extends Attribute {
         return removeAttribute(Constants.ATTR_LINENUMBERS);
     }
 
-    /**
-     * Return local variable information for the code.
-     * Acts internally through the {@link Attributes} interface.
-     *
-     * @param add if true, a new local variable table will be
-     * added if not already present
-     * @return the local variable information, or null if none
-     * and the <code>add</code> param is set to false
-     */
+	/**
+	 * Return local variable information for the code. Acts internally through the
+	 * {@link Attributes} interface.
+	 *
+	 * @param add if true, a new local variable table will be added if not already
+	 *            present
+	 * @return the local variable information, or null if none and the
+	 *         <code>add</code> param is set to false
+	 */
     public LocalVariableTable getLocalVariableTable(boolean add) {
         LocalVariableTable attr = (LocalVariableTable) getAttribute
             (Constants.ATTR_LOCALS);
@@ -1920,15 +2311,15 @@ public class Code extends Attribute {
         return removeAttribute(Constants.ATTR_LOCALS);
     }
 
-    /**
-     * Return local variable generics information for the code.
-     * Acts internally through the {@link Attributes} interface.
-     *
-     * @param add if true, a new local variable type table will be
-     * added if not already present
-     * @return the local variable type information, or null if none
-     * and the <code>add</code> param is set to false
-     */
+	/**
+	 * Return local variable generics information for the code. Acts internally
+	 * through the {@link Attributes} interface.
+	 *
+	 * @param add if true, a new local variable type table will be added if not
+	 *            already present
+	 * @return the local variable type information, or null if none and the
+	 *         <code>add</code> param is set to false
+	 */
     public LocalVariableTypeTable getLocalVariableTypeTable(boolean add) {
         LocalVariableTypeTable attr = (LocalVariableTypeTable) getAttribute
             (Constants.ATTR_LOCAL_TYPES);
@@ -2016,6 +2407,7 @@ public class Code extends Attribute {
         beforeFirst();
     }
 
+    @Override
     void read(DataInput in, int length) throws IOException {
         _maxStack = in.readUnsignedShort();
         _maxLocals = in.readUnsignedShort();
@@ -2048,6 +2440,7 @@ public class Code extends Attribute {
             lines.updateTargets();
     }
 
+    @Override
     void write(DataOutput out, int length) throws IOException {
         out.writeShort(_maxStack);
         out.writeShort(_maxLocals);
@@ -2057,8 +2450,9 @@ public class Code extends Attribute {
         out.write(code);
 
         out.writeShort(_handlers.size());
-        for (Iterator itr = _handlers.iterator(); itr.hasNext();)
-            ((ExceptionHandler) itr.next()).write(out);
+        for (Iterator<ExceptionHandler> itr = _handlers.iterator(); itr.hasNext();)
+            itr.next().write(out);
+        
         writeAttributes(out);
     }
 
@@ -2094,9 +2488,12 @@ public class Code extends Attribute {
                 ((InstructionPtr) entry).updateTargets();
     }
 
-    /**
-     * Returns the byteIndex of the given instruction.
-     */
+	/**
+	 * Returns the byteIndex of the given instruction.
+	 * 
+	 * @param ins the instruction
+	 * @return the byte index of the given instruction
+	 */
     int getByteIndex(Instruction ins) {
         if (_byteIndexesValid && ins.byteIndex != -1)
             return ins.byteIndex;
@@ -2119,6 +2516,9 @@ public class Code extends Attribute {
 
     /**
      * Returns the instruction in this code block found at the given byte index.
+     * 
+     * @param byteIndex the byte index
+     * @return the instruction
      */
     Instruction getInstruction(int byteIndex) {
         if (byteIndex < 0)
@@ -2140,6 +2540,8 @@ public class Code extends Attribute {
 
     /**
      * Return the first instruction in this code block, or null if none.
+     * 
+     * @return the first instruction
      */
     Instruction getFirstInstruction() {
         return (Instruction) _head.next;
@@ -2147,18 +2549,22 @@ public class Code extends Attribute {
 
     /**
      * Return the last instruction in this code block, or null if none.
+     * 
+     * @return the last instruction
      */
     Instruction getLastInstruction() {
         return (Instruction) _tail.prev;
     }
 
-    /**
-     * Returns the number of instructions that occur before 'ins'
-     * in this code block that 'ins' is a part of.
-     *
-     * @throws IllegalArgumentException if this code block is not the owner
-     * of ins
-     */
+	/**
+	 * Returns the number of instructions that occur before 'ins' in this code block
+	 * that 'ins' is a part of.
+	 *
+	 * @param ins the instruction
+	 * @return the number of instructions that occur before 'ins' in this code block
+	 *         that 'ins' is a part of
+	 * @throws IllegalArgumentException if this code block is not the owner of ins
+	 */
     private int indexOf(Instruction ins) {
         int i = 0;
         for (CodeEntry entry = _head.next; entry != _tail;
@@ -2216,6 +2622,8 @@ public class Code extends Attribute {
     /**
      * Creates an Instruction, with this code block as the owner.
      * Note that the Instruction is not added to this Code block.
+     * 
+     * @param opcode the instruction code
      */
     private Instruction createInstruction(int opcode) {
         switch (opcode) {
@@ -2457,6 +2865,8 @@ public class Code extends Attribute {
      * code block. Useful for performing read-only searches through
      * Instructions without effecting the pointer location of the main
      * code block.
+     * 
+     * @return the {@link ListIterator} object
      */
     public ListIterator listIterator() {
         return new CodeIterator(_head, -1);

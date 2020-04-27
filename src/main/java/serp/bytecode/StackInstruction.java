@@ -1,7 +1,6 @@
 package serp.bytecode;
 
-import serp.bytecode.lowlevel.*;
-import serp.bytecode.visitor.*;
+import serp.bytecode.visitor.BCVisitor;
 
 /**
  * Represents an instruction that manipulates the stack of the current
@@ -40,6 +39,8 @@ public class StackInstruction extends TypedInstruction {
     /**
      * This method will always return null; use {@link #isWide} to determine
      * if this is pop2, dup2, etc.
+     * 
+     * @return always return null
      */
     public String getTypeName() {
         return null;
@@ -51,10 +52,13 @@ public class StackInstruction extends TypedInstruction {
             || double.class.getName().equals(type));
     }
 
-    /**
-     * Return whether to use the wide form of the current opcode for
-     * operations on longs or doubles.
-     */
+	/**
+	 * Return whether to use the wide form of the current opcode for operations on
+	 * longs or doubles.
+	 * 
+	 * @return whether to use the wide form of the current opcode for operations on
+	 *         longs or doubles
+	 */
     public boolean isWide() {
         switch (getOpcode()) {
         case Constants.POP2:
@@ -71,6 +75,7 @@ public class StackInstruction extends TypedInstruction {
      * Set whether to use the wide form of the current opcode for operations
      * on longs or doubles.
      *
+     * @param wide the boolean flag
      * @return this instruction, for method chaining
      */
     public StackInstruction setWide(boolean wide) {

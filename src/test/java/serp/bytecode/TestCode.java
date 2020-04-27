@@ -1,22 +1,21 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link Code} class.
  *
  * @author Eric Lindauer
  */
-public class TestCode extends TestCase {
-    public TestCode(String test) {
-        super(test);
-    }
-
+public class TestCode {
     /**
      * Test that removing Instructions from a Code block
      * removes the correct Instructions.
      */
+    @Test
     public void testRemove() {
         Code code = new Code();
         JumpInstruction go2 = code.go2();
@@ -63,6 +62,7 @@ public class TestCode extends TestCase {
     /**
      * Test that instruction indexes work correctly.
      */
+    @Test
     public void testIndexes() {
         Code code = new Code();
         assertEquals(0, code.nextIndex());
@@ -115,11 +115,4 @@ public class TestCode extends TestCase {
         assertEquals(2, code.previousIndex());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestCode.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

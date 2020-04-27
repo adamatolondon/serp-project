@@ -5,30 +5,29 @@ import java.io.*;
 import serp.bytecode.visitor.*;
 
 /**
- * A constant pool entry describing a class.
- * Class entries are used to refer to the current class, the superclass,
- * implemented interfaces, etc. Each class entry contains the constant pool
- * index of the {@link UTF8Entry} that stores the class name, which is
+ * A constant pool entry describing a package.
+ * Package entries are used to represent a package. Each package entry contains the constant pool
+ * index of the {@link UTF8Entry} that stores the package name, which is
  * represented in internal form.
  *
  * @author Abe White
  */
-public class ClassEntry extends Entry implements ConstantEntry {
+public class PackageEntry extends Entry implements ConstantEntry {
     private int _nameIndex = 0;
 
     /**
      * Default constructor.
      */
-    public ClassEntry() {
+    public PackageEntry() {
     }
 
 	/**
 	 * Constructor.
 	 *
 	 * @param nameIndex the constant pool index of the {@link UTF8Entry} containing
-	 *                  the class name
+	 *                  the package name
 	 */
-    public ClassEntry(int nameIndex) {
+    public PackageEntry(int nameIndex) {
         _nameIndex = nameIndex;
     }
 
@@ -43,12 +42,13 @@ public class ClassEntry extends Entry implements ConstantEntry {
         return _nameIndex;
     }
 
-    /**
-     * Set the constant pool index of the {@link UTF8Entry}
-     * containing the class name.
-     * 
-     * @param nameIndex the constant pool index
-     */
+	/**
+	 * Set the constant pool index of the {@link UTF8Entry} containing the package
+	 * name.
+	 * 
+	 * @param nameIndex the constant pool index of the {@link UTF8Entry} containing
+	 *                  the package name
+	 */
     public void setNameIndex(int nameIndex) {
         Object key = beforeModify();
         _nameIndex = nameIndex;
@@ -66,7 +66,7 @@ public class ClassEntry extends Entry implements ConstantEntry {
     }
 
     public int getType() {
-        return Entry.CLASS;
+        return Entry.PACKAGE;
     }
 
     public Object getConstant() {
@@ -78,8 +78,8 @@ public class ClassEntry extends Entry implements ConstantEntry {
     }
 
     public void acceptVisit(BCVisitor visit) {
-        visit.enterClassEntry(this);
-        visit.exitClassEntry(this);
+        visit.enterPackageEntry(this);
+        visit.exitPackageEntry(this);
     }
 
     void readData(DataInput in) throws IOException {

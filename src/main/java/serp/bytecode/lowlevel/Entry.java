@@ -30,12 +30,18 @@ public abstract class Entry implements VisitAcceptor {
     public static final int METHODHANDLE = 15;
     public static final int METHODTYPE = 16;
     public static final int INVOKEDYNAMIC = 18;
+    public static final int MODULE = 19;
+    public static final int PACKAGE = 20;
     
     private ConstantPool _pool = null;
     private int _index = 0;
 
     /**
      * Read a single entry from the given bytecode stream and returns it.
+     * 
+     * @param in the input stream
+     * @return the read entry
+     * @throws IOException stream handling exception
      */
     public static Entry read(DataInput in) throws IOException {
         Entry entry = create(in.readUnsignedByte());
@@ -43,9 +49,13 @@ public abstract class Entry implements VisitAcceptor {
         return entry;
     }
 
-    /**
-     * Write the given entry to the given bytecode stream.
-     */
+	/**
+	 * Write the given entry to the given bytecode stream.
+	 * 
+	 * @throws IOException stream handling exception
+	 * @param entry the entry
+	 * @param out   the output stream
+	 */
     public static void write(Entry entry, DataOutput out)
         throws IOException {
         out.writeByte(entry.getType());
@@ -54,6 +64,9 @@ public abstract class Entry implements VisitAcceptor {
 
     /**
      * Create an entry based on its type code.
+     * 
+     * @param type the type code
+     * @return the created entry
      */
     public static Entry create(int type) {
         switch (type) {
@@ -92,12 +105,16 @@ public abstract class Entry implements VisitAcceptor {
 
     /**
      * Return the type code for this entry type.
+     * 
+     * @return the type code for this entry type
      */
     public abstract int getType();
 
     /**
      * Return true if this is a wide entry -- i.e. if it takes up two
      * places in the constant pool. Returns false by default.
+     * 
+     * @return true if this is a wide entry, false otherwise
      */
     public boolean isWide() {
         return false;
@@ -105,6 +122,8 @@ public abstract class Entry implements VisitAcceptor {
 
     /**
      * Returns the constant pool containing this entry, or null if none.
+     * 
+     * @return the constant pool containing this entry, or null if none
      */
     public ConstantPool getPool() {
         return _pool;
@@ -112,6 +131,8 @@ public abstract class Entry implements VisitAcceptor {
 
     /**
      * Returns the index of the entry in the owning constant pool, or 0.
+     * 
+     * @return the index of the entry in the owning constant pool, or 0
      */
     public int getIndex() {
         return _index;
@@ -120,26 +141,37 @@ public abstract class Entry implements VisitAcceptor {
     /**
      * This method is called after reading the entry type from bytecode.
      * It should read all the data for this entry from the given stream.
+     * 
+     * @param in the input stream
+     * @throws IOException stream handling exception
      */
     abstract void readData(DataInput in) throws IOException;
 
     /**
      * This method is called after writing the entry type to bytecode.
      * It should write all data for this entry to the given stream.
+     * 
+     * @param out the output stream
+     * @throws IOException stream handling exception
      */
     abstract void writeData(DataOutput out) throws IOException;
 
     /**
      * Subclasses must call this method before their state is mutated.
+     * 
+     * @return the key used for this entry
      */
     Object beforeModify() {
         if (_pool == null)
             return null;
-        return _pool.getKey(this);
+        
+        return ConstantPool.getKey(this);
     }
 
     /**
      * Subclasses must call this method when their state is mutated.
+     * 
+     * @param key the key to set
      */
     void afterModify(Object key) {
         if (_pool != null)
@@ -148,6 +180,8 @@ public abstract class Entry implements VisitAcceptor {
 
     /**
      * Sets the owning pool of the entry.
+     * 
+     * @param pool the owning pool of the entry
      */
     void setPool(ConstantPool pool) {
         // attempting to overwrite current pool?

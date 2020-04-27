@@ -22,6 +22,8 @@ public class IIncInstruction extends LocalVariableInstruction {
 
     /**
      * Return the increment for this IINC instruction.
+     * 
+     * @return the increment for this IINC instruction
      */
     public int getIncrement() {
         return _inc;
@@ -30,6 +32,7 @@ public class IIncInstruction extends LocalVariableInstruction {
     /**
      * Set the increment on this IINC instruction.
      *
+     * @param val the increment to set
      * @return this Instruction, for method chaining
      */
     public IIncInstruction setIncrement(int val) {

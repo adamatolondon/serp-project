@@ -1,7 +1,12 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the handling of array {@link BCClass}es.
@@ -11,15 +16,13 @@ import junit.textui.*;
 public class TestArray extends AbstractStateTest {
     private BCClass _bc2 = null;
 
-    public TestArray(String test) {
-        super(test);
-    }
-
+    @BeforeEach
     public void setUp() {
         _bc = _project.loadClass(String[].class);
         _bc2 = _project.loadClass(int[][].class);
     }
 
+    @Test
     public void testType() {
         assertEquals(String[].class.getName(), _bc.getName());
         assertEquals("java.lang", _bc.getPackageName());
@@ -41,6 +44,7 @@ public class TestArray extends AbstractStateTest {
         assertEquals(int[][].class, _bc2.getType());
     }
 
+    @Test
     public void testSuperclass() {
         assertEquals(Object.class.getName(), _bc.getSuperclassName());
         try {
@@ -50,6 +54,7 @@ public class TestArray extends AbstractStateTest {
         }
     }
 
+    @Test
     public void testComponent() {
         assertEquals(String.class.getName(), _bc.getComponentName());
         assertEquals(String.class, _bc.getComponentType());
@@ -57,13 +62,5 @@ public class TestArray extends AbstractStateTest {
         assertEquals(int[].class.getName(), _bc2.getComponentName());
         assertEquals(int[].class, _bc2.getComponentType());
         assertEquals(int[].class, _bc2.getComponentBC().getType());
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestArray.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
     }
 }

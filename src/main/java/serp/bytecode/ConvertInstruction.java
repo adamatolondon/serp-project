@@ -1,9 +1,7 @@
 package serp.bytecode;
 
-import java.util.*;
-
-import serp.bytecode.visitor.*;
-import serp.util.*;
+import serp.bytecode.visitor.BCVisitor;
+import serp.util.Strings;
 
 /**
  * A conversion opcode such as <code>i2l, f2i</code>, etc.
@@ -14,12 +12,12 @@ import serp.util.*;
  * @author Abe White
  */
 public class ConvertInstruction extends TypedInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { boolean.class, int.class },
         { void.class, int.class },
         { Object.class, int.class },
     };
-    private static final Class[][] _fromMappings = new Class[][] {
+    private static final Class<?>[][] _fromMappings = new Class[][] {
         { boolean.class, int.class },
         { void.class, int.class },
         { Object.class, int.class },
@@ -160,6 +158,8 @@ public class ConvertInstruction extends TypedInstruction {
     /**
      * Return the name of the type being converted from.
      * If neither type has been set, this method will return null.
+     * 
+     * @return the name of the type being converted from
      */
     public String getFromTypeName() {
         switch (getOpcode()) {
@@ -190,8 +190,10 @@ public class ConvertInstruction extends TypedInstruction {
     /**
      * Return the {@link Class} of the type being converted from.
      * If neither type has been set, this method will return null.
+     * 
+     * @return the {@link Class} of the type being converted from
      */
-    public Class getFromType() {
+    public Class<?> getFromType() {
         String type = getFromTypeName();
         if (type == null)
             return null;
@@ -201,6 +203,8 @@ public class ConvertInstruction extends TypedInstruction {
     /**
      * Return the bytecode of the type being converted from.
      * If neither type has been set, this method will return null.
+     * 
+     * @return the bytecode of the type being converted from
      */
     public BCClass getFromTypeBC() {
         String type = getFromTypeName();
@@ -213,6 +217,7 @@ public class ConvertInstruction extends TypedInstruction {
      * Set the type being converted from. Types that have no direct
      * support will be converted accordingly.
      *
+     * @param type the type to set
      * @return this instruction, for method chaining
      */
     public ConvertInstruction setFromType(String type) {
@@ -285,9 +290,10 @@ public class ConvertInstruction extends TypedInstruction {
      * Set the type being converted from. Types that have no direct
      * support will be converted accordingly.
      *
+     * @param type the type to set
      * @return this instruction, for method chaining
      */
-    public ConvertInstruction setFromType(Class type) {
+    public ConvertInstruction setFromType(Class<?> type) {
         if (type == null)
             return setFromType((String) null);
         return setFromType(type.getName());
@@ -297,6 +303,7 @@ public class ConvertInstruction extends TypedInstruction {
      * Set the type being converted from. Types that have no direct
      * support will be converted accordingly.
      *
+     * @param type the type to set
      * @return this instruction, for method chaining
      */
     public ConvertInstruction setFromType(BCClass type) {
@@ -305,10 +312,13 @@ public class ConvertInstruction extends TypedInstruction {
         return setFromType(type.getName());
     }
 
-    /**
-     * ConvertInstructions are equal if the types they convert between are
-     * either equal or unset.
-     */
+	/**
+	 * ConvertInstructions are equal if the types they convert between are either
+	 * equal or unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if equals or unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (other == this)
             return true;

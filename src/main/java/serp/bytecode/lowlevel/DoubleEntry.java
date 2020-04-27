@@ -37,6 +37,8 @@ public class DoubleEntry extends Entry implements ConstantEntry {
 
     /**
      * Return the value of the constant.
+     * 
+     * @return the value of the constant
      */
     public double getValue() {
         return _value;
@@ -44,6 +46,8 @@ public class DoubleEntry extends Entry implements ConstantEntry {
 
     /**
      * Set the value of the constant.
+     * 
+     * @param value the value of the constant
      */
     public void setValue(double value) {
         Object key = beforeModify();
@@ -52,7 +56,7 @@ public class DoubleEntry extends Entry implements ConstantEntry {
     }
 
     public Object getConstant() {
-        return new Double(getValue());
+        return Double.valueOf(getValue());
     }
 
     public void setConstant(Object value) {

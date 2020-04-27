@@ -53,6 +53,8 @@ public abstract class Attribute extends Attributes implements VisitAcceptor {
      * Return the {@link Attributes} that owns this attribute. The entity
      * might be a {@link BCClass}, {@link BCField}, {@link BCMethod}, or other
      * attribute.
+     * 
+     * @return the {@link Attributes} object
      */
     public Attributes getOwner() {
         return _owner;
@@ -61,6 +63,8 @@ public abstract class Attribute extends Attributes implements VisitAcceptor {
     /**
      * Return the index in the {@link ConstantPool} of the {@link UTF8Entry}
      * holding the name of this attribute.
+     * 
+     * @return the name index
      */
     public int getNameIndex() {
         return _nameIndex;
@@ -68,6 +72,8 @@ public abstract class Attribute extends Attributes implements VisitAcceptor {
 
     /**
      * Return the name of this attribute.
+     * 
+     * @return the attribute's name
      */
     public String getName() {
         return ((UTF8Entry) getPool().getEntry(_nameIndex)).getValue();
@@ -89,7 +95,7 @@ public abstract class Attribute extends Attributes implements VisitAcceptor {
         return _owner != null;
     }
 
-    Collection getAttributesHolder() {
+    Collection<Attribute> getAttributesHolder() {
         return Collections.EMPTY_LIST;
     }
 

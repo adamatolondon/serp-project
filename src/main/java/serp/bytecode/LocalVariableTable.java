@@ -15,6 +15,8 @@ public class LocalVariableTable extends LocalTable {
 
     /**
      * Return all the locals of this method.
+     * 
+     * @return all the locals of this method
      */
     public LocalVariable[] getLocalVariables() {
         return (LocalVariable[]) getLocals();
@@ -22,6 +24,9 @@ public class LocalVariableTable extends LocalTable {
 
     /**
      * Return the local with the given locals index, or null if none.
+     * 
+     * @param local the local index
+     * @return the local with the given locals index, or null if none
      */
     public LocalVariable getLocalVariable(int local) {
         return (LocalVariable) getLocal(local);
@@ -30,6 +35,9 @@ public class LocalVariableTable extends LocalTable {
     /**
      * Return the local with the given name, or null if none. If multiple
      * locals have the given name, which is returned is undefined.
+     * 
+     * @param name the local name to search for
+     * @return the local with the given name, or null if none
      */
     public LocalVariable getLocalVariable(String name) {
         return (LocalVariable) getLocal(name);
@@ -37,23 +45,31 @@ public class LocalVariableTable extends LocalTable {
 
     /**
      * Return all locals with the given name, or empty array if none.
+     * 
+     * @param name the local name to search for
+     * @return all locals with the given name, or empty array if none
      */
     public LocalVariable[] getLocalVariables(String name) {
         return (LocalVariable[]) getLocals(name);
     }
 
-    /**
-     * Import a local from another method/class. Note that
-     * the program counter and length from the given local is copied
-     * directly, and thus will be incorrect unless this method is the same
-     * as the one the local is copied from, or the pc and length are reset.
-     */
+	/**
+	 * Import a local from another method/class. Note that the program counter and
+	 * length from the given local is copied directly, and thus will be incorrect
+	 * unless this method is the same as the one the local is copied from, or the pc
+	 * and length are reset.
+	 * 
+	 * @param local the local data to add
+	 * @return the newly added local
+	 */
     public LocalVariable addLocalVariable(LocalVariable local) {
         return (LocalVariable) addLocal(local);
     }
 
     /**
      * Add a local to this table.
+     * 
+     * @return the newly added local
      */
     public LocalVariable addLocalVariable() {
         return (LocalVariable) addLocal();
@@ -61,6 +77,10 @@ public class LocalVariableTable extends LocalTable {
 
     /**
      * Add a local to this table.
+     * 
+     * @param name the local name
+     * @param type the local type
+     * @return the newly added local
      */
     public LocalVariable addLocalVariable(String name, String type) {
         return (LocalVariable) addLocal(name, type);
@@ -68,14 +88,22 @@ public class LocalVariableTable extends LocalTable {
 
     /**
      * Add a local to this table.
+     * 
+     * @param name the local name
+     * @param type the local type
+     * @return the newly added local
      */
-    public LocalVariable addLocalVariable(String name, Class type) {
+    public LocalVariable addLocalVariable(String name, Class<?> type) {
         String typeName = (type == null) ? null : type.getName();
         return addLocalVariable(name, typeName);
     }
 
     /**
      * Add a local to this table.
+     * 
+     * @param name the local name
+     * @param type the local type
+     * @return the newly added local
      */
     public LocalVariable addLocalVariable(String name, BCClass type) {
         String typeName = (type == null) ? null : type.getName();

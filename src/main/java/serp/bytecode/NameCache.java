@@ -26,14 +26,15 @@ public class NameCache {
     private final Map _external = new HashMap();
     private final Map _externalHuman = new HashMap();
 
-    /**
-     * Converts the given class name to its internal form.
-     *
-     * @param className the name to convert
-     * @param descriptor true if the name is to be used for a descriptor
-     * section -- the difference seems to be that for
-     * descriptors, non-primitives are prefixed with 'L' and ended with ';'
-     */
+	/**
+	 * Converts the given class name to its internal form.
+	 *
+	 * @param className  the name to convert
+	 * @param descriptor true if the name is to be used for a descriptor section --
+	 *                   the difference seems to be that for descriptors,
+	 *                   non-primitives are prefixed with 'L' and ended with ';'
+	 * @return the internal form
+	 */
     public String getInternalForm(String className, boolean descriptor) {
         if (className == null || className.length() == 0)
             return className;
@@ -48,9 +49,15 @@ public class NameCache {
         return ret;
     }
 
-    /**
-     * @see #getInternalForm
-     */
+	/**
+	 * @see #getInternalForm
+	 * 
+	 * @param cls        the name to convert
+	 * @param descriptor true if the name is to be used for a descriptor section --
+	 *                   the difference seems to be that for descriptors,
+	 *                   non-primitives are prefixed with 'L' and ended with ';'
+	 * @return the internal form
+	 */
     private String getInternalFormInternal(String cls, boolean descriptor) {
         // handle array types, whether already in internal form or not
         StringBuilder prefix = new StringBuilder();
@@ -82,15 +89,15 @@ public class NameCache {
         return prefix.append(cls).toString();
     }
 
-    /**
-     * Given the internal name of the class, return the 'normal' java name.
-     *
-     * @param internalName the internal name being used
-     * @param humanReadable if the returned name should be in human-readable
-     * form, rather than a form suitable for a
-     * {@link Class#forName} call -- the difference
-     * lies in the handling of arrays
-     */
+	/**
+	 * Given the internal name of the class, return the 'normal' java name.
+	 *
+	 * @param internalName  the internal name being used
+	 * @param humanReadable if the returned name should be in human-readable form,
+	 *                      rather than a form suitable for a {@link Class#forName}
+	 *                      call -- the difference lies in the handling of arrays
+	 * @return return the 'normal' java name
+	 */
     public String getExternalForm(String internalName, boolean humanReadable) {
         if (internalName == null || internalName.length() == 0)
             return internalName;
@@ -143,6 +150,10 @@ public class NameCache {
     /**
      * Construct a method descriptor from the given return and parameter
      * types, which will be converted to internal form.
+     * 
+     * @param returnType the return type
+     * @param paramTypes the parameter types
+     * @return the method descriptor
      */
     public String getDescriptor(String returnType, String[] paramTypes) {
     	StringBuilder buf = new StringBuilder();
@@ -164,10 +175,14 @@ public class NameCache {
         return buf.toString();
     }
 
-    /**
-     * Return the return type, in internal form, for the given method
-     * descriptor string.
-     */
+	/**
+	 * Return the return type, in internal form, for the given method descriptor
+	 * string.
+	 * 
+	 * @param descriptor the descriptor
+	 * @return the return type, in internal form, for the given method descriptor
+	 *         string
+	 */
     public String getDescriptorReturnName(String descriptor) {
         int index = descriptor.indexOf(')');
         if (index == -1)
@@ -175,10 +190,14 @@ public class NameCache {
         return descriptor.substring(descriptor.indexOf(')') + 1);
     }
 
-    /**
-     * Return the parameter types, in internal form, for the given method
-     * descriptor string.
-     */
+	/**
+	 * Return the parameter types, in internal form, for the given method descriptor
+	 * string.
+	 * 
+	 * @param descriptor the descriptor
+	 * @return the parameter types, in internal form, for the given method
+	 *         descriptor string
+	 */
     public String[] getDescriptorParamNames(String descriptor) {
         if (descriptor == null || descriptor.length() == 0)
             return new String[0];
@@ -191,7 +210,7 @@ public class NameCache {
         descriptor = descriptor.substring(1, index);
 
         // break the param string into individual params
-        List tokens = new LinkedList();
+        List<String> tokens = new LinkedList<>();
         while (descriptor.length() > 0) {
             index = 0;
 
@@ -209,11 +228,15 @@ public class NameCache {
         return (String[]) tokens.toArray(new String[tokens.size()]);
     }
 
-    /**
-     * Return the component type name for the given array type, or null
-     * if the given string does not represent an array type name. The name
-     * given should be in proper {@link Class#forName} form.
-     */
+	/**
+	 * Return the component type name for the given array type, or null if the given
+	 * string does not represent an array type name. The name given should be in
+	 * proper {@link Class#forName} form.
+	 * 
+	 * @param name the type name
+	 * @return the component type name for the given array type, or null if the
+	 *         given string does not represent an array type name
+	 */
     public String getComponentName(String name) {
         if (name == null || !name.startsWith("["))
             return null;

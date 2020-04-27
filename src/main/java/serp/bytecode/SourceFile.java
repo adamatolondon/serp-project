@@ -21,10 +21,14 @@ public class SourceFile extends Attribute {
         return 2;
     }
 
-    /**
-     * Return the index into the class {@link ConstantPool} of the
-     * {@link UTF8Entry} naming the source file for this class, or 0 if not set.
-     */
+	/**
+	 * Return the index into the class {@link ConstantPool} of the {@link UTF8Entry}
+	 * naming the source file for this class, or 0 if not set.
+	 * 
+	 * @return the index into the class {@link ConstantPool} of the
+	 *         {@link UTF8Entry} naming the source file for this class, or 0 if not
+	 *         set
+	 */
     public int getFileIndex() {
         return _sourceFileIndex;
     }
@@ -32,6 +36,8 @@ public class SourceFile extends Attribute {
     /**
      * Set the index into the class {@link ConstantPool} of the
      * {@link UTF8Entry} naming the source file for this class.
+     * 
+     * @param sourceFileIndex the index to set
      */
     public void setFileIndex(int sourceFileIndex) {
         if (sourceFileIndex < 0)
@@ -41,6 +47,8 @@ public class SourceFile extends Attribute {
 
     /**
      * Return the name of the source file, or null if not set.
+     * 
+     * @return the name of the source file, or null if not set
      */
     public String getFileName() {
         if (_sourceFileIndex == 0)
@@ -52,6 +60,7 @@ public class SourceFile extends Attribute {
      * Return the file object for the source file, or null if not set.
      *
      * @param dir the directory of the file, or null
+     * @return the file object for the source file, or null if not set
      */
     public File getFile(File dir) {
         String name = getFileName();
@@ -63,6 +72,8 @@ public class SourceFile extends Attribute {
     /**
      * Set the name of the source file. The name should be the file name
      * only; it should not include the path to the file.
+     * 
+     * @param name the file name to set
      */
     public void setFile(String name) {
         if (name == null)
@@ -74,6 +85,8 @@ public class SourceFile extends Attribute {
     /**
      * Set the source file. Note that only the file name is recorded;
      * the path to the file is discarded.
+     * 
+     * @param file the file name to set
      */
     public void setFile(File file) {
         if (file == null)

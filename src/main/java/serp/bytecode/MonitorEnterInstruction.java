@@ -1,8 +1,6 @@
 package serp.bytecode;
 
-import java.io.*;
-
-import serp.bytecode.visitor.*;
+import serp.bytecode.visitor.BCVisitor;
 
 /**
  * The <code>monitorenter</code> instruction.

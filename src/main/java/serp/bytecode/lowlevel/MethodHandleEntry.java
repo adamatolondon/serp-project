@@ -48,7 +48,11 @@ public class MethodHandleEntry extends Entry {
     public int getReferenceKind() {
         return _reference_kind;
     }
-    
+
+    public int getReferenceIndex() {
+      return _reference_index;
+  }
+
     public void setReferenceKind(int referenceKind) throws IllegalArgumentException {
         if (referenceKind < 1 || referenceKind > 9) {
             throw new IllegalArgumentException("MethodHandle referencekind cannot accept a value of " + referenceKind);
@@ -63,11 +67,11 @@ public class MethodHandleEntry extends Entry {
      * 1 (REF_getField), 2 (REF_getStatic), 3 (REF_putField), or 4 (REF_putStatic) - CONSTANT_Fieldref_info
      * 5 (REF_invokeVirtual) or 8 (REF_newInvokeSpecial) - CONSTANT_Methodref_info
      * 6 (REF_invokeStatic) or 7 (REF_invokeSpecial) 
-     *    - If CV < 52:  CONSTANT_Methodref_info
-     *    - if CV >= 52: CONSTANT_Methodref_info or CONSTANT_InterfaceMethodref_info
+     *    - If CV &lt; 52:  CONSTANT_Methodref_info
+     *    - if CV &gt;= 52: CONSTANT_Methodref_info or CONSTANT_InterfaceMethodref_info
      * 9 (REF_invokeInterface) - CONSTANT_InterfaceMethodref_info
      * 
-     * @return
+     * @return the entry
      */
     public Entry getReference() {
         return getPool().getEntry(_reference_index);

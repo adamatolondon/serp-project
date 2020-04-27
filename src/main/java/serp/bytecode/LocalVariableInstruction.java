@@ -1,7 +1,5 @@
 package serp.bytecode;
 
-import serp.bytecode.visitor.*;
-
 /**
  * An instruction that has an argument of an index into the
  * local variable table of the current frame. This includes most of the
@@ -39,6 +37,8 @@ public abstract class LocalVariableInstruction extends TypedInstruction {
 
     /**
      * Return the index of the local variable that this instruction operates on.
+     * 
+     * @return the index of the local variable that this instruction operates on
      */
     public int getLocal() {
         return _index;
@@ -47,6 +47,7 @@ public abstract class LocalVariableInstruction extends TypedInstruction {
     /**
      * Set the index of the local variable that this instruction operates on.
      *
+     * @param index the index to set
      * @return this instruction, for method chaining
      */
     public LocalVariableInstruction setLocal(int index) {
@@ -57,6 +58,8 @@ public abstract class LocalVariableInstruction extends TypedInstruction {
 
     /**
      * Return the parameter that this instruction operates on, or -1 if none.
+     * 
+     * @return the parameter that this instruction operates on, or -1 if none
      */
     public int getParam() {
         return getCode().getParamsIndex(getLocal());
@@ -66,6 +69,9 @@ public abstract class LocalVariableInstruction extends TypedInstruction {
      * Set the method parameter that this instruction operates on. This
      * will set both the local index and the type of the instruction based
      * on the current method parameters.
+     * 
+     * @param param the parameter index
+     * @return the modified local variable
      */
     public LocalVariableInstruction setParam(int param) {
         int local = getCode().getLocalsIndex(param);
@@ -76,12 +82,15 @@ public abstract class LocalVariableInstruction extends TypedInstruction {
         return setLocal(local);
     }
 
-    /**
-     * Return the local variable object this instruction
-     * operates on, or null if none.
-     *
-     * @see LocalVariableTable#getLocalVariable(int)
-     */
+	/**
+	 * Return the local variable object this instruction operates on, or null if
+	 * none.
+	 *
+	 * @see LocalVariableTable#getLocalVariable(int)
+	 * 
+	 * @return the local variable object this instruction operates on, or null if
+	 *         none
+	 */
     public LocalVariable getLocalVariable() {
         LocalVariableTable table = getCode().getLocalVariableTable(false);
         if (table == null)
@@ -94,6 +103,7 @@ public abstract class LocalVariableInstruction extends TypedInstruction {
      * operates on. This method will set both the type and local index
      * of this instruction from the given local variable.
      *
+     * @param local the local variable to set
      * @return this instruction, for method chaining
      */
     public LocalVariableInstruction setLocalVariable(LocalVariable local) {
@@ -105,10 +115,14 @@ public abstract class LocalVariableInstruction extends TypedInstruction {
         return setLocal(local.getLocal());
     }
 
-    /**
-     * Two local variable instructions are equal if the local index they
-     * reference is equal or if either index is 0/unset.
-     */
+	/**
+	 * Two local variable instructions are equal if the local index they reference
+	 * is equal or if either index is 0/unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if the local index they reference is equal or if either index is
+	 *         0/unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (this == other)
             return true;

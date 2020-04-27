@@ -1,23 +1,22 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link StoreInstruction} type.
  *
  * @author Abe White
  */
-public class TestStoreInstruction extends TestCase {
+public class TestStoreInstruction {
     private Code _code = new Code();
-
-    public TestStoreInstruction(String test) {
-        super(test);
-    }
 
     /**
      * Test that the instruction intitializes correctly when generated.
      */
+    @Test
     public void testInitialize() {
         assertEquals(Constants.NOP, _code.xstore().getOpcode());
         assertNull(_code.xstore().getType());
@@ -36,6 +35,7 @@ public class TestStoreInstruction extends TestCase {
     /**
      * Test that the instruction returns its type correctly.
      */
+    @Test
     public void testGetType() {
         StoreInstruction ins = _code.xstore();
         assertNull(ins.getType());
@@ -81,6 +81,7 @@ public class TestStoreInstruction extends TestCase {
      * Test that the opcode is morphed correctly when the type and local
      * of the instruction are changed.
      */
+    @Test
     public void testOpcodeMorph() {
         StoreInstruction ins = _code.xstore();
 
@@ -152,11 +153,4 @@ public class TestStoreInstruction extends TestCase {
         assertEquals(4, ins.getLocal());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestStoreInstruction.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

@@ -1,23 +1,22 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link ArrayStoreInstruction} type.
  *
  * @author Abe White
  */
-public class TestArrayStoreInstruction extends TestCase {
+public class TestArrayStoreInstruction {
     private Code _code = new Code();
-
-    public TestArrayStoreInstruction(String test) {
-        super(test);
-    }
 
     /**
      * Test that the instruction initializes correctly when generated.
      */
+    @Test
     public void testIniitalize() {
         assertEquals(Constants.NOP, _code.xastore().getOpcode());
         assertEquals(Constants.IASTORE, _code.iastore().getOpcode());
@@ -33,6 +32,7 @@ public class TestArrayStoreInstruction extends TestCase {
     /**
      * Test the the instruction returns its type correctly.
      */
+    @Test
     public void testGetType() {
         assertNull(_code.xastore().getType());
         assertEquals(int.class, _code.iastore().getType());
@@ -48,6 +48,7 @@ public class TestArrayStoreInstruction extends TestCase {
     /**
      * Test that the opcode morphs correctly with type changes.
      */
+    @Test
     public void testOpcodeMorph() {
         ArrayStoreInstruction ins = _code.xastore();
         assertEquals(Constants.NOP, ins.getOpcode());
@@ -69,11 +70,4 @@ public class TestArrayStoreInstruction extends TestCase {
         assertEquals(Constants.IASTORE, ins.setType(boolean.class).getOpcode());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestArrayStoreInstruction.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

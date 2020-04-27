@@ -19,6 +19,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @return true if synchronized
      */
     public boolean isSynchronized() {
         return (getAccessFlags() & Constants.ACCESS_SYNCHRONIZED) > 0;
@@ -26,6 +28,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @param on boolean flag
      */
     public void setSynchronized(boolean on) {
         if (on)
@@ -36,6 +40,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @return true if native
      */
     public boolean isNative() {
         return (getAccessFlags() & Constants.ACCESS_NATIVE) > 0;
@@ -43,6 +49,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @param on boolean flag
      */
     public void setNative(boolean on) {
         if (on)
@@ -53,6 +61,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @return true if abstract
      */
     public boolean isAbstract() {
         return (getAccessFlags() & Constants.ACCESS_ABSTRACT) > 0;
@@ -60,6 +70,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @param on boolean flag
      */
     public void setAbstract(boolean on) {
         if (on)
@@ -70,6 +82,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @return true if strict access
      */
     public boolean isStrict() {
         return (getAccessFlags() & Constants.ACCESS_STRICT) > 0;
@@ -77,6 +91,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @param on boolean flag
      */
     public void setStrict(boolean on) {
         if (on)
@@ -87,6 +103,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @return true if var args
      */
     public boolean isVarArgs() {
         return (getAccessFlags() & Constants.ACCESS_VARARGS) > 0;
@@ -94,6 +112,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @param on boolean flag
      */
     public void setVarArgs(boolean on) {
         if (on)
@@ -104,6 +124,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @return true if bridge
      */
     public boolean isBridge() {
         return (getAccessFlags() & Constants.ACCESS_BRIDGE) > 0;
@@ -111,6 +133,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the method access flags.
+     * 
+     * @param on boolean flag
      */
     public void setBridge(boolean on) {
         if (on)
@@ -128,6 +152,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * will be given in a form suitable for a {@link Class#forName} call.
      *
      * @see BCMember#getDescriptor
+     * 
+     * @return the return type name
      */
     public String getReturnName() {
         return getProject().getNameCache().getExternalForm(getProject().
@@ -138,8 +164,10 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Return the {@link Class} object for the return type of this method.
      *
      * @see BCMember#getDescriptor
+     * 
+     * @return the return type class
      */
-    public Class getReturnType() {
+    public Class<?> getReturnType() {
         return Strings.toClass(getReturnName(), getClassLoader());
     }
 
@@ -147,6 +175,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Return the bytecode for the return type of this method.
      *
      * @see BCMember#getDescriptor
+     * 
+     * @return the bytecode class
      */
     public BCClass getReturnBC() {
         return getProject().loadClass(getReturnName(), getClassLoader());
@@ -154,6 +184,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Set the return type of this method.
+     * 
+     * @param name the return type to set
      */
     public void setReturn(String name) {
         setDescriptor(getProject().getNameCache().getDescriptor(name, 
@@ -162,13 +194,17 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Set the return type of this method.
+     * 
+     * @param type the return type to set
      */
-    public void setReturn(Class type) {
+    public void setReturn(Class<?> type) {
         setReturn(type.getName());
     }
 
     /**
      * Set the return type of this method.
+     * 
+     * @param type the return type to set
      */
     public void setReturn(BCClass type) {
         setReturn(type.getName());
@@ -183,6 +219,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * will be returned in a form suitable for a {@link Class#forName} call.
      *
      * @see BCMember#getDescriptor
+     * 
+     * @return the parameter names
      */
     public String[] getParamNames() {
         // get the parameter types from the descriptor
@@ -201,10 +239,12 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * method.
      *
      * @see BCMember#getDescriptor
+     * 
+     * @return the parameter types
      */
-    public Class[] getParamTypes() {
+    public Class<?>[] getParamTypes() {
         String[] paramNames = getParamNames();
-        Class[] params = new Class[paramNames.length];
+        Class<?>[] params = new Class[paramNames.length];
         for (int i = 0; i < paramNames.length; i++)
             params[i] = Strings.toClass(paramNames[i], getClassLoader());
         return params;
@@ -214,6 +254,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Return the bytecode for all the parameter types for this method.
      *
      * @see BCMember#getDescriptor
+     * 
+     * @return the bytecode classes
      */
     public BCClass[] getParamBCs() {
         String[] paramNames = getParamNames();
@@ -227,6 +269,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Set the parameter types of this method.
      *
      * @see BCMember#setDescriptor
+     * 
+     * @param names the parameters to set
      */
     public void setParams(String[] names) {
         if (names == null)
@@ -239,8 +283,10 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Set the parameter type of this method.
      *
      * @see BCMember#setDescriptor
+     * 
+     * @param types the parameters to set
      */
-    public void setParams(Class[] types) {
+    public void setParams(Class<?>[] types) {
         if (types == null)
             setParams((String[]) null);
         else {
@@ -255,6 +301,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Set the parameter type of this method.
      *
      * @see BCMember#setDescriptor
+     * 
+     * @param types the parameters to set
      */
     public void setParams(BCClass[] types) {
         if (types == null)
@@ -269,6 +317,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Add a parameter type to this method.
+     * 
+     * @param type the param to add
      */
     public void addParam(String type) {
         String[] origParams = getParamNames();
@@ -281,13 +331,17 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Add a parameter type to this method.
+     * 
+     * @param type the class type
      */
-    public void addParam(Class type) {
+    public void addParam(Class<?> type) {
         addParam(type.getName());
     }
 
     /**
      * Add a parameter type to this method.
+     * 
+     * @param type the param to add
      */
     public void addParam(BCClass type) {
         addParam(type.getName());
@@ -297,6 +351,9 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Add a parameter type to this method.
      *
      * @see java.util.List#add(int,Object)
+     * 
+	 * @param pos  the parameter index
+	 * @param type the class
      */
     public void addParam(int pos, String type) {
         String[] origParams = getParamNames();
@@ -317,8 +374,11 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Add a parameter type to this method.
      *
      * @see java.util.List#add(int,Object)
+     * 
+	 * @param pos  the parameter index
+	 * @param type the class
      */
-    public void addParam(int pos, Class type) {
+    public void addParam(int pos, Class<?> type) {
         addParam(pos, type.getName());
     }
 
@@ -326,6 +386,9 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Add a parameter type to this method.
      *
      * @see java.util.List#add(int,Object)
+     * 
+	 * @param pos  the parameter index
+	 * @param type the class
      */
     public void addParam(int pos, BCClass type) {
         addParam(pos, type.getName());
@@ -335,6 +398,9 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Change a parameter type of this method.
      *
      * @see java.util.List#set(int,Object)
+     * 
+	 * @param pos  the parameter index
+	 * @param type the class type
      */
     public void setParam(int pos, String type) {
         String[] origParams = getParamNames();
@@ -355,16 +421,22 @@ public class BCMethod extends BCMember implements VisitAcceptor {
      * Change a parameter type of this method.
      *
      * @see java.util.List#set(int,Object)
+     * 
+	 * @param pos  the parameter index
+	 * @param type the class
      */
-    public void setParam(int pos, Class type) {
+    public void setParam(int pos, Class<?> type) {
         setParam(pos, type.getName());
     }
 
-    /**
-     * Change a parameter type of this method.
-     *
-     * @see java.util.List#set(int,Object)
-     */
+	/**
+	 * Change a parameter type of this method.
+	 *
+	 * @see java.util.List#set(int,Object)
+	 * 
+	 * @param pos  the parameter index
+	 * @param type the class
+	 */
     public void setParam(int pos, BCClass type) {
         setParam(pos, type.getName());
     }
@@ -378,6 +450,8 @@ public class BCMethod extends BCMember implements VisitAcceptor {
 
     /**
      * Remove a parameter from this method.
+     * 
+     * @param pos the parameter index
      */
     public void removeParam(int pos) {
         String[] origParams = getParamNames();
@@ -396,15 +470,15 @@ public class BCMethod extends BCMember implements VisitAcceptor {
     // Convenience methods
     ///////////////////////
 
-    /**
-     * Return the checked exceptions information for the method.
-     * Acts internally through the {@link Attributes} interface.
-     *
-     * @param add if true, a new exceptions attribute will be added
-     * if not already present
-     * @return the exceptions information, or null if none and the
-     * <code>add</code> param is set to false
-     */
+	/**
+	 * Return the checked exceptions information for the method. Acts internally
+	 * through the {@link Attributes} interface.
+	 *
+	 * @param add if true, a new exceptions attribute will be added if not already
+	 *            present
+	 * @return the exceptions information, or null if none and the <code>add</code>
+	 *         param is set to false
+	 */
     public Exceptions getExceptions(boolean add) {
         Exceptions exceptions = (Exceptions) getAttribute
             (Constants.ATTR_EXCEPTIONS);
@@ -426,16 +500,15 @@ public class BCMethod extends BCMember implements VisitAcceptor {
         return removeAttribute(Constants.ATTR_EXCEPTIONS);
     }
 
-    /**
-     * Return the code for the method. If the code already exists, its
-     * iterator will be reset to the first instruction.
-     * Acts internally through the {@link Attributes} interface.
-     *
-     * @param add if true, a new code attribute will be added
-     * if not already present
-     * @return the code for the metohd, or null if none and the
-     * <code>add</code> param is set to false
-     */
+	/**
+	 * Return the code for the method. If the code already exists, its iterator will
+	 * be reset to the first instruction. Acts internally through the
+	 * {@link Attributes} interface.
+	 *
+	 * @param add if true, a new code attribute will be added if not already present
+	 * @return the code for the metohd, or null if none and the <code>add</code>
+	 *         param is set to false
+	 */
     public Code getCode(boolean add) {
         Code code = (Code) getAttribute(Constants.ATTR_CODE);
         if (code != null) {
@@ -444,7 +517,10 @@ public class BCMethod extends BCMember implements VisitAcceptor {
         }
         if (!add)
             return null;
-        return (Code) addAttribute(Constants.ATTR_CODE);
+        
+        Attribute attribute=addAttribute(Constants.ATTR_CODE);
+//        return (Code) addAttribute(Constants.ATTR_CODE);
+        return (Code)attribute;
     }
 
     /**

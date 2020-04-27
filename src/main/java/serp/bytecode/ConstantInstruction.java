@@ -105,10 +105,13 @@ public class ConstantInstruction extends TypedInstruction {
         throw new UnsupportedOperationException("Use setValue");
     }
 
-    /**
-     * Return the value of the constant as its wrapper type, or null if
-     * not set. Returns class values as the class name.
-     */
+	/**
+	 * Return the value of the constant as its wrapper type, or null if not set.
+	 * Returns class values as the class name.
+	 * 
+	 * @return the value of the constant as its wrapper type, or null if not set.
+	 *         Returns class values as the class name
+	 */
     public Object getValue() {
         int opcode = getOpcode();
         switch (opcode) {
@@ -129,10 +132,10 @@ public class ConstantInstruction extends TypedInstruction {
         case Constants.FCONST0:
         case Constants.FCONST1:
         case Constants.FCONST2:
-            return new Float(opcode - Constants.FCONST0);
+            return Float.valueOf(opcode - Constants.FCONST0);
         case Constants.DCONST0:
         case Constants.DCONST1:
-            return new Double(opcode - Constants.DCONST0);
+            return Double.valueOf(opcode - Constants.DCONST0);
         case Constants.BIPUSH:
         case Constants.SIPUSH:
             return Numbers.valueOf(_arg);
@@ -152,6 +155,7 @@ public class ConstantInstruction extends TypedInstruction {
      * null depending on the constant type. If the given value is not
      * supported directly, it will be converted accordingly.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(Object value) {
@@ -165,7 +169,7 @@ public class ConstantInstruction extends TypedInstruction {
         else if (value instanceof Short)
             value = Numbers.valueOf(((Short) value).intValue());
         else if (value instanceof Class) {
-            value = ((Class) value).getName();
+            value = ((Class<?>) value).getName();
             clsName = true;
         } else if (value instanceof BCClass) {
             value = ((BCClass) value).getName();
@@ -180,6 +184,8 @@ public class ConstantInstruction extends TypedInstruction {
 
     /**
      * Return the string value of this constant, or null if not set.
+     * 
+     * @return the string value of this constant, or null if not set
      */
     public String getStringValue() {
         return (String) getValue();
@@ -187,6 +193,8 @@ public class ConstantInstruction extends TypedInstruction {
 
     /**
      * Return the int value of this constant, or 0 if not set.
+     * 
+     * @return the int value of this constant, or 0 if not set
      */
     public int getIntValue() {
         Object value = getValue();
@@ -195,6 +203,8 @@ public class ConstantInstruction extends TypedInstruction {
 
     /**
      * Return the long value of this constant, or 0 if not set.
+     * 
+     * @return the long value of this constant, or 0 if not set
      */
     public long getLongValue() {
         Object value = getValue();
@@ -203,6 +213,8 @@ public class ConstantInstruction extends TypedInstruction {
 
     /**
      * Return the float value of this constant, or 0 if not set.
+     * 
+     * @return the float value of this constant, or 0 if not set
      */
     public float getFloatValue() {
         Object value = getValue();
@@ -211,6 +223,8 @@ public class ConstantInstruction extends TypedInstruction {
 
     /**
      * Return the double value of this constant, or 0 if not set.
+     * 
+     * @return the double value of this constant, or 0 if not set
      */
     public double getDoubleValue() {
         Object value = getValue();
@@ -219,6 +233,8 @@ public class ConstantInstruction extends TypedInstruction {
 
     /**
      * Return the class value of this constant, or null if not set.
+     * 
+     * @return the class value of this constant, or null if not set
      */
     public String getClassNameValue() {
         return (String) getValue();
@@ -237,6 +253,7 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(String value) {
@@ -251,9 +268,10 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
-    public ConstantInstruction setValue(Class value) {
+    public ConstantInstruction setValue(Class<?> value) {
         if (value == null)
             return setNull();
         calculateOpcode(value.getName(), true, false);
@@ -263,6 +281,7 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(BCClass value) {
@@ -275,6 +294,7 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(int value) {
@@ -285,6 +305,7 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(long value) {
@@ -295,26 +316,29 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(float value) {
-        calculateOpcode(new Float(value), false, false);
+        calculateOpcode(Float.valueOf(value), false, false);
         return this;
     }
 
     /**
      * Set the value of this constant.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(double value) {
-        calculateOpcode(new Double(value), false, false);
+        calculateOpcode(Double.valueOf(value), false, false);
         return this;
     }
 
     /**
      * Set the value of this constant; note that this type is converted to int.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(boolean value) {
@@ -324,6 +348,7 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant; note that this type is converted to int.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(short value) {
@@ -333,16 +358,21 @@ public class ConstantInstruction extends TypedInstruction {
     /**
      * Set the value of this constant; note that this type is converted to int.
      *
+     * @param value the value to set
      * @return this instruction, for method chaining
      */
     public ConstantInstruction setValue(char value) {
         return setValue((int) value);
     }
 
-    /**
-     * ConstantInstructions are equal if the const they reference is the same,
-     * or if the const of either is unset.
-     */
+	/**
+	 * ConstantInstructions are equal if the const they reference is the same, or if
+	 * the const of either is unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if the const they reference is the same, or if the const of
+	 *         either is unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (this == other)
             return true;

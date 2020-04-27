@@ -91,6 +91,8 @@ public class CmpInstruction extends TypedInstruction {
      * is of type float or double and one of the operands is NaN. For
      * FCMPG or DCMPG, this value will be 1; for FCMPL or DCMPL this value
      * will be -1. For LCMP or if the type is unset, this value will be 0.
+     * 
+     * @return the nan value
      */
     public int getNaNValue() {
         switch (getOpcode()) {
@@ -111,6 +113,7 @@ public class CmpInstruction extends TypedInstruction {
      * FCMPG or DCMPG, this value should be 1; for FCMPL or DCMPL this value
      * should be -1. For LCMP, this value should be 0.
      *
+     * @param nan nan value
      * @return this instruction, for method chaining
      */
     public CmpInstruction setNaNValue(int nan) {

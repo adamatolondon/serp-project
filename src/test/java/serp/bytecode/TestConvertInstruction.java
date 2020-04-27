@@ -1,23 +1,22 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link ConvertInstruction} type.
  *
  * @author Abe White
  */
-public class TestConvertInstruction extends TestCase {
+public class TestConvertInstruction {
     private Code _code = new Code();
-
-    public TestConvertInstruction(String test) {
-        super(test);
-    }
 
     /**
      * Test that the opcode is morphed correctly when the types are set.
      */
+    @Test
     public void testOpcodeMorph() {
         ConvertInstruction ins = _code.convert();
         assertEquals(Constants.NOP, ins.getOpcode());
@@ -72,11 +71,4 @@ public class TestConvertInstruction extends TestCase {
         assertEquals(Constants.L2F, ins.getOpcode());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestConvertInstruction.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

@@ -27,6 +27,8 @@ public class MultiANewArrayInstruction extends ClassInstruction {
 
     /**
      * Return the dimensions of the array, or -1 if not set.
+     * 
+     * @return the dimensions of the array, or -1 if not set
      */
     public int getDimensions() {
         return _dims;
@@ -35,6 +37,7 @@ public class MultiANewArrayInstruction extends ClassInstruction {
     /**
      * Set the dimensions of the array.
      *
+     * @param dims the dimensions
      * @return this instruction, for method chaining
      */
     public MultiANewArrayInstruction setDimensions(int dims) {
@@ -42,10 +45,14 @@ public class MultiANewArrayInstruction extends ClassInstruction {
         return this;
     }
 
-    /**
-     * Two MultiANewArray instructions are equal if they have the same
-     * type and dimensions, or if the type and dimensions of either is unset.
-     */
+	/**
+	 * Two MultiANewArray instructions are equal if they have the same type and
+	 * dimensions, or if the type and dimensions of either is unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if they have the same type and dimensions, or if the type and
+	 *         dimensions of either is unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (other == this)
             return true;

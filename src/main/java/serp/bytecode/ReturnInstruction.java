@@ -1,9 +1,6 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
-
-import serp.bytecode.visitor.*;
+import serp.bytecode.visitor.BCVisitor;
 
 /**
  * Returns a value (or void) from a method.
@@ -11,7 +8,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class ReturnInstruction extends TypedInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { byte.class, int.class },
         { char.class, int.class },
         { short.class, int.class },

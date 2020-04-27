@@ -33,6 +33,8 @@ public class UTF8Entry extends Entry implements ConstantEntry {
 
     /**
      * Return the value of the entry.
+     * 
+     * @return the value of the entry
      */
     public String getValue() {
         return _value;
@@ -40,6 +42,8 @@ public class UTF8Entry extends Entry implements ConstantEntry {
 
     /**
      * Set the value of the entry.
+     * 
+     * @param value the value to set
      */
     public void setValue(String value) {
         if (value == null)
@@ -49,14 +53,17 @@ public class UTF8Entry extends Entry implements ConstantEntry {
         afterModify(key);
     }
 
+    @Override
     public Object getConstant() {
         return getValue();
     }
 
+    @Override
     public void setConstant(Object value) {
         setValue((String) value);
     }
-
+    
+    @Override
     public void acceptVisit(BCVisitor visit) {
         visit.enterUTF8Entry(this);
         visit.exitUTF8Entry(this);

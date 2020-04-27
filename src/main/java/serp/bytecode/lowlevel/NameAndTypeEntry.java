@@ -20,14 +20,14 @@ public class NameAndTypeEntry extends Entry {
     public NameAndTypeEntry() {
     }
 
-    /**
-     * Constructor.
-     *
-     * @param nameIndex the constant pool index of the
-     * {@link UTF8Entry} containing the name of this entity
-     * @param descriptorIndex the constant pool index of the
-     * {@link UTF8Entry} containing the descriptor for this entity
-     */
+	/**
+	 * Constructor.
+	 *
+	 * @param nameIndex       the constant pool index of the {@link UTF8Entry}
+	 *                        containing the name of this entity
+	 * @param descriptorIndex the constant pool index of the {@link UTF8Entry}
+	 *                        containing the descriptor for this entity
+	 */
     public NameAndTypeEntry(int nameIndex, int descriptorIndex) {
         _nameIndex = nameIndex;
         _descriptorIndex = descriptorIndex;
@@ -37,18 +37,24 @@ public class NameAndTypeEntry extends Entry {
         return Entry.NAMEANDTYPE;
     }
 
-    /**
-     * Return the constant pool index of the {@link UTF8Entry}
-     * containing the name of this entity.
-     */
+	/**
+	 * Return the constant pool index of the {@link UTF8Entry} containing the name
+	 * of this entity.
+	 * 
+	 * @return the constant pool index of the {@link UTF8Entry} containing the name
+	 *         of this entity
+	 */
     public int getNameIndex() {
         return _nameIndex;
     }
 
-    /**
-     * Set the constant pool index of the {@link UTF8Entry}
-     * containing the name of this entity.
-     */
+	/**
+	 * Set the constant pool index of the {@link UTF8Entry} containing the name of
+	 * this entity.
+	 * 
+	 * @param nameIndex the constant pool index of the {@link UTF8Entry} containing
+	 *                  the name of this entity
+	 */
     public void setNameIndex(int nameIndex) {
         Object key = beforeModify();
         _nameIndex = nameIndex;
@@ -58,23 +64,31 @@ public class NameAndTypeEntry extends Entry {
     /**
      * Return the name's referenced {@link UTF8Entry}. This method can only
      * be run for entries that have been added to a constant pool.
+     * 
+     * @return the name's referenced {@link UTF8Entry}
      */
     public UTF8Entry getNameEntry() {
         return (UTF8Entry) getPool().getEntry(_nameIndex);
     }
 
-    /**
-     * Return the constant pool index of the {@link UTF8Entry}
-     * containing the descriptor for this entity.
-     */
+	/**
+	 * Return the constant pool index of the {@link UTF8Entry} containing the
+	 * descriptor for this entity.
+	 * 
+	 * @return the constant pool index of the {@link UTF8Entry} containing the
+	 *         descriptor for this entity
+	 */
     public int getDescriptorIndex() {
         return _descriptorIndex;
     }
 
-    /**
-     * Set the constant pool index of a {@link UTF8Entry}
-     * containing the descriptor for this entity.
-     */
+	/**
+	 * Set the constant pool index of a {@link UTF8Entry} containing the descriptor
+	 * for this entity.
+	 * 
+	 * @param descriptorIndex the constant pool index of a {@link UTF8Entry}
+	 *                        containing the descriptor for this entity
+	 */
     public void setDescriptorIndex(int descriptorIndex) {
         Object key = beforeModify();
         _descriptorIndex = descriptorIndex;
@@ -84,6 +98,8 @@ public class NameAndTypeEntry extends Entry {
     /**
      * Return the descriptor's referenced {@link UTF8Entry}. This method
      * can only be run for entries that have been added to a constant pool.
+     * 
+     * @return the descriptor's referenced {@link UTF8Entry}
      */
     public UTF8Entry getDescriptorEntry() {
         return (UTF8Entry) getPool().getEntry(_descriptorIndex);

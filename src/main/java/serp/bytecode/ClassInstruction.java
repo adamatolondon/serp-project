@@ -31,6 +31,8 @@ public class ClassInstruction extends TypedInstruction {
     /**
      * Return the {@link ConstantPool} index of the
      * {@link ClassEntry} describing the class for this instruction.
+     * 
+     * @return the index
      */
     public int getTypeIndex() {
         return _index;
@@ -40,6 +42,7 @@ public class ClassInstruction extends TypedInstruction {
      * Set the {@link ConstantPool} index of the
      * {@link ClassEntry} describing the class for this instruction.
      *
+     * @param index the index
      * @return this instruction, for method chaining
      */
     public ClassInstruction setTypeIndex(int index) {

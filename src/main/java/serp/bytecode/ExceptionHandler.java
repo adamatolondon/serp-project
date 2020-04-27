@@ -1,11 +1,14 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
-import serp.bytecode.lowlevel.*;
-import serp.bytecode.visitor.*;
-import serp.util.*;
+import serp.bytecode.lowlevel.ClassEntry;
+import serp.bytecode.lowlevel.ConstantPool;
+import serp.bytecode.visitor.BCVisitor;
+import serp.bytecode.visitor.VisitAcceptor;
+import serp.util.Strings;
 
 /**
  * Represents a <code>try {} catch() {}</code> statement in bytecode.
@@ -27,6 +30,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
 
     /**
      * Return the owning code block.
+     * 
+     * @return the owning code block
      */
     public Code getCode() {
         return _owner;
@@ -38,6 +43,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
 
     /**
      * Return the instruction marking the beginning of the try {} block.
+     * 
+     * @return the instruction marking the beginning of the try {} block
      */
     public Instruction getTryStart() {
         return _tryStart.getTargetInstruction();
@@ -46,6 +53,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Set the {@link Instruction} marking the beginning of the try block.
      * The instruction must already be a part of the method.
+     * 
+     * @param instruction the instruction to set
      */
     public void setTryStart(Instruction instruction) {
         _tryStart.setTargetInstruction(instruction);
@@ -53,6 +62,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
 
     /**
      * Return the instruction at the end of the try {} block.
+     * 
+     * @return the instruction at the end of the try {} block
      */
     public Instruction getTryEnd() {
         return _tryEnd.getTargetInstruction();
@@ -61,6 +72,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Set the Instruction at the end of the try block. The
      * Instruction must already be a part of the method.
+     * 
+     * @param instruction the instruction to set
      */
     public void setTryEnd(Instruction instruction) {
         _tryEnd.setTargetInstruction(instruction);
@@ -72,6 +85,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
 
     /**
      * Return the instruction marking the beginning of the catch {} block.
+     * 
+     * @return the instruction marking the beginning of the catch {} block
      */
     public Instruction getHandlerStart() {
         return _tryHandler.getTargetInstruction();
@@ -81,6 +96,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
      * Set the {@link Instruction} marking the beginning of the catch block.
      * The instruction must already be a part of the method.
      * WARNING: if this instruction is deleted, the results are undefined.
+     * 
+     * @param instruction the instruction to set
      */
     public void setHandlerStart(Instruction instruction) {
         _tryHandler.setTargetInstruction(instruction);
@@ -93,6 +110,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Return the index into the class {@link ConstantPool} of the
      * {@link ClassEntry} describing the exception type this handler catches.
+     * 
+     * @return the index
      */
     public int getCatchIndex() {
         return _catchIndex;
@@ -101,6 +120,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Set the index into the class {@link ConstantPool} of the
      * {@link ClassEntry} describing the exception type this handler catches.
+     * 
+     * @param catchTypeIndex the index to set
      */
     public void setCatchIndex(int catchTypeIndex) {
         _catchIndex = catchTypeIndex;
@@ -110,6 +131,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
      * Return the name of the exception type; returns null for catch-all
      * clauses used to implement finally blocks. The name will be returned
      * in a forum suitable for a {@link Class#forName} call.
+     * 
+     * @return the name of the exception type
      */
     public String getCatchName() {
         if (_catchIndex == 0)
@@ -123,8 +146,10 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Return the {@link Class} of the exception type; returns null for
      * catch-all clauses used to implement finally blocks.
+     * 
+     * @return the {@link Class} of the exception type
      */
-    public Class getCatchType() {
+    public Class<?> getCatchType() {
         String name = getCatchName();
         if (name == null)
             return null;
@@ -134,6 +159,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Return the bytecode of the exception type; returns null for
      * catch-all clauses used to implement finally blocks.
+     * 
+     * @return the bytecode of the exception type
      */
     public BCClass getCatchBC() {
         String name = getCatchName();
@@ -145,6 +172,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Set the class of the exception type, or null for catch-all clauses used
      * with finally blocks.
+     * 
+     * @param name the class exception type
      */
     public void setCatch(String name) {
         if (name == null)
@@ -157,8 +186,10 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Set the class of the exception type, or null for catch-all clauses used
      * for finally blocks.
+     * 
+     * @param type the class exception type
      */
-    public void setCatch(Class type) {
+    public void setCatch(Class<?> type) {
         if (type == null)
             setCatch((String) null);
         else
@@ -168,6 +199,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Set the class of the exception type, or null for catch-all clauses used
      * for finally blocks.
+     * 
+     * @param type the class exception type
      */
     public void setCatch(BCClass type) {
         if (type == null)
@@ -264,6 +297,8 @@ public class ExceptionHandler implements InstructionPtr, BCEntity,
     /**
      * Return the program counter end position for this exception handler.
      * This represents an index into the code byte array.
+     * 
+     * @return the program counter end position
      */
     public int getTryEndPc() {
         return _tryEnd.getByteIndex() + getTryEnd().getLength();

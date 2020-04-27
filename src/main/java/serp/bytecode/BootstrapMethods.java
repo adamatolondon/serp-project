@@ -55,10 +55,13 @@ public class BootstrapMethods extends Attribute {
         }
     }
     
-    /**
-     * Return the length of the bytecode representation of this attribute
-     * in bytes, excluding the name index.
-     */
+	/**
+	 * Return the length of the bytecode representation of this attribute in bytes,
+	 * excluding the name index.
+	 * 
+	 * @return the length of the bytecode representation of this attribute in bytes,
+	 *         excluding the name index
+	 */
     int getLength() {
         int length = 2;
         

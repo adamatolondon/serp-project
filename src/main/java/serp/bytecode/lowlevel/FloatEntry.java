@@ -33,6 +33,8 @@ public class FloatEntry extends Entry implements ConstantEntry {
 
     /**
      * Return the value of this constant.
+     * 
+     * @return the value of this constant
      */
     public float getValue() {
         return _value;
@@ -40,6 +42,8 @@ public class FloatEntry extends Entry implements ConstantEntry {
 
     /**
      * Set the value of this constant.
+     * 
+     * @param value the value of this constant
      */
     public void setValue(float value) {
         Object key = beforeModify();
@@ -48,7 +52,7 @@ public class FloatEntry extends Entry implements ConstantEntry {
     }
 
     public Object getConstant() {
-        return new Float(getValue());
+        return Float.valueOf(getValue());
     }
 
     public void setConstant(Object value) {

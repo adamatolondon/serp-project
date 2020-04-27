@@ -11,7 +11,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class Annotations extends Attribute {
-    private final List _annotations = new ArrayList();
+    private final List<Annotation> _annotations = new ArrayList<>();
 
     Annotations(int nameIndex, Attributes owner) {
         super(nameIndex, owner);
@@ -19,6 +19,8 @@ public class Annotations extends Attribute {
 
     /**
      * Whether these annotations are runtime-visible.
+     * 
+     * @return true if these annotations are runtime-visible, false otherwise
      */
     public boolean isRuntime() {
         return getName().equals(Constants.ATTR_RUNTIME_ANNOTATIONS);
@@ -26,16 +28,20 @@ public class Annotations extends Attribute {
 
     /**
      * All declared annotations.
+     * 
+     * @return all declared annotations
      */
     public Annotation[] getAnnotations() {
         return (Annotation[]) _annotations.toArray
             (new Annotation[_annotations.size()]);
     }
 
-    /**
-     * Set the annotations.  This method is useful when
-     * importing annotations from another instance.
-     */
+	/**
+	 * Set the annotations. This method is useful when importing annotations from
+	 * another instance.
+	 * 
+	 * @param annos the annotations to set
+	 */
     public void setAnnotations(Annotation[] annos) {
         clear();
         if (annos != null)
@@ -45,13 +51,19 @@ public class Annotations extends Attribute {
 
     /**
      * Return the annotation of the given type, or null if none.
+     * 
+     * @param type the annotation type
+     * @return the annotation found
      */
-    public Annotation getAnnotation(Class type) {
+    public Annotation getAnnotation(Class<?> type) {
         return (type == null) ? null : getAnnotation(type.getName());
     }
 
     /**
      * Return the annotation of the given type, or null if none.
+     * 
+     * @param type the annotation type
+     * @return the annotation found
      */
     public Annotation getAnnotation(BCClass type) {
         return (type == null) ? null : getAnnotation(type.getName());
@@ -59,6 +71,9 @@ public class Annotations extends Attribute {
 
     /**
      * Return the annotation of the given type, or null if none.
+     * 
+     * @param type the annotation type
+     * @return the annotation found
      */
     public Annotation getAnnotation(String type) {
         Annotation anno;
@@ -73,6 +88,7 @@ public class Annotations extends Attribute {
     /**
      * Import an annotation from another instance.
      *
+     * @param an the annotation type
      * @return the newly added annotation
      */
     public Annotation addAnnotation(Annotation an) {
@@ -83,13 +99,19 @@ public class Annotations extends Attribute {
 
     /**
      * Add a new annotation.
+     * 
+     * @param type the annotation type
+     * @return the newly added annotation
      */
-    public Annotation addAnnotation(Class type) {
+    public Annotation addAnnotation(Class<?> type) {
         return addAnnotation(type.getName());
     }
 
     /**
      * Add a new annotation.
+     * 
+     * @param type the annotation type
+     * @return the newly added annotation
      */
     public Annotation addAnnotation(BCClass type) {
         return addAnnotation(type.getName());
@@ -97,6 +119,9 @@ public class Annotations extends Attribute {
 
     /**
      * Add a new annotation.
+     * 
+     * @param type the annotation type
+     * @return the newly added annotation
      */
     public Annotation addAnnotation(String type) {
         Annotation anno = new Annotation(this);
@@ -117,6 +142,7 @@ public class Annotations extends Attribute {
     /**
      * Remove the given annotation.
      *
+     * @param anno the annotation type
      * @return true if an annotation was removed, false otherwise
      */
     public boolean removeAnnotation(Annotation anno) {
@@ -126,15 +152,17 @@ public class Annotations extends Attribute {
     /**
      * Remove the annotation of the given type.   
      *
+     * @param type the annotation type
      * @return true if an annotation was removed, false otherwise
      */
-    public boolean removeAnnotation(Class type) {
+    public boolean removeAnnotation(Class<?> type) {
         return type != null && removeAnnotation(type.getName());
     }
 
     /**
      * Remove the annotation of the given type.   
      *
+     * @param type the annotation type
      * @return true if an annotation was removed, false otherwise
      */
     public boolean removeAnnotation(BCClass type) {
@@ -144,6 +172,7 @@ public class Annotations extends Attribute {
     /**
      * Remove the annotation of the given type.   
      *
+     * @param type the annotation type
      * @return true if an annotation was removed, false otherwise
      */
     public boolean removeAnnotation(String type) {

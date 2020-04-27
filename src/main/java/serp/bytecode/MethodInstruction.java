@@ -81,6 +81,8 @@ public class MethodInstruction extends Instruction {
     /**
      * Return the index in the class {@link ConstantPool} of the
      * {@link ComplexEntry} describing the method to operate on.
+     * 
+     * @return the index in the class {@link ConstantPool}
      */
     public int getMethodIndex() {
         return _index;
@@ -90,6 +92,7 @@ public class MethodInstruction extends Instruction {
      * Set the index in the class {@link ConstantPool} of the
      * {@link ComplexEntry} describing the method to operate on.
      *
+     * @param index the index to set
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethodIndex(int index) {
@@ -99,6 +102,8 @@ public class MethodInstruction extends Instruction {
 
     /**
      * Return the method this instruction operates on, or null if not set.
+     * 
+     * @return the method this instruction operates on, or null if not set
      */
     public BCMethod getMethod() {
         String dec = getMethodDeclarerName();
@@ -115,6 +120,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the method this instruction operates on.
      *
+     * @param method the method to set
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethod(BCMethod method) {
@@ -127,6 +133,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the method this instruction operates on.
      *
+     * @param method the method to set
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethod(Method method) {
@@ -139,6 +146,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the method this instruction operates on.
      *
+     * @param method the method to set
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethod(Constructor method) {
@@ -149,30 +157,31 @@ public class MethodInstruction extends Instruction {
             method.getParameterTypes());
     }
 
-    /**
-     * Set the method this instruction operates on.
-     *
-     * @param dec the full class name of the method's declaring class
-     * @param name the method name
-     * @param returnType the full class name of the method return type
-     * @param param the full class names of the method param types
-     * @return this instruction, for method chaining
-     */
+	/**
+	 * Set the method this instruction operates on.
+	 *
+	 * @param dec        the full class name of the method's declaring class
+	 * @param name       the method name
+	 * @param returnType the full class name of the method return type
+	 * @param params     the full class names of the method param types
+	 * @return this instruction, for method chaining
+	 */
     public MethodInstruction setMethod(String dec, String name,
         String returnType, String[] params) {
         return setMethod(dec, name, returnType, params, true);
     }
 
-    /**
-     * Set the method this instruction operates on.
-     *
-     * @param dec the full class name of the method's declaring class, or the bootstrap index for InvokeDynamic
-     * @param name the method name
-     * @param returnType the full class name of the method return type
-     * @param param the full class names of the method param types
-     * @param copy whether to copy the the parameter array
-     * @return this instruction, for method chaining
-     */
+	/**
+	 * Set the method this instruction operates on.
+	 *
+	 * @param dec        the full class name of the method's declaring class, or the
+	 *                   bootstrap index for InvokeDynamic
+	 * @param name       the method name
+	 * @param returnType the full class name of the method return type
+	 * @param param      the full class names of the method param types
+	 * @param copy       whether to copy the the parameter array
+	 * @return this instruction, for method chaining
+	 */
     private MethodInstruction setMethod(String dec, String name,
         String returnType, String[] params, boolean copy) {
         if (name == null && returnType == null && dec == null 
@@ -210,32 +219,32 @@ public class MethodInstruction extends Instruction {
         return setMethodIndex(getPool().findMethodEntry(dec, name, desc, true));
     }
 
-    /**
-     * Set the method this instruction operates on, for methods that are
-     * declared by the current class.
-     *
-     * @param name the method name
-     * @param returnType the full class name of the method return type
-     * @param param the full class names of the method param types
-     * @return this instruction, for method chaining
-     */
+	/**
+	 * Set the method this instruction operates on, for methods that are declared by
+	 * the current class.
+	 *
+	 * @param name       the method name
+	 * @param returnType the full class name of the method return type
+	 * @param params     the full class names of the method param types
+	 * @return this instruction, for method chaining
+	 */
     public MethodInstruction setMethod(String name, String returnType,
         String[] params) {
         BCClass owner = getCode().getMethod().getDeclarer();
         return setMethod(owner.getName(), name, returnType, params);
     }
 
-    /**
-     * Set the method this instruction operates on.
-     *
-     * @param dec the method's declaring class
-     * @param name the method name
-     * @param returnType the class of the method return type
-     * @param param the class of the method param types
-     * @return this instruction, for method chaining
-     */
-    public MethodInstruction setMethod(Class dec, String name,
-        Class returnType, Class[] params) {
+	/**
+	 * Set the method this instruction operates on.
+	 *
+	 * @param dec        the method's declaring class
+	 * @param name       the method name
+	 * @param returnType the class of the method return type
+	 * @param params     the class of the method param types
+	 * @return this instruction, for method chaining
+	 */
+    public MethodInstruction setMethod(Class<?> dec, String name,
+        Class<?> returnType, Class<?>[] params) {
         String decName = (dec == null) ? null : dec.getName();
         String returnName = (returnType == null) ? null : returnType.getName();
         String[] paramNames = null;
@@ -247,17 +256,17 @@ public class MethodInstruction extends Instruction {
         return setMethod(decName, name, returnName, paramNames, false);
     }
 
-    /**
-     * Set the method this instruction operates on, for methods that are
-     * declared by the current class.
-     *
-     * @param name the method name
-     * @param returnType the class of the method return type
-     * @param param the class of the method param types
-     * @return this instruction, for method chaining
-     */
-    public MethodInstruction setMethod(String name, Class returnType,
-        Class[] params) {
+	/**
+	 * Set the method this instruction operates on, for methods that are declared by
+	 * the current class.
+	 *
+	 * @param name       the method name
+	 * @param returnType the class of the method return type
+	 * @param params     the class of the method param types
+	 * @return this instruction, for method chaining
+	 */
+    public MethodInstruction setMethod(String name, Class<?> returnType,
+        Class<?>[] params) {
         BCClass owner = getCode().getMethod().getDeclarer();
         String returnName = (returnType == null) ? null : returnType.getName();
         String[] paramNames = null;
@@ -275,7 +284,7 @@ public class MethodInstruction extends Instruction {
      * @param dec the method's declaring class
      * @param name the method name
      * @param returnType the class of the method return type
-     * @param param the class of the method param types
+     * @param params the class of the method param types
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethod(BCClass dec, String name,
@@ -297,7 +306,7 @@ public class MethodInstruction extends Instruction {
      *
      * @param name the method name
      * @param returnType the class of the method return type
-     * @param param the class of the method param types
+     * @param params the class of the method param types
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethod(String name, BCClass returnType,
@@ -317,10 +326,13 @@ public class MethodInstruction extends Instruction {
     // Name, Return, Param, Owner operations
     /////////////////////////////////////////
 
-    /**
-     * Return the name of the method this instruction operates on, or null
-     * if not set.
-     */
+	/**
+	 * Return the name of the method this instruction operates on, or null if not
+	 * set.
+	 * 
+	 * @return the name of the method this instruction operates on, or null if not
+	 *         set
+	 */
     public String getMethodName() {
         if (_index == 0)
             return null;
@@ -345,6 +357,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the name of the method this instruction operates on.
      *
+     * @param name the method's name
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethodName(String name) {
@@ -355,6 +368,9 @@ public class MethodInstruction extends Instruction {
     /**
      * Return the return type of the method this instruction operates on,
      * or null if not set.
+     * 
+	 * @return the return type of the method this instruction operates on, or null
+	 *         if not set
      */
     public String getMethodReturnName() {
         if (_index == 0)
@@ -379,18 +395,24 @@ public class MethodInstruction extends Instruction {
     /**
      * Return the return type of the method this instruction operates on,
      * or null if not set.
+     * 
+	 * @return the return type of the method this instruction operates on, or null
+	 *         if not set
      */
-    public Class getMethodReturnType() {
+    public Class<?> getMethodReturnType() {
         String type = getMethodReturnName();
         if (type == null)
             return null;
         return Strings.toClass(type, getClassLoader());
     }
 
-    /**
-     * Return the return type of the method this instruction operates on,
-     * or null if not set.
-     */
+	/**
+	 * Return the return type of the method this instruction operates on, or null if
+	 * not set.
+	 * 
+	 * @return the return type of the method this instruction operates on, or null
+	 *         if not set
+	 */
     public BCClass getMethodReturnBC() {
         String type = getMethodReturnName();
         if (type == null)
@@ -401,6 +423,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the return type of the method this instruction operates on.
      *
+     * @param type the return type
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethodReturn(String type) {
@@ -411,9 +434,10 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the return type of the method this instruction operates on.
      *
+     * @param type the return type
      * @return this instruction, for method chaining
      */
-    public MethodInstruction setMethodReturn(Class type) {
+    public MethodInstruction setMethodReturn(Class<?> type) {
         String name = null;
         if (type != null)
             name = type.getName();
@@ -423,6 +447,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the return type of the method this instruction operates on.
      *
+     * @param type the return type
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethodReturn(BCClass type) {
@@ -435,6 +460,9 @@ public class MethodInstruction extends Instruction {
     /**
      * Return the param types of the method this instruction operates on,
      * or empty array if none.
+     * 
+	 * @return the parameter type names of the method this instruction operates on, or empty
+	 *         array if none
      */
     public String[] getMethodParamNames() {
         if (_index == 0)
@@ -460,19 +488,25 @@ public class MethodInstruction extends Instruction {
     /**
      * Return the param types of the method this instruction operates on,
      * or empty array if none.
+     * 
+	 * @return the param types of the method this instruction operates on, or empty
+	 *         array if none
      */
-    public Class[] getMethodParamTypes() {
+    public Class<?>[] getMethodParamTypes() {
         String[] paramNames = getMethodParamNames();
-        Class[] params = new Class[paramNames.length];
+        Class<?>[] params = new Class[paramNames.length];
         for (int i = 0; i < paramNames.length; i++)
             params[i] = Strings.toClass(paramNames[i], getClassLoader());
         return params;
     }
 
-    /**
-     * Return the param types of the method this instruction operates on,
-     * or empty array if none.
-     */
+	/**
+	 * Return the param types of the method this instruction operates on, or empty
+	 * array if none.
+	 * 
+	 * @return the param types of the method this instruction operates on, or empty
+	 *         array if none
+	 */
     public BCClass[] getMethodParamBCs() {
         String[] paramNames = getMethodParamNames();
         BCClass[] params = new BCClass[paramNames.length];
@@ -484,6 +518,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the param types of the method this instruction operates on.
      *
+     * @param types the parameter types
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethodParams(String[] types) {
@@ -494,9 +529,9 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the param types of the method this instruction operates on.
      *
-     * @return this instruction, for method chaining
+	 * @param types the input {@link Class} array
      */
-    public void setMethodParams(Class[] types) {
+    public void setMethodParams(Class<?>[] types) {
         if (types == null)
             setMethodParams((String[]) null);
         else {
@@ -507,11 +542,11 @@ public class MethodInstruction extends Instruction {
         }
     }
 
-    /**
-     * Set the param types of the method this instruction operates on.
-     *
-     * @return this instruction, for method chaining
-     */
+	/**
+	 * Set the param types of the method this instruction operates on.
+	 *
+	 * @param types the input {@link BCClass} array
+	 */
     public void setMethodParams(BCClass[] types) {
         if (types == null)
             setMethodParams((String[]) null);
@@ -523,10 +558,13 @@ public class MethodInstruction extends Instruction {
         }
     }
 
-    /**
-     * Return the declaring type of the method this instruction operates on,
-     * or null if not set.
-     */
+	/**
+	 * Return the declaring type of the method this instruction operates on, or null
+	 * if not set.
+	 * 
+	 * @return the declaring type of the method this instruction operates on, or
+	 *         null if not set
+	 */
     public String getMethodDeclarerName() {
         if (_index == 0)
             return null;
@@ -547,21 +585,27 @@ public class MethodInstruction extends Instruction {
         return name;
     }
 
-    /**
-     * Return the declaring type of the method this instruction operates on,
-     * or null if not set.
-     */
-    public Class getMethodDeclarerType() {
+	/**
+	 * Return the declaring type of the method this instruction operates on, or null
+	 * if not set.
+	 * 
+	 * @return the declaring type of the method this instruction operates on, or
+	 *         null if not set
+	 */
+    public Class<?> getMethodDeclarerType() {
         String type = getMethodDeclarerName();
         if (type == null)
             return null;
         return Strings.toClass(type, getClassLoader());
     }
 
-    /**
-     * Return the declaring type of the method this instruction operates on,
-     * or null if not set.
-     */
+	/**
+	 * Return the declaring type of the method this instruction operates on, or null
+	 * if not set.
+	 * 
+	 * @return the declaring type of the method this instruction operates on, or
+	 *         null if not set
+	 */
     public BCClass getMethodDeclarerBC() {
         String type = getMethodDeclarerName();
         if (type == null)
@@ -572,6 +616,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the declaring type of the method this instruction operates on.
      *
+     * @param type the declaring type to set
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethodDeclarer(String type) {
@@ -582,9 +627,10 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the declaring type of the method this instruction operates on.
      *
+     * @param type the declaring type to set
      * @return this instruction, for method chaining
      */
-    public MethodInstruction setMethodDeclarer(Class type) {
+    public MethodInstruction setMethodDeclarer(Class<?> type) {
         String name = null;
         if (type != null)
             name = type.getName();
@@ -594,6 +640,7 @@ public class MethodInstruction extends Instruction {
     /**
      * Set the declaring type of the method this instruction operates on.
      *
+     * @param type the declaring type to set
      * @return this instruction, for method chaining
      */
     public MethodInstruction setMethodDeclarer(BCClass type) {
@@ -603,10 +650,14 @@ public class MethodInstruction extends Instruction {
         return setMethodDeclarer(name);
     }
 
-    /**
-     * MethodInstructions are equal if the method they reference is the same,
-     * or if the method of either is unset.
-     */
+	/**
+	 * MethodInstructions are equal if the method they reference is the same, or if
+	 * the method of either is unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if the method they reference is the same, or if the method of
+	 *         either is unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (other == this)
             return true;

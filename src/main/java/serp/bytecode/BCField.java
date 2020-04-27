@@ -1,8 +1,8 @@
 package serp.bytecode;
 
-import serp.bytecode.lowlevel.*;
-import serp.bytecode.visitor.*;
-import serp.util.*;
+import serp.bytecode.visitor.BCVisitor;
+import serp.bytecode.visitor.VisitAcceptor;
+import serp.util.Strings;
 
 /**
  * A field of a class.
@@ -18,6 +18,8 @@ public class BCField extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the field access flags.
+     * 
+     * @return true if volatile
      */
     public boolean isVolatile() {
         return (getAccessFlags() & Constants.ACCESS_VOLATILE) > 0;
@@ -25,6 +27,8 @@ public class BCField extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the field access flags.
+     * 
+     * @param on boolean flag
      */
     public void setVolatile(boolean on) {
         if (on)
@@ -35,6 +39,8 @@ public class BCField extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the field access flags.
+     * 
+     * @return true if transient
      */
     public boolean isTransient() {
         return (getAccessFlags() & Constants.ACCESS_TRANSIENT) > 0;
@@ -42,6 +48,8 @@ public class BCField extends BCMember implements VisitAcceptor {
 
     /**
      * Manipulate the field access flags.
+     * 
+     * @param on boolean flag
      */
     public void setTransient(boolean on) {
         if (on)
@@ -53,6 +61,8 @@ public class BCField extends BCMember implements VisitAcceptor {
     /**
      * Manipulate the field access flags. Defaults to true for fields added
      * to enum classes.
+     * 
+     * @return true if enum
      */
     public boolean isEnum() {
         return (getAccessFlags() & Constants.ACCESS_ENUM) > 0;
@@ -61,6 +71,8 @@ public class BCField extends BCMember implements VisitAcceptor {
     /**
      * Manipulate the field access flags. Defaults to true for fields added
      * to enum classes.
+     * 
+     * @param on boolean flag
      */
     public void setEnum(boolean on) {
         if (on)
@@ -74,6 +86,8 @@ public class BCField extends BCMember implements VisitAcceptor {
      * a form suitable for a {@link Class#forName} call.
      *
      * @see BCMember#getDescriptor
+     * 
+     * @return the type name
      */
     public String getTypeName() {
         return getProject().getNameCache().getExternalForm
@@ -82,13 +96,17 @@ public class BCField extends BCMember implements VisitAcceptor {
 
     /**
      * Return the {@link Class} object for the type of this field.
+     * 
+     * @return the {@link Class} object
      */
-    public Class getType() {
+    public Class<?> getType() {
         return Strings.toClass(getTypeName(), getClassLoader());
     }
 
     /**
      * Return the bytecode for the type of this field.
+     * 
+     * @return the bytecode class
      */
     public BCClass getTypeBC() {
         return getProject().loadClass(getTypeName(), getClassLoader());
@@ -98,6 +116,8 @@ public class BCField extends BCMember implements VisitAcceptor {
      * Set the name of the type of this field.
      *
      * @see BCMember#setDescriptor
+     * 
+     * @param type the type name
      */
     public void setType(String type) {
         setDescriptor(type);
@@ -107,8 +127,10 @@ public class BCField extends BCMember implements VisitAcceptor {
      * Set the type of this field.
      *
      * @see BCMember#setDescriptor
+     * 
+     * @param type the type to set
      */
-    public void setType(Class type) {
+    public void setType(Class<?> type) {
         setType(type.getName());
     }
 
@@ -116,6 +138,8 @@ public class BCField extends BCMember implements VisitAcceptor {
      * Set the type of this field.
      *
      * @see BCMember#setDescriptor
+     * 
+     * @param type the type to set
      */
     public void setType(BCClass type) {
         setType(type.getName());

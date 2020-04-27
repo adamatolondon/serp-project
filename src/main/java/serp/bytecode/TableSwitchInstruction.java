@@ -14,16 +14,19 @@ public class TableSwitchInstruction extends JumpInstruction {
     // case info
     private int _low = 0;
     private int _high = 0;
-    private List _cases = new LinkedList();
+    private List<InstructionPtrStrategy> _cases = new LinkedList<>();
 
     TableSwitchInstruction(Code owner) {
         super(owner, Constants.TABLESWITCH);
     }
 
-    /**
-     * Returns the current byte offsets for the different
-     * switch cases in this Instruction.
-     */
+	/**
+	 * Returns the current byte offsets for the different switch cases in this
+	 * Instruction.
+	 * 
+	 * @return the current byte offsets for the different switch cases in this
+	 *         Instruction
+	 */
     public int[] getOffsets() {
         int bi = getByteIndex();
         int[] offsets = new int[_cases.size()];
@@ -33,15 +36,16 @@ public class TableSwitchInstruction extends JumpInstruction {
         return offsets;
     }
 
-    /**
-     * Sets the offsets for the instructions representing the different
-     * switch statement cases. WARNING: these offsets will not be changed
-     * in the event that the code is modified following this call. It is
-     * typically a good idea to follow this call with a call to updateTargets
-     * as soon as the instructions at the given offsets are valid, at which
-     * point the Instructions themselves will be used as the targets and the
-     * offsets will be updated as expected.
-     */
+	/**
+	 * Sets the offsets for the instructions representing the different switch
+	 * statement cases. WARNING: these offsets will not be changed in the event that
+	 * the code is modified following this call. It is typically a good idea to
+	 * follow this call with a call to updateTargets as soon as the instructions at
+	 * the given offsets are valid, at which point the Instructions themselves will
+	 * be used as the targets and the offsets will be updated as expected.
+	 * 
+	 * @param offsets the offsets to set
+	 */
     public void setOffsets(int[] offsets) {
         int bi = getByteIndex();
         _cases.clear();
@@ -72,6 +76,8 @@ public class TableSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #getTarget}.
+     * 
+     * @return the default target instruction
      */
     public Instruction getDefaultTarget() {
         return getTarget();
@@ -79,6 +85,9 @@ public class TableSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #setTarget}.
+     * 
+     * @param ins the target instruction to set
+     * @return the modified instruction
      */
     public TableSwitchInstruction setDefaultTarget(Instruction ins) {
         return (TableSwitchInstruction) setTarget(ins);
@@ -86,6 +95,8 @@ public class TableSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #getOffset}.
+     * 
+     * @return the offset
      */
     public int getDefaultOffset() {
         return getOffset();
@@ -93,6 +104,9 @@ public class TableSwitchInstruction extends JumpInstruction {
 
     /**
      * Synonymous with {@link #setOffset}.
+     * 
+     * @param offset the offset to set
+     * @return the modified instruction
      */
     public TableSwitchInstruction setDefaultOffset(int offset) {
         setOffset(offset);
@@ -119,6 +133,8 @@ public class TableSwitchInstruction extends JumpInstruction {
 
     /**
      * Return the targets for this switch, or empty array if not set.
+     * 
+     * @return the targets for this switch, or empty array if not set
      */
     public Instruction[] getTargets() {
         Instruction[] result = new Instruction[_cases.size()];
@@ -131,6 +147,7 @@ public class TableSwitchInstruction extends JumpInstruction {
     /**
      * Set the jump points for this switch.
      *
+     * @param targets the instructions to add
      * @return this instruction, for method chaining
      */
     public TableSwitchInstruction setTargets(Instruction[] targets) {
@@ -144,6 +161,7 @@ public class TableSwitchInstruction extends JumpInstruction {
     /**
      * Add a target to this switch.
      *
+     * @param target the instruction to add
      * @return this instruction, for method chaining
      */
     public TableSwitchInstruction addTarget(Instruction target) {
@@ -156,10 +174,10 @@ public class TableSwitchInstruction extends JumpInstruction {
         return -1;
     }
 
-    private Instruction findTarget(int jumpByteIndex, List inss) {
+    private Instruction findTarget(int jumpByteIndex, List<Instruction> inss) {
         Instruction ins;
-        for (Iterator itr = inss.iterator(); itr.hasNext();) {
-            ins = (Instruction) itr.next();
+        for (Iterator<Instruction> itr = inss.iterator(); itr.hasNext();) {
+            ins = itr.next();
             if (ins.getByteIndex() == jumpByteIndex)
                 return ins;
         }
@@ -168,14 +186,14 @@ public class TableSwitchInstruction extends JumpInstruction {
 
     public void updateTargets() {
         super.updateTargets();
-        for (Iterator itr = _cases.iterator(); itr.hasNext();)
-            ((InstructionPtrStrategy) itr.next()).updateTargets();
+        for (Iterator<InstructionPtrStrategy> itr = _cases.iterator(); itr.hasNext();)
+            itr.next().updateTargets();
     }
 
     public void replaceTarget(Instruction oldTarget, Instruction newTarget) {
         super.replaceTarget(oldTarget, newTarget);
-        for (Iterator itr = _cases.iterator(); itr.hasNext();)
-            ((InstructionPtrStrategy) itr.next()).replaceTarget(oldTarget,
+        for (Iterator<InstructionPtrStrategy> itr = _cases.iterator(); itr.hasNext();)
+            itr.next().replaceTarget(oldTarget,
                 newTarget);
     }
 
@@ -191,8 +209,8 @@ public class TableSwitchInstruction extends JumpInstruction {
         setLow(ins.getLow());
         setHigh(ins.getHigh());
         InstructionPtrStrategy incoming;
-        for (Iterator itr = ins._cases.iterator(); itr.hasNext();) {
-            incoming = (InstructionPtrStrategy) itr.next();
+        for (Iterator<InstructionPtrStrategy> itr = ins._cases.iterator(); itr.hasNext();) {
+            incoming = itr.next();
             InstructionPtrStrategy next = new InstructionPtrStrategy(this);
             next.setByteIndex(incoming.getByteIndex());
             _cases.add(next);

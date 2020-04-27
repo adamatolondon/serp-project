@@ -10,7 +10,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class LoadInstruction extends LocalVariableInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { byte.class, int.class },
         { boolean.class, int.class },
         { char.class, int.class },
@@ -156,9 +156,11 @@ public class LoadInstruction extends LocalVariableInstruction {
     }
 
     /**
-     * Equivalent to <code>getLocal () == 0 && getType () ==
+     * Equivalent to <code>getLocal () == 0 &amp;&amp; getType () ==
      * Object.class</code>; the <code>this</code> ptr
      * is always passed in local variable 0.
+     * 
+     * @return true if the first local is 'this'
      */
     public boolean isThis() {
         return getLocal() == 0 && getType() == Object.class;

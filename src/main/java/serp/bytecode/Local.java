@@ -1,11 +1,11 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
-import serp.bytecode.lowlevel.*;
-import serp.bytecode.visitor.*;
-import serp.util.*;
+import serp.bytecode.lowlevel.ConstantPool;
+import serp.bytecode.lowlevel.UTF8Entry;
 
 /**
  * A local variable or local variable type.
@@ -28,6 +28,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * The owning table.
+     * 
+     * @return the owning table
      */
     public LocalTable getTable() {
         return _owner;
@@ -43,6 +45,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Get the local variable index of the current frame for this local.
+     * 
+     * @return the local variable index of the current frame for this local
      */
     public int getLocal() {
         return _index;
@@ -50,6 +54,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Set the local variable index of the current frame for this local.
+     * 
+     * @param index the local variable index
      */
     public void setLocal(int index) {
         _index = index;
@@ -57,6 +63,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Return the parameter that this local corresponds to, or -1 if none.
+     * 
+     * @return the parameter that this local corresponds to, or -1 if none
      */
     public int getParam() {
         return getCode().getParamsIndex(getLocal());
@@ -64,6 +72,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Set the method parameter that this local corresponds to.
+     * 
+     * @param param the method parameter
      */
     public void setParam(int param) {
         setLocal(_owner.getCode().getLocalsIndex(param));
@@ -75,6 +85,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Return the index into the code byte array at which this local starts.
+     * 
+     * @return the index into the code byte array at which this local starts
      */
     public int getStartPc() {
         return _target.getByteIndex();
@@ -82,6 +94,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Return the instruction marking the beginning of this local.
+     * 
+     * @return the instruction marking the beginning of this local
      */
     public Instruction getStart() {
         return _target.getTargetInstruction();
@@ -89,6 +103,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Set the index into the code byte array at which this local starts.
+     * 
+     * @param startPc the index into the code byte array at which this local starts
      */
     public void setStartPc(int startPc) {
         _target.setByteIndex(startPc);
@@ -98,6 +114,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
      * Set the {@link Instruction} marking the beginning this local.
      * The instruction must already be a part of the method.
      * WARNING: if this instruction is deleted, the results are undefined.
+     * 
+     * @param instruction the instruction to set
      */
     public void setStart(Instruction instruction) {
         _target.setTargetInstruction(instruction);
@@ -105,6 +123,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * The last {@link Instruction} for which this local is in scope.
+     * 
+     * @return last {@link Instruction} for which this local is in scope
      */
     public Instruction getEnd() {
         if (_end != null)
@@ -117,10 +137,13 @@ public abstract class Local implements BCEntity, InstructionPtr {
         return getCode().getLastInstruction();
     }
 
-    /**
-     * Get the number of bytes for which this local has a value in
-     * the code byte array.
-     */
+	/**
+	 * Get the number of bytes for which this local has a value in the code byte
+	 * array.
+	 * 
+	 * @return the number of bytes for which this local has a value in the code byte
+	 *         array
+	 */
     public int getLength() {
         if (_end != null)
             return _end.getByteIndex() + _end.getLength() 
@@ -132,6 +155,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
      * Set the last {@link Instruction} for which this local is in scope.
      * The instruction must already be a part of the method.
      * WARNING: if this instruction is deleted, the results are undefined.
+     * 
+     * @param end the last {@link Instruction}
      */
     public void setEnd(Instruction end) {
         if (end.getCode() != getCode())
@@ -144,10 +169,13 @@ public abstract class Local implements BCEntity, InstructionPtr {
     /**
      * Set the number of bytes for which this local has a value in
      * the code byte array.
+     * 
+     * @param length the number of bytes
      */
     public void setLength(int length) {
         if (length < 0)
             throw new IllegalArgumentException(String.valueOf(length));
+        
         _length = length;
         _end = null;
     }
@@ -167,10 +195,13 @@ public abstract class Local implements BCEntity, InstructionPtr {
     // Name, Type operations
     /////////////////////////
 
-    /**
-     * Return the {@link ConstantPool} index of the {@link UTF8Entry} that
-     * describes the name of this local. Defaults to 0.
-     */
+	/**
+	 * Return the {@link ConstantPool} index of the {@link UTF8Entry} that describes
+	 * the name of this local. Defaults to 0.
+	 * 
+	 * @return the {@link ConstantPool} index of the {@link UTF8Entry} that
+	 *         describes the name of this local. Defaults to 0
+	 */
     public int getNameIndex() {
         return _nameIndex;
     }
@@ -178,6 +209,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
     /**
      * Set the {@link ConstantPool} index of the {@link UTF8Entry} that
      * describes the name of this local.
+     * 
+     * @param nameIndex the {@link ConstantPool} index
      */
     public void setNameIndex(int nameIndex) {
         _nameIndex = nameIndex;
@@ -185,6 +218,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Return the name of this local, or null if unset.
+     * 
+     * @return the name of this local, or null if unset
      */
     public String getName() {
         if (getNameIndex() == 0)
@@ -194,6 +229,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Set the name of this inner local.
+     * 
+     * @param name the name to set
      */
     public void setName(String name) {
         if (name == null)
@@ -202,10 +239,13 @@ public abstract class Local implements BCEntity, InstructionPtr {
             setNameIndex(getPool().findUTF8Entry(name, true));
     }
 
-    /**
-     * Return the {@link ConstantPool} index of the {@link UTF8Entry} that
-     * describes this local. Defaults to 0.
-     */
+	/**
+	 * Return the {@link ConstantPool} index of the {@link UTF8Entry} that describes
+	 * this local. Defaults to 0.
+	 * 
+	 * @return the {@link ConstantPool} index of the {@link UTF8Entry} that
+	 *         describes this local. Defaults to 0
+	 */
     public int getTypeIndex() {
         return _descriptorIndex;
     }
@@ -213,6 +253,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
     /**
      * Set the {@link ConstantPool} index of the {@link UTF8Entry} that
      * describes this local.
+     * 
+     * @param index the {@link ConstantPool} index
      */
     public void setTypeIndex(int index) {
         _descriptorIndex = index;
@@ -220,6 +262,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Return the full name of the local's type, or null if unset.
+     * 
+     * @return the full name of the local's type, or null if unset
      */
     public String getTypeName() {
         if (getTypeIndex() == 0)
@@ -231,6 +275,8 @@ public abstract class Local implements BCEntity, InstructionPtr {
 
     /**
      * Set the type of this local.
+     * 
+     * @param type the type to set
      */
     public void setType(String type) {
         if (type == null)

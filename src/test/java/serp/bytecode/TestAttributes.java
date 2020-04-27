@@ -1,7 +1,10 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -9,18 +12,15 @@ import junit.textui.*;
  *
  * @author Abe White
  */
-public class TestAttributes extends TestCase {
+public class TestAttributes  {
     private Project _project = new Project();
     private Attributes _attrs = _project.loadClass("serp.Attrs");
     private Attributes _attrs2 = _project.loadClass("serp.Attrs2");
 
-    public TestAttributes(String test) {
-        super(test);
-    }
-
     /**
      * Test getting attributes.
      */
+    @Test
     public void testGetAttributes() {
         assertEquals(0, _attrs.getAttributes().length);
         assertNull(_attrs.getAttribute(Constants.ATTR_SYNTHETIC));
@@ -46,6 +46,7 @@ public class TestAttributes extends TestCase {
     /**
      * Test setting attributes.
      */
+    @Test
     public void testSetAttributes() {
         Attribute attr1 = _attrs.addAttribute(Constants.ATTR_DEPRECATED);
         Attribute attr2 = _attrs.addAttribute(Constants.ATTR_SYNTHETIC);
@@ -69,6 +70,7 @@ public class TestAttributes extends TestCase {
     /**
      * Test adding attributs.
      */
+    @Test
     public void testAddAttributes() {
         SourceFile attr1 = (SourceFile) _attrs.addAttribute
             (Constants.ATTR_SOURCE);
@@ -85,6 +87,7 @@ public class TestAttributes extends TestCase {
     /**
      * Test clearing attributes.
      */
+    @Test
     public void testClear() {
         _attrs.clearAttributes();
 
@@ -106,6 +109,7 @@ public class TestAttributes extends TestCase {
     /**
      * Test removing a class.
      */
+    @Test
     public void testRemoveAttribute() {
         assertTrue(!_attrs.removeAttribute((String) null));
         assertTrue(!_attrs.removeAttribute((Attribute) null));
@@ -131,11 +135,4 @@ public class TestAttributes extends TestCase {
         assertTrue(!attr2.isValid());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestAttributes.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

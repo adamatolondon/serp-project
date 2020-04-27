@@ -32,6 +32,10 @@ public class MethodTypeEntry extends Entry {
         return Entry.METHODTYPE;
     }
 
+    public int getDescriptorIndex() {
+        return _descriptor_index;
+    }
+    
     void readData(DataInput in) throws IOException {
         _descriptor_index = in.readUnsignedShort();
     }

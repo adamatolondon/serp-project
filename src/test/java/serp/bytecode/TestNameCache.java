@@ -1,20 +1,20 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link NameCache} utility type.
  *
  * @author Abe White
  */
-public class TestNameCache extends TestCase {
+public class TestNameCache {
     private NameCache _cache = null;
 
-    public TestNameCache(String test) {
-        super(test);
-    }
-
+    @BeforeEach
     public void setUp() {
         _cache = new Project().getNameCache();
     }
@@ -22,6 +22,7 @@ public class TestNameCache extends TestCase {
     /**
      * Tests that class names are correctly converted to internal form.
      */
+    @Test
     public void testInternalForm() {
         assertEquals("I", _cache.getInternalForm("int", true));
         assertEquals("I", _cache.getInternalForm("int", false));
@@ -50,6 +51,7 @@ public class TestNameCache extends TestCase {
     /**
      * Tests that array class names are correctly converted to internal form.
      */
+    @Test
     public void testArrayInternalForm() {
         assertEquals("[B", _cache.getInternalForm(byte[].class.getName(), 
             false));
@@ -71,6 +73,7 @@ public class TestNameCache extends TestCase {
     /**
      * Tests that class names are correctly converted to external form.
      */
+    @Test
     public void testExternalForm() {
         assertEquals("byte", _cache.getExternalForm("B", true));
         assertEquals("byte", _cache.getExternalForm("byte", true));
@@ -118,6 +121,7 @@ public class TestNameCache extends TestCase {
     /**
      * Tests that array class names are correctly converted to external form.
      */
+    @Test
     public void testArrayExternalForm() {
         assertEquals("byte[]", _cache.getExternalForm("byte[]", true));
         assertEquals("byte[]",
@@ -139,6 +143,7 @@ public class TestNameCache extends TestCase {
     /**
      * Tests that method descriptors are correctly formed.
      */
+    @Test
     public void testDescriptors() {
         assertEquals("()V", _cache.getDescriptor("V", new String[0]));
         assertEquals("()V", _cache.getDescriptor("void", null));
@@ -154,6 +159,7 @@ public class TestNameCache extends TestCase {
     /**
      * Test that return types are extracted from method descriptors.
      */
+    @Test
     public void testDescriptorReturnName() {
         assertEquals("", _cache.getDescriptorReturnName("foo"));
         assertEquals("V", _cache.getDescriptorReturnName("()V"));
@@ -165,6 +171,7 @@ public class TestNameCache extends TestCase {
     /**
      * Test that param types are extracted from method descriptors.
      */
+    @Test
     public void testDescriptorParamNames() {
         assertEquals(0, _cache.getDescriptorParamNames("foo").length);
 
@@ -179,6 +186,7 @@ public class TestNameCache extends TestCase {
     /**
      * Test {@link NameCache#getComponentTypeName}.
      */
+    @Test
     public void testComponentTypes() {
         assertNull(_cache.getComponentName(null));
         assertNull(_cache.getComponentName(int.class.getName()));
@@ -193,11 +201,4 @@ public class TestNameCache extends TestCase {
             _cache.getComponentName(String[][][].class.getName()));
     }
 
-    public static Test suite() {
-        return new TestSuite(TestNameCache.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

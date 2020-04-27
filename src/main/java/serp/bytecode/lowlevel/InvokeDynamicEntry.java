@@ -49,16 +49,21 @@ public class InvokeDynamicEntry extends Entry {
         return _bootstrap_method_attr_index;
     }
     
-    /**
-     * Return the constant pool index of the {@link NameAndTypeEntry}
-     * describing this entity.
-     */
+	/**
+	 * Return the constant pool index of the {@link NameAndTypeEntry} describing
+	 * this entity.
+	 * 
+	 * @return the constant pool index of the {@link NameAndTypeEntry} describing
+	 *         this entity
+	 */
     public int getNameAndTypeIndex() {
         return _name_and_type_index;
     }
     /**
      * Return the referenced {@link NameAndTypeEntry}. This method can only
      * be run for entries that have been added to a constant pool.
+     * 
+     * @return the referenced {@link NameAndTypeEntry}
      */
     public NameAndTypeEntry getNameAndTypeEntry() {
         return (NameAndTypeEntry) getPool().getEntry(_name_and_type_index);

@@ -1,9 +1,11 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
-
-import serp.bytecode.visitor.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Code blocks compiled from source have local tables mapping
@@ -12,7 +14,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public abstract class LocalTable extends Attribute implements InstructionPtr {
-    private List _locals = new ArrayList();
+    private List<Local> _locals = new ArrayList<>();
 
     LocalTable(int nameIndex, Attributes owner) {
         super(nameIndex, owner);
@@ -20,6 +22,8 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
 
     /**
      * Return all the locals of this method.
+     * 
+     * @return all the locals of this method
      */
     public Local[] getLocals() {
         return (Local[]) _locals.toArray(newLocalArray(_locals.size()));
@@ -27,6 +31,9 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
 
     /**
      * Return the local with the given locals index, or null if none.
+     * 
+     * @param local the local index
+     * @return the local with the given locals index, or null if none
      */
     public Local getLocal(int local) {
         for (int i = 0; i < _locals.size(); i++)
@@ -38,6 +45,9 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
     /**
      * Return the local with the given name, or null if none. If multiple
      * locals have the given name, which is returned is undefined.
+     * 
+     * @param name local name
+     * @return the local with the given name, or null if none
      */
     public Local getLocal(String name) {
         String loc;
@@ -52,9 +62,12 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
 
     /**
      * Return all locals with the given name, or empty array if none.
+     * 
+     * @param name local name
+     * @return all locals with the given name, or empty array if none
      */
     public Local[] getLocals(String name) {
-        List matches = new LinkedList();
+        List<Local> matches = new LinkedList<>();
         String loc;
         for (int i = 0; i < _locals.size(); i++) {
             loc = ((Local) _locals.get(i)).getName();
@@ -68,6 +81,8 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
     /**
      * Set the locals of this table. This method is useful when
      * importing locals from another method.
+     * 
+     * @param locals the locals to set
      */
     public void setLocals(Local[] locals) {
         clear();
@@ -76,12 +91,15 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
                 addLocal(locals[i]);
     }
 
-    /**
-     * Import a local from another method/class. Note that
-     * the program counter and length from the given local is copied
-     * directly, and thus will be incorrect unless this method is the same
-     * as the one the local is copied from, or the pc and length are reset.
-     */
+	/**
+	 * Import a local from another method/class. Note that the program counter and
+	 * length from the given local is copied directly, and thus will be incorrect
+	 * unless this method is the same as the one the local is copied from, or the pc
+	 * and length are reset.
+	 * 
+	 * @param local contains the local data
+	 * @return the newly added local
+	 */
     public Local addLocal(Local local) {
         Local newLocal = addLocal(local.getName(), local.getTypeName());
         newLocal.setStartPc(local.getStartPc());
@@ -91,6 +109,8 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
 
     /**
      * Add a local to this table.
+     * 
+     * @return the newly added local
      */
     public Local addLocal() {
         Local local = newLocal();
@@ -100,16 +120,25 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
 
     /**
      * Create a new element of this table.
+     * 
+     * @return the new local
      */
     protected abstract Local newLocal();
 
     /**
      * Create a new array.
+     * 
+     * @param size the array size
+     * @return the local array created
      */
     protected abstract Local[] newLocalArray(int size);
 
     /**
      * Add a local to this table.
+     * 
+     * @param name the local name
+     * @param type the local type
+     * @return the newly added local
      */
     public Local addLocal(String name, String type) {
         Local local = addLocal();
@@ -130,6 +159,7 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
     /**
      * Removes the local with the given locals index from the table.
      *
+     * @param local the local index to remove
      * @return true if a local was removed, false otherwise
      */
     public boolean removeLocal(int local) {
@@ -139,6 +169,7 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
     /**
      * Removes the local with the given name from this method.
      *
+     * @param name the name of the local to remove
      * @return true if a local was removed, false otherwise
      */
     public boolean removeLocal(String name) {
@@ -149,6 +180,7 @@ public abstract class LocalTable extends Attribute implements InstructionPtr {
      * Removes a local from this method. After this method, the local
      * will be invalid, and the result of any operations on it is undefined.
      *
+     * @param local the local to remove
      * @return true if a local was removed, false otherwise
      */
     public boolean removeLocal(Local local) {

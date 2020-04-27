@@ -1,26 +1,30 @@
 package serp.bytecode;
 
-import java.io.*;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link BCClass} type.
  *
  * @author Abe White
  */
-public class TestBCClass extends TestCase {
+public class TestBCClass {
     private Project _project = new Project();
     private BCClass _bc = _project.loadClass(Integer.class);
-
-    public TestBCClass(String test) {
-        super(test);
-    }
 
     /**
      * Test accessing the class project.
      */
+    @Test
     public void testProject() {
         assertTrue(_project == _bc.getProject());
         assertTrue(_bc.isValid());
@@ -31,6 +35,7 @@ public class TestBCClass extends TestCase {
     /**
      * Test read/write.
      */
+    @Test
     public void testReadWrite() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         InputStream in = Integer.class.getResourceAsStream("Integer.class");
@@ -58,6 +63,7 @@ public class TestBCClass extends TestCase {
     /**
      * Test basics -- magic number, major version, minor version.
      */
+    @Test
     public void testBasics() {
         assertEquals(Constants.VALID_MAGIC, _bc.getMagic());
         _bc.setMagic(1);
@@ -80,6 +86,7 @@ public class TestBCClass extends TestCase {
     /**
      * Test access flags.
      */
+    @Test
     public void testAccessFlags() {
         assertEquals(Constants.ACCESS_PUBLIC | Constants.ACCESS_SUPER |
             Constants.ACCESS_FINAL, _bc.getAccessFlags());
@@ -127,6 +134,7 @@ public class TestBCClass extends TestCase {
     /**
      * Test class type operations.
      */
+    @Test
     public void testType() {
         assertEquals(Integer.class.getName(), _bc.getName());
         assertEquals("java.lang", _bc.getPackageName());
@@ -140,6 +148,7 @@ public class TestBCClass extends TestCase {
     /**
      * Test superclass operations.
      */
+    @Test
     public void testSuperclass() {
         assertEquals(Number.class.getName(), _bc.getSuperclassName());
         assertEquals(Number.class, _bc.getSuperclassType());
@@ -163,6 +172,7 @@ public class TestBCClass extends TestCase {
     /**
      * Test operations on interfaces.
      */
+    @Test
     public void testInterfaces() {
         Object[] interfaces = _bc.getInterfaceNames();
         assertEquals(2, interfaces.length);
@@ -240,11 +250,4 @@ public class TestBCClass extends TestCase {
         assertEquals(0, interfaces.length);
     }
 
-    public static Test suite() {
-        return new TestSuite(TestBCClass.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

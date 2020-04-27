@@ -1,8 +1,6 @@
 package serp.bytecode;
 
-import java.util.*;
-
-import serp.bytecode.visitor.*;
+import serp.bytecode.visitor.BCVisitor;
 
 /**
  * One of the math operations defined in the {@link Constants} interface.
@@ -12,7 +10,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class MathInstruction extends TypedInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { byte.class, int.class },
         { boolean.class, int.class },
         { char.class, int.class },
@@ -135,6 +133,7 @@ public class MathInstruction extends TypedInstruction {
      * Set the math operation to be performed. This should be one of the
      * math constant defined in {@link Constants}.
      *
+     * @param operation the math operation to be performed
      * @return this instruction, for method chaining
      */
     public MathInstruction setOperation(int operation) {
@@ -145,10 +144,13 @@ public class MathInstruction extends TypedInstruction {
         return this;
     }
 
-    /**
-     * Return the operation for this math instruction; will be one of the
-     * math constant defined in {@link Constants}, or -1 if unset.
-     */
+	/**
+	 * Return the operation for this math instruction; will be one of the math
+	 * constant defined in {@link Constants}, or -1 if unset.
+	 * 
+	 * @return the operation for this math instruction; will be one of the math
+	 *         constant defined in {@link Constants}, or -1 if unset
+	 */
     public int getOperation() {
         switch (getOpcode()) {
         case Constants.IADD:
@@ -204,10 +206,14 @@ public class MathInstruction extends TypedInstruction {
         }
     }
 
-    /**
-     * MathInstructions are equal if they have the same operation and type,
-     * or the operation and type of either is unset.
-     */
+	/**
+	 * MathInstructions are equal if they have the same operation and type, or the
+	 * operation and type of either is unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if they have the same operation and type, or the operation and
+	 *         type of either is unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (this == other)
             return true;

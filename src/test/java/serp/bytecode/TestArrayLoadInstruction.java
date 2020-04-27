@@ -1,23 +1,22 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link ArrayLoadInstruction} type.
  *
  * @author Abe White
  */
-public class TestArrayLoadInstruction extends TestCase {
+public class TestArrayLoadInstruction {
     private Code _code = new Code();
-
-    public TestArrayLoadInstruction(String test) {
-        super(test);
-    }
 
     /**
      * Test that the instruction initializes correctly when generated.
      */
+    @Test
     public void testIniitalize() {
         assertEquals(Constants.NOP, _code.xaload().getOpcode());
         assertEquals(Constants.IALOAD, _code.iaload().getOpcode());
@@ -33,6 +32,7 @@ public class TestArrayLoadInstruction extends TestCase {
     /**
      * Test the the instruction returns its type correctly.
      */
+    @Test
     public void testGetType() {
         assertNull(_code.xaload().getType());
         assertEquals(int.class, _code.iaload().getType());
@@ -48,6 +48,7 @@ public class TestArrayLoadInstruction extends TestCase {
     /**
      * Test that the opcode morphs correctly with type changes.
      */
+    @Test
     public void testOpcodeMorph() {
         ArrayLoadInstruction ins = _code.xaload();
         assertEquals(Constants.NOP, ins.getOpcode());
@@ -69,11 +70,4 @@ public class TestArrayLoadInstruction extends TestCase {
         assertEquals(Constants.IALOAD, ins.setType(boolean.class).getOpcode());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestArrayLoadInstruction.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

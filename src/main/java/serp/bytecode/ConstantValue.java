@@ -23,6 +23,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Return the owning field.
+     * 
+     * @return the owning field
      */
     public BCField getField() {
         return (BCField) getOwner();
@@ -31,6 +33,8 @@ public class ConstantValue extends Attribute {
     /**
      * Return the {@link ConstantPool} index of the {@link ConstantEntry}
      * holding the value of this constant. Defaults to 0.
+     * 
+     * @return the {@link ConstantPool} index
      */
     public int getValueIndex() {
         return _valueIndex;
@@ -39,6 +43,8 @@ public class ConstantValue extends Attribute {
     /**
      * Set the {@link ConstantPool} of the {@link ConstantEntry}
      * holding the value of this constant.
+     * 
+     * @param valueIndex the index
      */
     public void setValueIndex(int valueIndex) {
         _valueIndex = valueIndex;
@@ -47,9 +53,11 @@ public class ConstantValue extends Attribute {
     /**
      * Return the type of constant this attribute represents, or null if
      * not set.
+     * 
+     * @return the type name
      */
     public String getTypeName() {
-        Class type = getType();
+        Class<?> type = getType();
         if (type == null)
             return null;
         return type.getName();
@@ -58,13 +66,15 @@ public class ConstantValue extends Attribute {
     /**
      * Return the type of constant this attribute represents (String.class,
      * int.class, etc), or null if not set.
+     * 
+     * @return the type
      */
-    public Class getType() {
+    public Class<?> getType() {
         Object value = getValue();
         if (value == null)
             return null;
 
-        Class type = value.getClass();
+        Class<?> type = value.getClass();
         if (type == Integer.class)
             return int.class;
         if (type == Float.class)
@@ -78,6 +88,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Return the bytecode for the type of constant this attribute represents.
+     * 
+     * @return the bytecode class
      */
     public BCClass getTypeBC() {
         return getProject().loadClass(getType());
@@ -86,6 +98,8 @@ public class ConstantValue extends Attribute {
     /**
      * Return the value of this constant as an Object of the appropriate
      * type (String, Integer, Double, etc), or null if not set.
+     * 
+     * @return the value of this constant
      */
     public Object getValue() {
         if (_valueIndex <= 0)
@@ -97,9 +111,11 @@ public class ConstantValue extends Attribute {
      * Set the value of this constant using the appropriate wrapper Object
      * type (String, Integer, Double, etc). Types that are not directly
      * supported will be converted accordingly if possible.
+     * 
+     * @param value the value to set
      */
     public void setValue(Object value) {
-        Class type = value.getClass();
+        Class<?> type = value.getClass();
         if (type == Boolean.class)
             setIntValue((((Boolean) value).booleanValue()) ? 1 : 0);
         else if (type == Character.class)
@@ -119,15 +135,20 @@ public class ConstantValue extends Attribute {
 
     /**
      * Get the value of this int constant, or 0 if not set.
+     * 
+     * @return the value of this int constant
      */
     public int getIntValue() {
         if (getValueIndex() <= 0)
             return 0;
+        
         return ((IntEntry) getPool().getEntry(getValueIndex())).getValue();
     }
 
     /**
      * Set the value of this int constant.
+     * 
+     * @param value the value to set
      */
     public void setIntValue(int value) {
         setValueIndex(getPool().findIntEntry(value, true));
@@ -135,6 +156,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Get the value of this float constant.
+     * 
+     * @return the value of this float constant
      */
     public float getFloatValue() {
         if (getValueIndex() <= 0)
@@ -144,6 +167,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Set the value of this float constant.
+     * 
+     * @param value the value to set
      */
     public void setFloatValue(float value) {
         setValueIndex(getPool().findFloatEntry(value, true));
@@ -151,6 +176,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Get the value of this double constant.
+     * 
+     * @return the value of this double constant
      */
     public double getDoubleValue() {
         if (getValueIndex() <= 0)
@@ -160,6 +187,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Set the value of this double constant.
+     * 
+     * @param value the value to set
      */
     public void setDoubleValue(double value) {
         setValueIndex(getPool().findDoubleEntry(value, true));
@@ -167,6 +196,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Get the value of this long constant.
+     * 
+     * @return the value of this long constant
      */
     public long getLongValue() {
         if (getValueIndex() <= 0)
@@ -176,6 +207,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Set the value of this long constant.
+     * 
+     * @param value the value to set
      */
     public void setLongValue(long value) {
         setValueIndex(getPool().findLongEntry(value, true));
@@ -183,6 +216,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Get the value of this string constant.
+     * 
+     * @return the string value
      */
     public String getStringValue() {
         if (getValueIndex() <= 0)
@@ -193,6 +228,8 @@ public class ConstantValue extends Attribute {
 
     /**
      * Set the value of this string constant.
+     * 
+     * @param value the value to set
      */
     public void setStringValue(String value) {
         setValueIndex(getPool().findStringEntry(value, true));

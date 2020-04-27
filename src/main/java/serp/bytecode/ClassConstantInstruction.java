@@ -1,8 +1,7 @@
 package serp.bytecode;
 
-import java.util.*;
-
-import serp.bytecode.lowlevel.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Pseudo-instruction used to place {@link Class} objects onto the stack.
@@ -42,6 +41,7 @@ public class ClassConstantInstruction {
     /**
      * Set the type of class being loaded.
      *
+     * @param name the class name
      * @return the first Instruction of the block added by setting the type
      * @throws IllegalStateException if type has already been set
      */
@@ -51,22 +51,24 @@ public class ClassConstantInstruction {
         return _ins;
     }
 
-    /**
-     * Set the type of class being loaded.
-     *
-     * @return the first Instruction of the block added by setting the type
-     * @throws IllegalStateException if type has already been set
-     */
-    public Instruction setClass(Class type) {
+	/**
+	 * Set the type of class being loaded.
+	 *
+	 * @param type the class to set
+	 * @return the first Instruction of the block added by setting the type
+	 * @throws IllegalStateException if type has already been set
+	 */
+    public Instruction setClass(Class<?> type) {
         return setClass(type.getName());
     }
 
-    /**
-     * Set the type of class being loaded.
-     *
-     * @return the first Instruction of the block added by setting the type
-     * @throws IllegalStateException if type has already been set
-     */
+	/**
+	 * Set the type of class being loaded.
+	 *
+	 * @param type the class to set
+	 * @return the first Instruction of the block added by setting the type
+	 * @throws IllegalStateException if type has already been set
+	 */
     public Instruction setClass(BCClass type) {
         return setClass(type.getName());
     }
@@ -74,7 +76,7 @@ public class ClassConstantInstruction {
     /**
      * Set the name of the class to load.
      */
-    private void setClassName(String name, Class wrapper) {
+    private void setClassName(String name, Class<?> wrapper) {
         if (_invalid)
             throw new IllegalStateException();
 

@@ -15,6 +15,8 @@ public class LocalVariableTypeTable extends LocalTable {
 
     /**
      * Return all the locals of this method.
+     * 
+     * @return all the locals of this method
      */
     public LocalVariableType[] getLocalVariableTypes() {
         return (LocalVariableType[]) getLocals();
@@ -22,6 +24,9 @@ public class LocalVariableTypeTable extends LocalTable {
 
     /**
      * Return the local with the given locals index, or null if none.
+     * 
+     * @param local the local index
+     * @return the local with the given locals index, or null if none
      */
     public LocalVariableType getLocalVariableType(int local) {
         return (LocalVariableType) getLocal(local);
@@ -30,6 +35,9 @@ public class LocalVariableTypeTable extends LocalTable {
     /**
      * Return the local with the given name, or null if none. If multiple
      * locals have the given name, which is returned is undefined.
+     * 
+     * @param name the local name
+     * @return the local with the given name, or null if none
      */
     public LocalVariableType getLocalVariableType(String name) {
         return (LocalVariableType) getLocal(name);
@@ -37,6 +45,9 @@ public class LocalVariableTypeTable extends LocalTable {
 
     /**
      * Return all locals with the given name, or empty array if none.
+     * 
+     * @param name the local name
+     * @return all locals with the given name, or empty array if none
      */
     public LocalVariableType[] getLocalVariableTypes(String name) {
         return (LocalVariableType[]) getLocals(name);
@@ -47,6 +58,9 @@ public class LocalVariableTypeTable extends LocalTable {
      * the program counter and length from the given local is copied
      * directly, and thus will be incorrect unless this method is the same
      * as the one the local is copied from, or the pc and length are reset.
+     * 
+     * @param local the local to add
+     * @return the newly added local
      */
     public LocalVariableType addLocalVariableType(LocalVariableType local) {
         return (LocalVariableType) addLocal(local);
@@ -54,6 +68,8 @@ public class LocalVariableTypeTable extends LocalTable {
 
     /**
      * Add a local to this table.
+     * 
+     * @return the newly added local
      */
     public LocalVariableType addLocalVariableType() {
         return (LocalVariableType) addLocal();
@@ -61,6 +77,10 @@ public class LocalVariableTypeTable extends LocalTable {
 
     /**
      * Add a local to this table.
+     * 
+     * @param name the local name
+     * @param type the local type
+     * @return the newly added local
      */
     public LocalVariableType addLocalVariableType(String name, String type) {
         return (LocalVariableType) addLocal(name, type);

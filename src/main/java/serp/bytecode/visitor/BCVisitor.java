@@ -22,6 +22,8 @@ import serp.bytecode.lowlevel.*;
 public class BCVisitor {
     /**
      * Visit the given entity.
+     * 
+     * @param obj the visitor object
      */
     public void visit(VisitAcceptor obj) {
         if (obj == null)
@@ -435,5 +437,17 @@ public class BCVisitor {
     }
     
     public void exitBootstrapMethod(BootstrapMethods obj) {      
+    }
+    
+    public void enterModuleEntry(ModuleEntry obj) {     
+    }
+    
+    public void exitModuleEntry(ModuleEntry obj) {      
+    }
+
+    public void enterPackageEntry(PackageEntry obj) {     
+    }
+    
+    public void exitPackageEntry(PackageEntry obj) {      
     }
 }

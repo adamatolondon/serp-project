@@ -48,11 +48,11 @@ class ArrayState extends State {
         return Collections.EMPTY_LIST;
     }
 
-    public List getMethodsHolder() {
+    public List<BCMethod> getMethodsHolder() {
         return Collections.EMPTY_LIST;
     }
 
-    public Collection getAttributesHolder() {
+    public Collection<Attribute> getAttributesHolder() {
         return Collections.EMPTY_LIST;
     }
 

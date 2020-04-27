@@ -33,10 +33,13 @@ public class StringEntry extends Entry implements ConstantEntry {
         return Entry.STRING;
     }
 
-    /**
-     * Return the constant pool index of the {@link UTF8Entry}
-     * storing the value of this string.
-     */
+	/**
+	 * Return the constant pool index of the {@link UTF8Entry} storing the value of
+	 * this string.
+	 * 
+	 * @return the constant pool index of the {@link UTF8Entry} storing the value of
+	 *         this string
+	 */
     public int getStringIndex() {
         return _stringIndex;
     }
@@ -44,6 +47,8 @@ public class StringEntry extends Entry implements ConstantEntry {
     /**
      * Set the constant pool index of the {@link UTF8Entry}
      * storing the value of this string.
+     * 
+     * @param stringIndex the constant pool index
      */
     public void setStringIndex(int stringIndex) {
         Object key = beforeModify();
@@ -54,6 +59,8 @@ public class StringEntry extends Entry implements ConstantEntry {
     /**
      * Return the referenced {@link UTF8Entry}. This method can only
      * be run for entries that have been added to a constant pool.
+     * 
+     * @return the referenced {@link UTF8Entry}
      */
     public UTF8Entry getStringEntry() {
         return (UTF8Entry) getPool().getEntry(_stringIndex);

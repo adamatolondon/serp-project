@@ -10,7 +10,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class StoreInstruction extends LocalVariableInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { byte.class, int.class },
         { boolean.class, int.class },
         { char.class, int.class },
@@ -146,10 +146,14 @@ public class StoreInstruction extends LocalVariableInstruction {
         return this;
     }
 
-    /**
-     * StoreInstructions are equal if the type they reference the same
-     * type and locals index or if either is unset.
-     */
+	/**
+	 * StoreInstructions are equal if the type they reference the same type and
+	 * locals index or if either is unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if the type they reference the same type and locals index or if
+	 *         either is unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (other == this)
             return true;

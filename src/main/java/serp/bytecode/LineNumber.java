@@ -1,10 +1,12 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
-import serp.bytecode.lowlevel.*;
-import serp.bytecode.visitor.*;
+import serp.bytecode.lowlevel.ConstantPool;
+import serp.bytecode.visitor.BCVisitor;
+import serp.bytecode.visitor.VisitAcceptor;
 
 /**
  * A line number corresponds to a sequence of opcodes that map logically
@@ -29,6 +31,8 @@ public class LineNumber implements Comparable, InstructionPtr, BCEntity,
 
     /**
      * Line numbers are stored in a {@link LineNumberTable}.
+     * 
+     * @return the {@link LineNumberTable}
      */
     public LineNumberTable getTable() {
         return _owner;
@@ -40,6 +44,8 @@ public class LineNumber implements Comparable, InstructionPtr, BCEntity,
 
     /**
      * Return source line number.
+     * 
+     * @return the source line number
      */
     public int getLine() {
         return _line;
@@ -47,6 +53,8 @@ public class LineNumber implements Comparable, InstructionPtr, BCEntity,
 
     /**
      * Set the source line number.
+     * 
+     * @param lineNumber the source line number
      */
     public void setLine(int lineNumber) {
         _line = lineNumber;
@@ -54,6 +62,8 @@ public class LineNumber implements Comparable, InstructionPtr, BCEntity,
 
     /**
      * Return the instruction marking the beginning of this line.
+     * 
+     * @return the instruction marking the beginning of this line
      */
     public Instruction getStart() {
         return _target.getTargetInstruction();
@@ -61,6 +71,8 @@ public class LineNumber implements Comparable, InstructionPtr, BCEntity,
 
     /**
      * Return the index into the code byte array at which this line starts.
+     * 
+     * @return the index into the code byte array at which this line starts
      */
     public int getStartPc() {
         return _target.getByteIndex();
@@ -68,6 +80,8 @@ public class LineNumber implements Comparable, InstructionPtr, BCEntity,
 
     /**
      * Set the index into the code byte array at which this line starts.
+     * 
+     * @param startPc the index into the code byte array at which this line starts
      */
     public void setStartPc(int startPc) {
         _target.setByteIndex(startPc);
@@ -76,6 +90,8 @@ public class LineNumber implements Comparable, InstructionPtr, BCEntity,
     /**
      * Set the {@link Instruction} marking the beginning this line.
      * The instruction must already be a part of the method.
+     * 
+     * @param instruction the {@link Instruction} marking the beginning this line
      */
     public void setStart(Instruction instruction) {
         _target.setTargetInstruction(instruction);

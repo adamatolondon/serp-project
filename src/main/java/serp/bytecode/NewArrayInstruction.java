@@ -1,9 +1,10 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
-import serp.bytecode.visitor.*;
+import serp.bytecode.visitor.BCVisitor;
 
 /**
  * The <code>newarray</code> instruction, which is used to create new
@@ -12,7 +13,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class NewArrayInstruction extends TypedInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { void.class, int.class },
         { Object.class, int.class },
     };
@@ -78,6 +79,8 @@ public class NewArrayInstruction extends TypedInstruction {
 
     /**
      * Return the array code used in the lowlevel bytecode, or -1 if unset.
+     * 
+     * @return the array code used in the lowlevel bytecode, or -1 if unset
      */
     public int getTypeCode() {
         return _code;
@@ -86,6 +89,7 @@ public class NewArrayInstruction extends TypedInstruction {
     /**
      * Set the array code used in the lowlevel bytecode.
      *
+     * @param code the array code
      * @return this instruction, for method chaining
      */
     public NewArrayInstruction setTypeCode(int code) {
@@ -93,10 +97,14 @@ public class NewArrayInstruction extends TypedInstruction {
         return this;
     }
 
-    /**
-     * NewArray instructions are equal if the array type is the same,
-     * of if the array type of either is unset.
-     */
+	/**
+	 * NewArray instructions are equal if the array type is the same, of if the
+	 * array type of either is unset.
+	 * 
+	 * @param other the instruction to compare
+	 * @return true if the array type is the same, of if the array type of either is
+	 *         unset
+	 */
     public boolean equalsInstruction(Instruction other) {
         if (this == other)
             return true;

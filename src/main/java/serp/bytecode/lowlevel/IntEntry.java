@@ -34,6 +34,8 @@ public class IntEntry extends Entry implements ConstantEntry {
 
     /**
      * Return the value of this constant.
+     * 
+     * @return the value of this constant
      */
     public int getValue() {
         return _value;
@@ -41,6 +43,8 @@ public class IntEntry extends Entry implements ConstantEntry {
 
     /**
      * Set the value of this constant.
+     * 
+     * @param value the value of this constant
      */
     public void setValue(int value) {
         Object key = beforeModify();

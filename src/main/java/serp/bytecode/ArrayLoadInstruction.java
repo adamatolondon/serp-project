@@ -8,7 +8,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class ArrayLoadInstruction extends ArrayInstruction {
-    private static final Class[][] _mappings = new Class[][] {
+    private static final Class<?>[][] _mappings = new Class[][] {
         { boolean.class, int.class },
         { void.class, int.class },
     };

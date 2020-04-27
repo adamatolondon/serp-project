@@ -12,7 +12,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class InnerClasses extends Attribute {
-    private List _innerClasses = new LinkedList();
+    private List<InnerClass> _innerClasses = new LinkedList<>();
 
     InnerClasses(int nameIndex, Attributes owner) {
         super(nameIndex, owner);
@@ -20,6 +20,8 @@ public class InnerClasses extends Attribute {
 
     /**
      * Return all referenced inner classes, or empty array if none.
+     * 
+     * @return all referenced inner classes, or empty array if none
      */
     public InnerClass[] getInnerClasses() {
         return (InnerClass[]) _innerClasses.toArray
@@ -30,6 +32,9 @@ public class InnerClasses extends Attribute {
      * Return the inner class with the given name. If multiple inner classes
      * share the name, which is returned is undefined. Use null to retrieve
      * anonymous classes.
+     * 
+     * @param name the name to search for or null to retrieve anonymous classes
+     * @return the inner class with the given name
      */
     public InnerClass getInnerClass(String name) {
         InnerClass[] inners = getInnerClasses();
@@ -46,9 +51,12 @@ public class InnerClasses extends Attribute {
     /**
      * Return all inner classes with the given name, or empty array if none.
      * Use null to retrieve anonymous classes.
+     * 
+     * @param name the name to search for or null to retrieve anonymous classes
+     * @return all inner classes with the given name, or empty array if none
      */
     public InnerClass[] getInnerClasses(String name) {
-        List matches = new LinkedList();
+        List<InnerClass> matches = new LinkedList<>();
         InnerClass[] inners = getInnerClasses();
         String inner;
         for (int i = 0; i < inners.length; i++) {
@@ -63,6 +71,8 @@ public class InnerClasses extends Attribute {
     /**
      * Set the inner class references for this class. This method is
      * useful when importing inner class references from another class.
+     * 
+     * @param inners the inner classes to add
      */
     public void setInnerClasses(InnerClass[] inners) {
         clear();
@@ -75,6 +85,7 @@ public class InnerClasses extends Attribute {
      * Import an inner class from another entity, or make a copy of one
      * on this entity.
      *
+     * @param inner the inner class to add
      * @return the newly added inner class
      */
     public InnerClass addInnerClass(InnerClass inner) {
@@ -86,6 +97,8 @@ public class InnerClasses extends Attribute {
 
     /**
      * Add an inner class.
+     * 
+     * @return the newly added inner class
      */
     public InnerClass addInnerClass() {
         InnerClass inner = new InnerClass(this);
@@ -99,6 +112,7 @@ public class InnerClasses extends Attribute {
      * @param name the simple name of the class, or null if anonymous
      * @param type the full class name of the inner class
      * @param owner the declaring class, or null if not a member class
+     * @return the newly added inner class
      */
     public InnerClass addInnerClass(String name, String type, String owner) {
         InnerClass inner = addInnerClass();
@@ -114,8 +128,9 @@ public class InnerClasses extends Attribute {
      * @param name the simple name of the class, or null if anonymous
      * @param type the class of the inner class
      * @param owner the declaring class, or null if not a member class
+     * @return the newly added inner class
      */
-    public InnerClass addInnerClass(String name, Class type, Class owner) {
+    public InnerClass addInnerClass(String name, Class<?> type, Class<?> owner) {
         String typeName = (type == null) ? null : type.getName();
         String ownerName = (owner == null) ? null : owner.getName();
         return addInnerClass(name, typeName, ownerName);
@@ -127,6 +142,7 @@ public class InnerClasses extends Attribute {
      * @param name the simple name of the class, or null if anonymous
      * @param type the class of the inner class
      * @param owner the declaring class, or null if not a member class
+     * @return the newly added inner class
      */
     public InnerClass addInnerClass(String name, BCClass type, BCClass owner) {
         String typeName = (type == null) ? null : type.getName();
@@ -139,8 +155,8 @@ public class InnerClasses extends Attribute {
      */
     public void clear() {
         InnerClass inner;
-        for (Iterator itr = _innerClasses.iterator(); itr.hasNext();) {
-            inner = (InnerClass) itr.next();
+        for (Iterator<InnerClass> itr = _innerClasses.iterator(); itr.hasNext();) {
+            inner = itr.next();
             itr.remove();
             inner.invalidate();
         }
@@ -150,18 +166,20 @@ public class InnerClasses extends Attribute {
      * Remove the inner class with the given name. Use null for anonymous
      * classes.
      *
+     * @param name the inner class name to remove
      * @return true if an inner class was removed, false otherwise
      */
     public boolean removeInnerClass(String name) {
         return removeInnerClass(getInnerClass(name));
     }
 
-    /**
-     * Remove the given inner class. After being removed, the given inner
-     * class is invalid, and the result of any operations on it are undefined.
-     *
-     * @return true if the inner class was removed, false otherwise
-     */
+	/**
+	 * Remove the given inner class. After being removed, the given inner class is
+	 * invalid, and the result of any operations on it are undefined.
+	 *
+	 * @param innerClass the inner class to remove
+	 * @return true if the inner class was removed, false otherwise
+	 */
     public boolean removeInnerClass(InnerClass innerClass) {
         if (innerClass == null || !_innerClasses.remove(innerClass))
             return false;

@@ -23,6 +23,8 @@ public class UnknownAttribute extends Attribute {
 
     /**
      * The value is of unknown content, so it is stored as a byte array.
+     * 
+     * @return the byte array
      */
     public byte[] getValue() {
         return _value;
@@ -30,6 +32,8 @@ public class UnknownAttribute extends Attribute {
 
     /**
      * The value is of unknown content, so it is stored as a byte array.
+     * 
+     * @param value the byte array to set
      */
     public void setValue(byte[] value) {
         if (value == null)

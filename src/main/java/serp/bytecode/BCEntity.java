@@ -9,24 +9,32 @@ import serp.bytecode.lowlevel.*;
  * @author Abe White
  */
 public interface BCEntity {
-    /**
-     * Return the project of the current class.
-     */
+	/**
+	 * Return the project of the current class.
+	 * 
+	 * @return the Project the entity belongs
+	 */
     public Project getProject();
 
-    /**
-     * Return the constant pool of the current class.
-     */
+	/**
+	 * Return the constant pool of the current class.
+	 * 
+	 * @return its constant pool
+	 */
     public ConstantPool getPool();
 
-    /**
-     * Return the class loader to use when loading related classes.
-     */
+	/**
+	 * Return the class loader to use when loading related classes.
+	 * 
+	 * @return the class loader
+	 */
     public ClassLoader getClassLoader();
 
-    /**
-     * Return false if this entity has been removed from its parent; in this
-     * case the results of any operations on the entity are undefined.
-     */
+	/**
+	 * Return false if this entity has been removed from its parent; in this case
+	 * the results of any operations on the entity are undefined.
+	 * 
+	 * @return false if this entity has been removed from its parent
+	 */
     public boolean isValid();
 }

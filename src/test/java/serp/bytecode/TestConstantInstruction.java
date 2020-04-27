@@ -1,23 +1,22 @@
 package serp.bytecode;
 
-import junit.framework.*;
-import junit.textui.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the {@link ConstantInstruction} type.
  *
  * @author Abe White
  */
-public class TestConstantInstruction extends TestCase {
+public class TestConstantInstruction {
     private ConstantInstruction _const = new Code().constant();
-
-    public TestConstantInstruction(String test) {
-        super(test);
-    }
 
     /**
      * Test that the type instruction returns its type correctly.
      */
+    @Test
     public void testGetType() {
         assertNull(_const.getType());
         assertEquals(int.class, _const.setValue(0).getType());
@@ -41,6 +40,7 @@ public class TestConstantInstruction extends TestCase {
     /**
      * Test that the value is stored correctly.
      */
+    @Test
     public void testGetValue() {
         assertNull(_const.getValue());
         assertEquals(0, _const.setValue(0).getIntValue());
@@ -66,6 +66,7 @@ public class TestConstantInstruction extends TestCase {
     /**
      * Test the the opcode is morphed correctly when the value is set.
      */
+    @Test
     public void testOpcodeMorph() {
         assertEquals(Constants.NOP, _const.getOpcode());
         assertEquals(Constants.ICONSTM1, _const.setValue(-1).getOpcode());
@@ -98,11 +99,4 @@ public class TestConstantInstruction extends TestCase {
         assertEquals(Constants.LDCW, _const.setValue(String.class).getOpcode());
     }
 
-    public static Test suite() {
-        return new TestSuite(TestConstantInstruction.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
 }

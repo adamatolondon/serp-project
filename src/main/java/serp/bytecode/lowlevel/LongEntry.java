@@ -38,6 +38,8 @@ public class LongEntry extends Entry implements ConstantEntry {
 
     /**
      * Return the value of the constant.
+     * 
+     * @return the value of the constant
      */
     public long getValue() {
         return _value;
@@ -45,6 +47,8 @@ public class LongEntry extends Entry implements ConstantEntry {
 
     /**
      * Set the value of the constant.
+     * 
+     * @param value the value to set
      */
     public void setValue(long value) {
         Object key = beforeModify();

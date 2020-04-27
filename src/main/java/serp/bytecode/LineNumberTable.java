@@ -14,7 +14,7 @@ import serp.bytecode.visitor.*;
  * @author Abe White
  */
 public class LineNumberTable extends Attribute implements InstructionPtr {
-    private List _lineNumbers = new ArrayList();
+    private List<LineNumber> _lineNumbers = new ArrayList<>();
 
     LineNumberTable(int nameIndex, Attributes owner) {
         super(nameIndex, owner);
@@ -22,6 +22,8 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
 
     /**
      * Return the line numbers held in this table.
+     * 
+     * @return the line number array
      */
     public LineNumber[] getLineNumbers() {
         Collections.sort(_lineNumbers);
@@ -31,16 +33,22 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
 
     /**
      * Return the line number for the given program counter, or null if none.
+     * 
+     * @param pc the index
+     * @return the line number found
      */
     public LineNumber getLineNumber(int pc) {
         for (int i = _lineNumbers.size() - 1; i >= 0; i--)
-            if (((LineNumber) _lineNumbers.get(i))._target.getByteIndex() <= pc)
-                return (LineNumber) _lineNumbers.get(i);
+            if (_lineNumbers.get(i)._target.getByteIndex() <= pc)
+                return _lineNumbers.get(i);
         return null;
     }
 
     /**
      * Return the line number for the given instruction, or null if none.
+     * 
+     * @param ins the instruction for the search
+     * @return the line number for the given instruction, or null if none
      */
     public LineNumber getLineNumber(Instruction ins) {
         if (ins == null)
@@ -51,6 +59,8 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
     /**
      * Set the line numbers for the table. This method is useful when
      * importing line numbers from another method.
+     * 
+     * @param lines the lines to set
      */
     public void setLineNumbers(LineNumber[] lines) {
         clear();
@@ -62,6 +72,7 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
     /**
      * Import a line number from another method.
      *
+     * @param ln the line number to add
      * @return the newly added line number
      */
     public LineNumber addLineNumber(LineNumber ln) {
@@ -73,6 +84,8 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
 
     /**
      * Add a new line number to this table.
+     * 
+	 * @return the newly added line number
      */
     public LineNumber addLineNumber() {
         LineNumber ln = new LineNumber(this);
@@ -80,9 +93,13 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
         return ln;
     }
 
-    /**
-     * Add a new line number to this table.
-     */
+	/**
+	 * Add a new line number to this table.
+	 * 
+	 * @param startPc the index into the code byte array
+	 * @param line    the line
+	 * @return the newly added line number
+	 */
     public LineNumber addLineNumber(int startPc, int line) {
         LineNumber ln = addLineNumber();
         ln.setStartPc(startPc);
@@ -90,9 +107,13 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
         return ln;
     }
 
-    /**
-     * Add a new line number to this table.
-     */
+	/**
+	 * Add a new line number to this table.
+	 * 
+	 * @param start the start instruction
+	 * @param line  the line
+	 * @return the newly added line number
+	 */
     public LineNumber addLineNumber(Instruction start, int line) {
         LineNumber ln = addLineNumber();
         ln.setStart(start);
@@ -105,13 +126,15 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
      */
     public void clear() {
         for (int i = 0; i < _lineNumbers.size(); i++)
-            ((LineNumber) _lineNumbers.get(i)).invalidate();
+            _lineNumbers.get(i).invalidate();
+        
         _lineNumbers.clear();
     }
 
     /**
      * Remove the given line.
-     *
+     * 
+     * @param ln the line number to remove
      * @return true if the line was removed, false otherwise
      */
     public boolean removeLineNumber(LineNumber ln) {
@@ -124,6 +147,7 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
     /**
      * Remove the line number for the given program counter.
      *
+     * @param pc the program counter
      * @return true if the line was removed, false otherwise
      */
     public boolean removeLineNumber(int pc) {
@@ -133,6 +157,7 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
     /**
      * Remove the line number for the given instruction.
      *
+     * @param ins the instruction
      * @return true if the line was removed, false otherwise
      */
     public boolean removeLineNumber(Instruction ins) {
@@ -141,12 +166,12 @@ public class LineNumberTable extends Attribute implements InstructionPtr {
 
     public void updateTargets() {
         for (int i = 0; i < _lineNumbers.size(); i++)
-            ((LineNumber) _lineNumbers.get(i)).updateTargets();
+            _lineNumbers.get(i).updateTargets();
     }
 
     public void replaceTarget(Instruction oldTarget, Instruction newTarget) {
         for (int i = 0; i < _lineNumbers.size(); i++)
-            ((LineNumber) _lineNumbers.get(i)).replaceTarget(oldTarget,
+            _lineNumbers.get(i).replaceTarget(oldTarget,
                 newTarget);
     }
 

@@ -15,6 +15,8 @@ public class LocalVariableType extends Local {
 
     /**
      * The owning table.
+     * 
+     * @return the owning table
      */
     public LocalVariableTypeTable getLocalVariableTypeTable() {
         return (LocalVariableTypeTable) getTable();

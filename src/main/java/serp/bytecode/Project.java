@@ -1,11 +1,16 @@
 package serp.bytecode;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import serp.bytecode.lowlevel.*;
-import serp.bytecode.visitor.*;
-import serp.util.*;
+import serp.bytecode.visitor.BCVisitor;
+import serp.bytecode.visitor.VisitAcceptor;
+import serp.util.Strings;
 
 /**
  * The Project represents a working set of classes. It caches parsed
@@ -26,7 +31,7 @@ import serp.util.*;
  */
 public class Project implements VisitAcceptor {
     private final String _name;
-    private final HashMap _cache = new HashMap();
+    private final Map<String,BCClass> _cache = new HashMap<>();
     private final NameCache _names = new NameCache();
 
     /**
@@ -38,6 +43,8 @@ public class Project implements VisitAcceptor {
 
     /**
      * Construct a named project.
+     * 
+     * @param name the project name
      */
     public Project(String name) {
         _name = name;
@@ -45,6 +52,8 @@ public class Project implements VisitAcceptor {
 
     /**
      * Return the project name, or null if unset.
+     * 
+     * @return the project name, or null if unset
      */
     public String getName() {
         return _name;
@@ -53,6 +62,8 @@ public class Project implements VisitAcceptor {
     /**
      * Return the name cache, which includes utilities for converting names
      * from internal to external form and vice versa.
+     * 
+     * @return the name cache
      */
     public NameCache getNameCache() {
         return _names;
@@ -62,26 +73,28 @@ public class Project implements VisitAcceptor {
      * Load a class with the given name.
      *
      * @see #loadClass(String,ClassLoader)
+	 * @param name   the name of the class, including package
+	 * @return the loaded class
      */
     public BCClass loadClass(String name) {
         return loadClass(name, null);
     }
 
-    /**
-     * Load the bytecode for the class with the given name.
-     * If a {@link BCClass} with the given name already exists in this project,
-     * it will be returned. Otherwise, a new {@link BCClass} will be created
-     * with the given name and returned. If the name represents an existing
-     * type, the returned instance will contain the parsed bytecode for
-     * that type. If the name is of a primitive or array type, the returned
-     * instance will act accordingly.
-     *
-     * @param name the name of the class, including package
-     * @param loader the class loader to use to search for an existing
-     * class with the given name; if null defaults to the
-     * context loader of the current thread
-     * @throws RuntimeException on parse error
-     */
+	/**
+	 * Load the bytecode for the class with the given name. If a {@link BCClass}
+	 * with the given name already exists in this project, it will be returned.
+	 * Otherwise, a new {@link BCClass} will be created with the given name and
+	 * returned. If the name represents an existing type, the returned instance will
+	 * contain the parsed bytecode for that type. If the name is of a primitive or
+	 * array type, the returned instance will act accordingly.
+	 *
+	 * @throws RuntimeException on parse error
+	 * @param name   the name of the class, including package
+	 * @param loader the class loader to use to search for an existing class with
+	 *               the given name; if null defaults to the context loader of the
+	 *               current thread
+	 * @return the loaded class
+	 */
     public BCClass loadClass(String name, ClassLoader loader) {
         // convert to proper Class.forName() form
         name = _names.getExternalForm(name, false);
@@ -119,10 +132,11 @@ public class Project implements VisitAcceptor {
      * given class is an array or primitive type, the returned instance will
      * act accordingly.
      *
-     * @param type the class to parse
      * @throws RuntimeException on parse error
+     * @param type the class to parse
+     * @return the loaded class
      */
-    public BCClass loadClass(Class type) {
+    public BCClass loadClass(Class<?> type) {
         BCClass cached = checkCache(type.getName());
         if (cached != null)
             return cached;
@@ -152,6 +166,8 @@ public class Project implements VisitAcceptor {
      * given bytecode.
      *
      * @throws RuntimeException on parse error
+     * @param classFile the class file
+     * @return the loaded class
      */
     public BCClass loadClass(File classFile) {
         return loadClass(classFile, null);
@@ -164,6 +180,9 @@ public class Project implements VisitAcceptor {
      * given bytecode.
      *
      * @throws RuntimeException on parse error
+     * @param classFile the class file
+     * @param loader the class loader
+     * @return the loaded class
      */
     public BCClass loadClass(File classFile, ClassLoader loader) {
         // parse the bytecode from the file
@@ -191,6 +210,8 @@ public class Project implements VisitAcceptor {
      * from the given bytecode.
      *
      * @throws RuntimeException on parse error
+     * @param in the input stream
+     * @return the loaded class
      */
     public BCClass loadClass(InputStream in) {
         return loadClass(in, null);
@@ -203,6 +224,9 @@ public class Project implements VisitAcceptor {
      * from the given bytecode.
      *
      * @throws RuntimeException on parse error
+     * @param in the input stream
+     * @param loader the class loader
+     * @return the loaded class
      */
     public BCClass loadClass(InputStream in, ClassLoader loader) {
         BCClass ret = new BCClass(this);
@@ -227,6 +251,9 @@ public class Project implements VisitAcceptor {
      * with the same name already exists in this project, it will be returned.
      * Otherwise, a new {@link BCClass} will be created from the
      * information in the given class.
+     * 
+     * @param bc the class to load
+     * @return the loaded class
      */
     public BCClass loadClass(BCClass bc) {
         String name = bc.getName();
@@ -252,10 +279,10 @@ public class Project implements VisitAcceptor {
      * Clears all classes from this project.
      */
     public void clear() {
-        Collection values = _cache.values();
+        Collection<BCClass> values = _cache.values();
         BCClass bc;
-        for (Iterator itr = values.iterator(); itr.hasNext();) {
-            bc = (BCClass) itr.next();
+        for (Iterator<BCClass> itr = values.iterator(); itr.hasNext();) {
+            bc = itr.next();
             itr.remove();
             bc.invalidate();
         }
@@ -266,6 +293,7 @@ public class Project implements VisitAcceptor {
      * Remove a class from this project. After removal, the result of any
      * further operations on the class is undefined.
      *
+     * @param type the class
      * @return true if the class belonged to this project, false otherwise
      */
     public boolean removeClass(String type) {
@@ -276,9 +304,10 @@ public class Project implements VisitAcceptor {
      * Remove a class from this project. After removal, the result of any
      * further operations on the class is undefined.
      *
+     * @param type the class
      * @return true if the class belonged to this project, false otherwise
      */
-    public boolean removeClass(Class type) {
+    public boolean removeClass(Class<?> type) {
         if (type == null)
             return false;
         return removeClass(checkCache(type.getName()));
@@ -288,6 +317,7 @@ public class Project implements VisitAcceptor {
      * Remove a class from this project. After removal, the result of any
      * further operations on the class is undefined.
      *
+     * @param type the class
      * @return true if the class belonged to this project, false otherwise
      */
     public boolean removeClass(BCClass type) {
@@ -301,14 +331,19 @@ public class Project implements VisitAcceptor {
 
     /**
      * Return all loaded classes in the project.
+     * 
+     * @return all loaded classes in the project
      */
     public BCClass[] getClasses() {
-        Collection values = _cache.values();
+        Collection<BCClass> values = _cache.values();
         return (BCClass[]) values.toArray(new BCClass[values.size()]);
     }
 
     /**
      * Return true if the project already contains the given class.
+     * 
+     * @param type the class
+     * @return true if the project already contains the given class
      */
     public boolean containsClass(String type) {
         return _cache.containsKey(type);
@@ -316,13 +351,19 @@ public class Project implements VisitAcceptor {
 
     /**
      * Return true if the project already contains the given class.
+     * 
+     * @param type the class
+     * @return true if the project already contains the given class
      */
-    public boolean containsClass(Class type) {
+    public boolean containsClass(Class<?> type) {
         return (type == null) ? false : containsClass(type.getName());
     }
 
     /**
      * Return true if the project already contains the given class.
+     * 
+     * @param type the class
+     * @return true if the project already contains the given class
      */
     public boolean containsClass(BCClass type) {
         return (type == null) ? false : containsClass(type.getName());
@@ -336,12 +377,16 @@ public class Project implements VisitAcceptor {
         visit.exitProject(this);
     }
 
-    /**
-     * Renames the given class within this project. Used internally by
-     * {@link BCClass} instances when their name is modified.
-     *
-     * @throws IllegalStateException if a class with the new name already exists
-     */
+	/**
+	 * Renames the given class within this project. Used internally by
+	 * {@link BCClass} instances when their name is modified.
+	 *
+	 * @throws IllegalStateException if a class with the new name already exists
+	 * 
+	 * @param oldName the old name
+	 * @param newName the new name
+	 * @param bc      the cached class
+	 */
     void renameClass(String oldName, String newName, BCClass bc) {
         if (oldName.equals(newName))
             return;
@@ -357,6 +402,9 @@ public class Project implements VisitAcceptor {
 
     /**
      * Check the cache for a loaded type.
+     * 
+	 * @param name the key name
+	 * @return the cache class
      */
     private BCClass checkCache(String name) {
         return (BCClass) _cache.get(name);
@@ -364,14 +412,21 @@ public class Project implements VisitAcceptor {
 
     /**
      * Cache a class.
+     * 
+	 * @param name the key name
+	 * @param bc   the class to cache
      */
     private void cache(String name, BCClass bc) {
         _cache.put(name, bc);
     }
 
-    /**
-     * Remove a cached class.
-     */
+	/**
+	 * Remove a cached class.
+	 * 
+	 * @param name the key name
+	 * @param bc   the class to remove
+	 * @return true if removed
+	 */
     private boolean removeFromCache(String name, BCClass bc) {
         BCClass rem = (BCClass) checkCache(name);
         if (rem != bc)

@@ -20,8 +20,8 @@ class ObjectState extends State {
     private int _access = Constants.ACCESS_PUBLIC | Constants.ACCESS_SUPER;
     private final List _interfaces = new ArrayList();
     private final List _fields = new ArrayList();
-    private final List _methods = new ArrayList();
-    private final List _attributes = new ArrayList();
+    private final List<BCMethod> _methods = new ArrayList<>();
+    private final List<Attribute> _attributes = new ArrayList<>();
 
     public ObjectState(NameCache names) {
         _names = names;
@@ -83,11 +83,11 @@ class ObjectState extends State {
         return _fields;
     }
 
-    public List getMethodsHolder() {
+    public List<BCMethod> getMethodsHolder() {
         return _methods;
     }
 
-    public Collection getAttributesHolder() {
+    public Collection<Attribute> getAttributesHolder() {
         return _attributes;
     }
 

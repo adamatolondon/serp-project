@@ -16,7 +16,7 @@ public class PrettyPrintVisitor extends BCVisitor {
     private String _prefix = "";
 
     /**
-     * Constructor; all pritning will go to stdout.
+     * Constructor; all printing will go to stdout.
      */
     public PrettyPrintVisitor() {
         _out = new PrintWriter(System.out);
@@ -35,6 +35,11 @@ public class PrettyPrintVisitor extends BCVisitor {
      * Invoke with the class or file names to pretty print; the
      * functionality is similar to the <i>javap -c</i> command, but more
      * detailed.
+     * 
+     * @throws ClassNotFoundException in case the class is not found
+     * @throws IOException stream handling exception
+     * 
+     * @param args main parameters
      */
     public static void main(String[] args)
         throws ClassNotFoundException, IOException {

@@ -13,7 +13,7 @@ import serp.util.*;
  * @author Abe White
  */
 public class Exceptions extends Attribute {
-    private List _indexes = new LinkedList();
+    private List<Number> _indexes = new LinkedList<>();
 
     Exceptions(int nameIndex, Attributes owner) {
         super(nameIndex, owner);
@@ -25,21 +25,28 @@ public class Exceptions extends Attribute {
 
     /**
      * Return the owning method.
+     * 
+     * @return the owning method
      */
     public BCMethod getMethod() {
         return (BCMethod) getOwner();
     }
 
-    /**
-     * Return the indexes in the class {@link ConstantPool} of the
-     * {@link ClassEntry}s for the exception types thrown by this method, or
-     * an empty array if none.
-     */
+	/**
+	 * Return the indexes in the class {@link ConstantPool} of the
+	 * {@link ClassEntry}s for the exception types thrown by this method, or an
+	 * empty array if none.
+	 * 
+	 * @return the indexes in the class {@link ConstantPool} of the
+	 *         {@link ClassEntry}s for the exception types thrown by this method, or
+	 *         an empty array if none
+	 */
     public int[] getExceptionIndexes() {
         int[] indexes = new int[_indexes.size()];
-        Iterator itr = _indexes.iterator();
+        Iterator<Number> itr = _indexes.iterator();
         for (int i = 0; i < indexes.length; i++)
             indexes[i] = ((Integer) itr.next()).intValue();
+        
         return indexes;
     }
 
@@ -47,6 +54,8 @@ public class Exceptions extends Attribute {
      * Set the indexes in the class {@link ConstantPool} of the
      * {@link ClassEntry}s for the exception types thrown by this method. Use
      * null or an empty array for none.
+     * 
+     * @param exceptionIndexes the indexes in the class {@link ConstantPool}
      */
     public void setExceptionIndexes(int[] exceptionIndexes) {
         _indexes.clear();
@@ -55,14 +64,16 @@ public class Exceptions extends Attribute {
                 _indexes.add(Numbers.valueOf(exceptionIndexes[i]));
     }
 
-    /**
-     * Return the names of the exception types for this method, or an empty
-     * array if none. The names will be in a form suitable for a
-     * {@link Class#forName} call.
-     */
+	/**
+	 * Return the names of the exception types for this method, or an empty array if
+	 * none. The names will be in a form suitable for a {@link Class#forName} call.
+	 * 
+	 * @return the names of the exception types for this method, or an empty array
+	 *         if none
+	 */
     public String[] getExceptionNames() {
         String[] names = new String[_indexes.size()];
-        Iterator itr = _indexes.iterator();
+        Iterator<Number> itr = _indexes.iterator();
         int index;
         ClassEntry entry;
         for (int i = 0; i < names.length; i++) {
@@ -74,22 +85,28 @@ public class Exceptions extends Attribute {
         return names;
     }
 
-    /**
-     * Return the {@link Class} objects for the exception types for this
-     * method, or an empty array if none.
-     */
-    public Class[] getExceptionTypes() {
+	/**
+	 * Return the {@link Class} objects for the exception types for this method, or
+	 * an empty array if none.
+	 * 
+	 * @return the {@link Class} objects for the exception types for this method, or
+	 *         an empty array if none
+	 */
+    public Class<?>[] getExceptionTypes() {
         String[] names = getExceptionNames();
-        Class[] types = new Class[names.length];
+        Class<?>[] types = new Class[names.length];
         for (int i = 0; i < names.length; i++)
             types[i] = Strings.toClass(names[i], getClassLoader());
         return types;
     }
 
-    /**
-     * Return bytecode for the exception types of this
-     * method, or an empty array if none.
-     */
+	/**
+	 * Return bytecode for the exception types of this method, or an empty array if
+	 * none.
+	 * 
+	 * @return bytecode for the exception types of this method, or an empty array if
+	 *         none
+	 */
     public BCClass[] getExceptionBCs() {
         String[] names = getExceptionNames();
         BCClass[] types = new BCClass[names.length];
@@ -101,6 +118,8 @@ public class Exceptions extends Attribute {
     /**
      * Set the checked exceptions thrown by this method. Use null or an
      * empty array for none.
+     * 
+     * @param exceptions the exceptions to set
      */
     public void setExceptions(String[] exceptions) {
         if (exceptions != null) {
@@ -119,8 +138,10 @@ public class Exceptions extends Attribute {
     /**
      * Set the checked exceptions thrown by this method. Use null or an
      * empty array for none.
+     * 
+     * @param exceptions the exceptions to set
      */
-    public void setExceptions(Class[] exceptions) {
+    public void setExceptions(Class<?>[] exceptions) {
         String[] names = null;
         if (exceptions != null) {
             names = new String[exceptions.length];
@@ -133,6 +154,8 @@ public class Exceptions extends Attribute {
     /**
      * Set the checked exceptions thrown by this method. Use null or an
      * empty array for none.
+     * 
+     * @param exceptions the exceptions to set
      */
     public void setExceptions(BCClass[] exceptions) {
         String[] names = null;
@@ -154,13 +177,14 @@ public class Exceptions extends Attribute {
     /**
      * Remove an exception type thrown by this method.
      *
+	 * @param type the exception type
      * @return true if the method had the exception type, false otherwise
      */
     public boolean removeException(String type) {
         String internalForm = getProject().getNameCache().getInternalForm(type,
             false);
         ClassEntry entry;
-        for (Iterator itr = _indexes.iterator(); itr.hasNext();) {
+        for (Iterator<Number> itr = _indexes.iterator(); itr.hasNext();) {
             entry = (ClassEntry) getPool().getEntry(((Integer) itr.next()).
                 intValue());
             if (entry.getNameEntry().getValue().equals(internalForm)) {
@@ -174,9 +198,10 @@ public class Exceptions extends Attribute {
     /**
      * Remove an exception thrown by this method.
      *
+	 * @param type the exception type
      * @return true if the method had the exception type, false otherwise
      */
-    public boolean removeException(Class type) {
+    public boolean removeException(Class<?> type) {
         if (type == null)
             return false;
         return removeException(type.getName());
@@ -185,6 +210,7 @@ public class Exceptions extends Attribute {
     /**
      * Remove an exception thrown by this method.
      *
+	 * @param type the exception type
      * @return true if the method had the exception type, false otherwise
      */
     public boolean removeException(BCClass type) {
@@ -195,6 +221,8 @@ public class Exceptions extends Attribute {
 
     /**
      * Add an exception type to those thrown by this method.
+     * 
+	 * @param type the exception type
      */
     public void addException(String type) {
         int index = getPool().findClassEntry(getProject().getNameCache().
@@ -204,13 +232,17 @@ public class Exceptions extends Attribute {
 
     /**
      * Add an exception to those thrown by this method.
+     * 
+	 * @param type the exception type
      */
-    public void addException(Class type) {
+    public void addException(Class<?> type) {
         addException(type.getName());
     }
 
     /**
      * Add an exception to those thrown by this method.
+     * 
+	 * @param type the exception type
      */
     public void addException(BCClass type) {
         addException(type.getName());
@@ -219,6 +251,9 @@ public class Exceptions extends Attribute {
     /**
      * Return true if the method declares that it throws the given
      * exception type.
+     * 
+	 * @param type the exception type
+	 * @return true if the method declares that it throws the given exception type
      */
     public boolean throwsException(String type) {
         String[] exceptions = getExceptionNames();
@@ -231,17 +266,22 @@ public class Exceptions extends Attribute {
     /**
      * Return true if the method declares that it throws the given
      * exception type.
+     * 
+	 * @param type the exception type
+	 * @return true if the method declares that it throws the given exception type
      */
-    public boolean throwsException(Class type) {
+    public boolean throwsException(Class<?> type) {
         if (type == null)
             return false;
         return throwsException(type.getName());
     }
 
-    /**
-     * Return true if the method declares that it throws the given
-     * exception type.
-     */
+	/**
+	 * Return true if the method declares that it throws the given exception type.
+	 * 
+	 * @param type the exception type
+	 * @return true if the method declares that it throws the given exception type
+	 */
     public boolean throwsException(BCClass type) {
         if (type == null)
             return false;
@@ -266,7 +306,7 @@ public class Exceptions extends Attribute {
 
     void write(DataOutput out, int length) throws IOException {
         out.writeShort(_indexes.size());
-        for (Iterator itr = _indexes.iterator(); itr.hasNext();)
-            out.writeShort(((Number) itr.next()).shortValue());
+        for (Iterator<Number> itr = _indexes.iterator(); itr.hasNext();)
+            out.writeShort(itr.next().shortValue());
     }
 }
