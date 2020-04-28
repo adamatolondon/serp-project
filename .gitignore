@@ -5,9 +5,4 @@ target/*
 /target/
 .classpath
 .project
-<<<<<<< HEAD
-.settings/
-=======
 .settings
-
->>>>>>> java8
