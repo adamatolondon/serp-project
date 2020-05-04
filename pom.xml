@@ -34,7 +34,7 @@ To perform a complete release, run:
 	<artifactId>serp</artifactId>
 	<packaging>jar</packaging>
 	<name>Serp</name>
-	<version>1.16.0</version>
+	<version>1.15.2</version>
 	<description>Serp is an open source framework for manipulating Java bytecode.</description>
 	<url>http://serp.sourceforge.net</url>
 	<properties>
